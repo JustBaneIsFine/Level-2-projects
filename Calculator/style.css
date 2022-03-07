@@ -1,0 +1,88 @@
+body {margin: 0;
+background-color: black;}
+
+header {
+	height: 10em;
+	border: 2px solid grey;
+	background-color: black;
+	align-items: center;
+	justify-content: center;	
+	display: flex;
+}
+
+h1 {
+	margin: 0;
+	color: white;
+}
+
+.section {
+	background-color: rgba(255, 255, 255, 0.5);
+	padding: 20px 0px 20px 0px;
+
+	}
+
+
+
+
+p {
+	font-size: 1.5rem;
+	text-align: center;
+	border-bottom: black solid 5px;
+	border-radius: 50%;
+	margin: 0px;
+	margin-bottom: 10px;
+}
+ul {
+	border: 5px solid black;
+	padding: 30px;
+	margin-right: 50px;
+}
+
+li {
+	/*deleting old css*/
+	list-style: none;
+	margin: 0px;
+
+	/*creating new css*/
+	font-size: 2em;
+	margin-bottom: 20px;
+	border: 2px solid black;
+	padding: 5px;
+	border-radius: 20px;
+}
+#input{
+	text-align: center;
+	margin-top: 10px;
+}
+
+#inputform{
+
+	width: 80%;
+	height: 40px;
+	font-size: 2em;
+}
+
+.done {
+	text-decoration: line-through;
+	background-color: wheat;
+}
+
+
+.deleteSign { 
+	margin: 20px;
+	cursor: pointer;
+}
+.deleteSign:hover{
+	color: white;
+}
+.checkSign {
+	cursor: pointer;
+}
+.checkSign:hover{
+	color: white;
+}
+#box {
+	float: right; 
+	padding-right: 20px;
+}
+

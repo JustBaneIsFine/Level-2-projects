@@ -20,5 +20,7 @@ const getIt = (x) => {return document.getElementById(x)};
 	const result = getIt("result");
 	const clearCurrent = getIt("clearCurrent");
 	const clearAll = getIt("clearAll");
-//
+
+
+
 

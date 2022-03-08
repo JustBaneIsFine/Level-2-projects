@@ -1,10 +1,10 @@
 body {margin: 0;
-background-color: black;}
+background-color: black;
+font-family: monospace;}
 
 header {
-	height: 10em;
-	border: 2px solid grey;
-	background-color: black;
+	height: 5em;
+	background-color: rgba(50, 50, 50, 0.5);
 	align-items: center;
 	justify-content: center;	
 	display: flex;
@@ -32,57 +32,109 @@ p {
 	margin: 0px;
 	margin-bottom: 10px;
 }
-ul {
-	border: 5px solid black;
-	padding: 30px;
-	margin-right: 50px;
-}
-
-li {
-	/*deleting old css*/
-	list-style: none;
-	margin: 0px;
-
-	/*creating new css*/
-	font-size: 2em;
-	margin-bottom: 20px;
-	border: 2px solid black;
-	padding: 5px;
-	border-radius: 20px;
-}
-#input{
-	text-align: center;
-	margin-top: 10px;
-}
-
-#inputform{
-
-	width: 80%;
-	height: 40px;
-	font-size: 2em;
-}
-
-.done {
-	text-decoration: line-through;
-	background-color: wheat;
-}
 
 
-.deleteSign { 
-	margin: 20px;
-	cursor: pointer;
-}
-.deleteSign:hover{
+
+input {
+	padding: 10px;
+	margin: 1px;
+	background-color: rgb(30,30,30);
 	color: white;
+	transition-duration: 0.4s;
+	border-radius: 5px;
+	border: none;
+
 }
-.checkSign {
-	cursor: pointer;
+
+input:hover {
+	background-color: grey;
+	transition-duration: 0.2s;
 }
-.checkSign:hover{
+
+
+
+/*grid placment*/
+	#calculatorBox 
+		{
+
+			text-align: center;
+			width: 30%;
+			margin: auto;
+			display: grid;
+			grid-template-columns: 70px 70px 70px 70px ;
+			grid-template-rows: 70px 70px 70px 70px 70px;
+			justify-content: center;
+			margin-top: 50px;
+
+		}
+	#result {
 	color: white;
-}
-#box {
-	float: right; 
-	padding-right: 20px;
-}
+	grid-column-start: 1;
+	grid-column-end: 3;
+	}
+
+	#clearCurrent{
+		grid-column-start: 3;
+		grid-column-end: 4;
+		background-color: rgba(180, 20, 20,0.5);
+		transition-duration: 0.4s;
+	}
+	#clearCurrent:hover{background-color: rgba(180, 20, 20,1);}
+
+
+	#clearAll{
+		background-color: rgba(180, 20, 20,0.5);
+		grid-column-start: 4;
+		grid-column-end: 5;
+	}
+	#clearAll:hover{background-color: rgba(180, 20, 20,1);}
+
+	#num7{grid-column-start: 1;
+		grid-column-end: 2;}
+
+	#num8{grid-column-start: 2;
+		grid-column-end: 3;}
+
+	#num9{grid-column-start: 3;
+		grid-column-end: 4;}
+
+	#add{grid-column-start:4;
+		grid-column-end: 5;}
+
+	#num4{grid-column-start: 1;
+		grid-column-end: 2;}
+
+	#num5{grid-column-start: 2;
+		grid-column-end: 3;}
+
+	#num6{grid-column-start: 3;
+		grid-column-end: 4;}
+
+	#sub{grid-column-start:4;
+		grid-column-end: 5;}
+
+	#num1{grid-column-start: 1;
+		grid-column-end: 2;}
+
+	#num2{grid-column-start: 2;
+		grid-column-end: 3;}
+
+	#num3{grid-column-start: 3;
+		grid-column-end: 4;}
+
+	#multi{grid-column-start:4;
+		grid-column-end: 5;}
+
+	#divide{grid-column-start: 1;
+		grid-column-end: 2;}
+
+	#num0{grid-column-start: 2;
+		grid-column-end: 3;}
+
+	#dot{grid-column-start: 3;
+		grid-column-end: 4;}
+
+	#equal{grid-column-start:4;
+		grid-column-end: 5;}
+
 

@@ -22,104 +22,180 @@ const getIt = (x) => {return document.getElementById(x)};
 	const clearCurrent = getIt("clearCurrent");
 	const clearAll = getIt("clearAll");
 
+const signs = /["+","\-","=","*","/","x"]/g;
 
 // could have used "eval()" to calculate what ever we input inside 
 // the result input..
 // However, the documentation says it is dangerous..
 // And also it is easy to do it that way..
 // I don't like easy..
-// i like a challenge and a learning oppurtunity
+// i want a challenge and a learning oppurtunity
 // So..
-var count ="";
-var a = "";
+
+var count =""; //first number
+var a = "";    //second number
 var isFirst = true;
 var symbol = "";
-
+result.value = "";
 const main = (e) => {
+
 	const x = e.target.value;
 	
-	var b;
-	
-	var old;
-	const signs = /["+","\-","=","*","/","x"]/g;
 
 
-	const display = (number, sign) => 
-	{result.value = number + sign;} 
+	const display = (num1, sign, num2) => 
+		{
+			if(sign === undefined)
+				{
+					result.value = num1;
+				} 
+			else if (num2 === undefined && sign != "=")
+				{ 
+						result.value = num1 + sign;
+					
+				}
+			else if (sign !="=")
+				{
+					result.value = num1 + sign + num2;
+				}	
+		} 
 
 	const checkIfSign = (s) => //checks for a sign and returns it
 		{
-			if (s.match(signs) != null)
+			if (s.match(signs) != undefined)
 				{
 					return s.match(signs)[0];
 				} 
 				else {return null};
 		}
 
-	if (isFirst && checkIfSign(x) === null)
+	// if first block
+	if (isFirst)
 		{
-
-			count = count.concat(x);
-			display(count,"");
-		} else if (checkIfSign(x) != null){
-
-			isFirst = false;
-			symbol = x;
-
-			display(count,symbol);
-		}
-
-
-
-	if (isFirst === false && checkIfSign(x) === null)
-		{
-			a = a.concat(x);
-			console.log(a,"and",symbol);
-
-			display(count,symbol+a);
-
-		} else if (isFirst === false && checkIfSign(x) != null) {
-			// result = count + - *  a;
-
-			switch (x)
+			if (checkIfSign(x) === null) //if entry is not a sign
 				{
-					case "+":
-					console.log("it's a PLUS"); 
+					display("");
+					count = count.concat(x);
+					display(count);
+				} 
+			else if (checkIfSign(x) != null) //if entry is a sign
+				{
+					isFirst = false;
+					symbol = x;
+					display(count,symbol);
+				} 
+
+		} 
+	else if (!isFirst)
+	//if not first block
+		{
+			if (symbol != "" && checkIfSign(x) != null && a === "") 
+			//if not first, and there is a symbol already, and entry is a sign, and there is no other number
+			//then change the symbol
+				{
+					symbol = x;
+					display(count,symbol);
 				}
 
+			if (symbol != "" && checkIfSign(x) === null){
+				a = a.concat(x);
+				display(count,symbol,a);
+			} 
+
+			if (symbol != "" && a != "" && checkIfSign(x) != null)
+				{
+					console.log(count + symbol + a);
+					var temp1 = parseFloat(count);
+					var temp2 = parseFloat(a);
+
+					if (x === "=")
+					{
+						if (symbol === "+")
+							{
+								count = (temp1+temp2).toString();
+								display(count); /////
+								symbol = ""; //// these 4 lines can be turned into a function .. <<<<<
+								a = "";		/////
+								isFirst = true;	/////
+							} 
+						else if(symbol === "-")
+							{
+								count = (temp1-temp2).toString();
+								display(count);
+								symbol = "";
+								a = "";
+								isFirst = true;
+							}
+						else if(symbol === "x")
+							{
+								count = (temp1*temp2).toString();
+								display(count);
+								symbol = "";
+								a = "";
+								isFirst = true;
+							}
+						else if(symbol === "/")
+							{
+								count = (temp1/temp2).toString();
+								display(count);
+								symbol = "";
+								a = "";
+								isFirst = true;
+							}
+					} else if (x != "=")
+						{
+							if (symbol === "+")
+								{
+									count = (temp1+temp2).toString();
+									display(count,x);
+									symbol = x;
+									a = "";
+
+								} 
+							else if(symbol === "-")
+								{
+									count = (temp1-temp2).toString();
+									display(count,x);
+									symbol = x;
+									a = "";
+								}
+							else if(symbol === "x")
+								{
+									count = (temp1*temp2).toString();
+									display(count,x);
+									symbol = x;
+									a = "";
+								}
+							else if(symbol === "/")
+								{
+									count = (temp1/temp2).toString();
+									display(count,x);
+									symbol = x;
+									a = "";
+								}
+
+						}
+					
+
+				}
+
+
 		}
 
-		//if first entry and not a sign, then we display it..
+// need to create a delete function...
+if (x === "C"){
+		result.value ="";
+		a = "";
+		symbol = "";
+		display(count);
+	} else if (x === "CE"){
+		result.value ="";
+		a = "";
+		symbol = "";
+		count = "";
+	}
 
 
-
-		// num1 true false
-		// num2 true false
-		//if num1 true, concat until sign, then num2 true
-		// if num2 true concat until sign..
-		// if sign, num
-
-
-	//Functions i will probably need to make: <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-		//if second number, and there is no sign, concat with first..
-			// will concat until sign shows up..
-
-		//If sign and a number is present, display both
-		//If both present, and entry is sign, change sign
-
-		//if both present and entry is number, add number..
-		//if second number present, concat new entry(if number)
-
-		// if new sign pressed again, calculate result, and 
-		// then show result + new sign..
-
-		// if 
-
-	// from what i see, we will first need to check 
-	// if entry is sign or number, as well as what we have
-	// in store (number 1 or number 2)
-	// to be continued tommorow
 };
 
 

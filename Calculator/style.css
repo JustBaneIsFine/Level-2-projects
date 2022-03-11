@@ -70,16 +70,8 @@ input:hover {
 	#result {
 	color: white;
 	grid-column-start: 1;
-	grid-column-end: 3;
+	grid-column-end: 4;
 	}
-
-	#clearCurrent{
-		grid-column-start: 3;
-		grid-column-end: 4;
-		background-color: rgba(180, 20, 20,0.5);
-		transition-duration: 0.4s;
-	}
-	#clearCurrent:hover{background-color: rgba(180, 20, 20,1);}
 
 
 	#clearAll{

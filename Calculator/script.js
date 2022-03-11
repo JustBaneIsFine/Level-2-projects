@@ -19,7 +19,6 @@ const getIt = (x) => {return document.getElementById(x)};
 	const dot = getIt("dot");
 
 	const result = getIt("result");
-	const clearCurrent = getIt("clearCurrent");
 	const clearAll = getIt("clearAll");
 
 const signs = /["+","\-","=","*","/","x"]/g;
@@ -38,10 +37,23 @@ var isFirst = true;
 var symbol = "";
 result.value = "";
 const main = (e) => {
-
-	const x = e.target.value;
+	if (e.target.id === "calculatorBox"){return;}
 	
+	const x = e.target.value;
 
+	const setandDis0 = () => 
+					{
+						display(count); 
+						symbol = "";
+						a = "";		
+						isFirst = true;					
+					}
+	const setandDis1 = () => 
+		{
+			display(count,x);
+			symbol = x;
+			a = "";
+		}
 
 	const display = (num1, sign, num2) => 
 		{
@@ -78,7 +90,7 @@ const main = (e) => {
 					count = count.concat(x);
 					display(count);
 				} 
-			else if (checkIfSign(x) != null) //if entry is a sign
+			else if (checkIfSign(x) != null && x != "=") //if entry is a sign
 				{
 					isFirst = false;
 					symbol = x;
@@ -89,7 +101,7 @@ const main = (e) => {
 	else if (!isFirst)
 	//if not first block
 		{
-			if (symbol != "" && checkIfSign(x) != null && a === "") 
+			if (symbol != "" && checkIfSign(x) != null && a === "" && x != "=") 
 			//if not first, and there is a symbol already, and entry is a sign, and there is no other number
 			//then change the symbol
 				{
@@ -98,81 +110,73 @@ const main = (e) => {
 				}
 
 			if (symbol != "" && checkIfSign(x) === null){
-				a = a.concat(x);
-				display(count,symbol,a);
+				if (a === "" && x === "."){}
+				else 
+				{
+					a = a.concat(x);
+					display(count,symbol,a);
+				}
+				
 			} 
 
-			if (symbol != "" && a != "" && checkIfSign(x) != null)
+
+			if (symbol != "" && a != "" && checkIfSign(x) != null) // if symbol and a and is a sign
 				{
 					console.log(count + symbol + a);
 					var temp1 = parseFloat(count);
 					var temp2 = parseFloat(a);
+					
 
-					if (x === "=")
+
+					if(x === "=")
 					{
-						if (symbol === "+")
+						switch (symbol) 
 							{
-								count = (temp1+temp2).toString();
-								display(count); /////
-								symbol = ""; //// these 4 lines can be turned into a function .. <<<<<
-								a = "";		/////
-								isFirst = true;	/////
-							} 
-						else if(symbol === "-")
-							{
-								count = (temp1-temp2).toString();
-								display(count);
-								symbol = "";
-								a = "";
-								isFirst = true;
-							}
-						else if(symbol === "x")
-							{
-								count = (temp1*temp2).toString();
-								display(count);
-								symbol = "";
-								a = "";
-								isFirst = true;
-							}
-						else if(symbol === "/")
-							{
-								count = (temp1/temp2).toString();
-								display(count);
-								symbol = "";
-								a = "";
-								isFirst = true;
-							}
+						      case '+':
+						        count = (temp1+temp2).toString();
+						        setandDis0();
+						        break;
+
+						      case '-':
+						        count = (temp1-temp2).toString();
+						      	setandDis0();
+						        break;
+
+						      case 'x':
+						        count = (temp1*temp2).toString();
+						      	setandDis0();
+						        break;
+
+						      case '/':
+						      	count = (temp1/temp2).toString();
+						      	setandDis0();
+						      	break;
+						    }
 					} else if (x != "=")
 						{
-							if (symbol === "+")
+							switch (symbol)
 								{
-									count = (temp1+temp2).toString();
-									display(count,x);
-									symbol = x;
-									a = "";
+								  case '+':
+							        count = (temp1+temp2).toString();
+							        setandDis1();
+							        break;
 
-								} 
-							else if(symbol === "-")
-								{
-									count = (temp1-temp2).toString();
-									display(count,x);
-									symbol = x;
-									a = "";
+							      case '-':
+							        count = (temp1-temp2).toString();
+							      	setandDis1();
+							        break;
+
+							      case 'x':
+							        count = (temp1*temp2).toString();
+							      	setandDis1();
+							        break;
+
+							      case '/':
+							      	count = (temp1/temp2).toString();
+							      	setandDis1();
+							      	break;
 								}
-							else if(symbol === "x")
-								{
-									count = (temp1*temp2).toString();
-									display(count,x);
-									symbol = x;
-									a = "";
-								}
-							else if(symbol === "/")
-								{
-									count = (temp1/temp2).toString();
-									display(count,x);
-									symbol = x;
-									a = "";
-								}
+						}
 
 						}
 					
@@ -180,25 +184,21 @@ const main = (e) => {
 				}
 
 
-		}
+		
 
 // need to create a delete function...
-if (x === "C"){
-		result.value ="";
-		a = "";
-		symbol = "";
-		display(count);
-	} else if (x === "CE"){
+if (x === "CE"){
+		isFirst = true;
 		result.value ="";
 		a = "";
 		symbol = "";
 		count = "";
+		display(count);
 	}
-
 
 };
 
 
 
 
-addEventListener("click",main);
+box.addEventListener("click",main);

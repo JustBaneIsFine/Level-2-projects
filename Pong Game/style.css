@@ -33,5 +33,10 @@ p {
 	margin-bottom: 10px;
 }
 
+main
+	{
+		text-align: center;
+		margin-top: 50px;
+	}
 
-
+#canvas{background-color: white;}

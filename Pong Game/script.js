@@ -79,20 +79,20 @@ function updateGameArea()
 		
 		// if (gameArea.keys && gameArea.keys[37]){myBlock.speedX = -3;}
 		// if (gameArea.keys && gameArea.keys[39]){myBlock.speedX = 3;}
-		if (gameArea.keys && gameArea.keys[38]){
+		if (gameArea.keys && gameArea.keys[87]){
 			myBlock.speedY = -3;
 			if (myBlock.y <= 0){myBlock.y = 0;}
 		}
-		if (gameArea.keys && gameArea.keys[40]){
+		if (gameArea.keys && gameArea.keys[83]){
 			myBlock.speedY = 3;
 			if (myBlock.y >= 420){myBlock.y = 420;}
 		}
 
-		if (gameArea.keys && gameArea.keys[87]){
+		if (gameArea.keys && gameArea.keys[38]){
 			secondBlock.speedY = -3;
 			if (secondBlock.y <= 0){secondBlock.y = 0;}
 		}
-		if (gameArea.keys && gameArea.keys[83]){
+		if (gameArea.keys && gameArea.keys[40]){
 			secondBlock.speedY = 3;
 			if (secondBlock.y >= 420){secondBlock.y = 420;}
 		}

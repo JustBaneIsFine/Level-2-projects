@@ -2,18 +2,21 @@ const canvas = document.getElementById("canvas");
 
 var myBlock;
 var secondBlock;
+var ball;
+var resultLeft = 0;
+var resultRight = 0;
 
 window.onload = () => {
 	startGame();
-
 }
 
 
 function startGame() {
 	myBlock = new component(20,80,"red",20,20);
 	secondBlock = new component(20,80,"red",760,20);
+	ball = new component(20,20,"grey");
 	gameArea.start();
-
+	ballLaunch();
 }
 
 var gameArea = {
@@ -44,7 +47,25 @@ var gameArea = {
 		}
 };
 
-	
+
+
+function ballLaunch()
+	{	
+		ball.y = 500/2;
+		ball.x = ((800/2)-10);
+		ball.speedY = 0.2;
+		ball.speedX = 3;
+	}
+
+function currentPlayer()
+	{
+		
+		if(ball.x < gameArea.canvas.width/2){
+			return "left";
+		}else {
+			return "right";
+		}
+	}
 
 function component(width, height,color,x,y){
 	this.width = width;
@@ -53,7 +74,10 @@ function component(width, height,color,x,y){
 	this.speedX = 0;
 	this.x = x;
 	this.y = y;
-	
+	this.leftSide = this.x;
+	this.rightSide = this.x + this.width;
+	this.topSide = this.y;
+	this.bottomSide = this.y + this.height;
 	this.update = function () 
 		{
 		ctx=gameArea.context;
@@ -64,10 +88,19 @@ function component(width, height,color,x,y){
 		{
 			this.x += this.speedX;
 			this.y += this.speedY;
+			this.topSide = this.y;
+			this.bottomSide = this.y +this.height;
+			this.leftSide = this.x;
+			this.rightSide = this.x + this.width;
 		}
-
-
 }
+
+	function collisionDetection(b,p) 
+		{
+			if(b.rightSide > p.leftSide && b.leftSide < p.rightSide && b.topSide < p.bottomSide && b.bottomSide > p.topSide){
+				return true; 
+			}else {return false;}
+		}
 
 function updateGameArea() 
 	{
@@ -96,10 +129,89 @@ function updateGameArea()
 			secondBlock.speedY = 3;
 			if (secondBlock.y >= 420){secondBlock.y = 420;}
 		}
+		var current;
+			if (currentPlayer() === "left")
+				{current = myBlock;}
+			else
+				{current = secondBlock};
+
+
+		if (ball.y <= 0)
+			{ball.speedY = reverse(ball.speedY)};
+		if (ball.y >= gameArea.canvas.height-20)
+			{ball.speedY = reverse(ball.speedY)};
+
+		
+		
+
+
+			
 		myBlock.newPos();
 		myBlock.update();
 		secondBlock.newPos();
 		secondBlock.update();
+		ball.newPos();
+		ball.update();
+
+		if (ball.x <= 0){
+			resultRight += 1;
+			ballLaunch();
+			// ball.speedX = 0;
+			// ball.speedY = 0;
+			// ball.newPos();
+			// ball.update();
+			// startGame();
+			
+		}else if (ball.x >=800){
+			resultLeft +=1;
+			ballLaunch();
+			// ball.speedX = 0;
+			// ball.speedY = 0;
+			// ball.newPos();
+			// ball.update();
+			// startGame();
+		}
+
+		if(collisionDetection(ball,current)){
+			// ball.speedX = reverse(ball.speedX);
+
+			let collidePoint = ((ball.y + ((ball.height)/2)) - (current.y + current.height/2))/(current.height/2);
+			console.log(collidePoint);
+
+			var direction;
+
+			if (current === myBlock) 			{direction = 1;}
+			else if (current === secondBlock)	{direction = -1;}
+			let angleRad = (Math.PI/4)*collidePoint;
+			
+			ball.speed = ball.speedX;	
+			ball.speedX = direction * 3 * Math.cos(angleRad);
+			ball.speedY = 3 * Math.sin(angleRad);
+			
+			if (ball.speedX < 0){ball.speedX = ball.speedX -3; console.log("less")}
+			else if (ball.speedX>0){ball.speedX = ball.speedX + 4}
+			ball.newPos();
+			ball.update();
+			// if(collidePoint < 0)
+			// 	{	//go up
+			// 		ball.
+					
+			// 	}
+			// else if (collidePoint > 0)
+			// 	{	//go down
+			// 		console.log("go down");
+			// 	}
+			// else if (collidePoint === 0)
+			// 	{ //go straight
+			// 		console.log("go straight");
+			// 	}
+	
+
+		}
+
 
 
 	}
+function reverse(a){
+	return a-(a*2);
+}

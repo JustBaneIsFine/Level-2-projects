@@ -5,6 +5,8 @@ var secondBlock;
 var ball;
 var resultLeft = 0;
 var resultRight = 0;
+var net;
+var score = {"scoreLeft": resultLeft, "scoreRight":resultRight};
 
 window.onload = () => {
 	startGame();
@@ -12,12 +14,23 @@ window.onload = () => {
 
 
 function startGame() {
+	net = new component(3,500,"grey",400-5,0);
 	myBlock = new component(20,80,"red",20,20);
 	secondBlock = new component(20,80,"red",760,20);
 	ball = new component(20,20,"grey");
 	gameArea.start();
 	ballLaunch();
+	drawScore();
 }
+
+
+function drawScore()
+	{
+		ctx = gameArea.context;
+		ctx.font = "90px Arial";
+		ctx.fillText(resultLeft, 2.5*800/8,100);
+		ctx.fillText(resultRight, 5*800/8,100);
+	}
 
 var gameArea = {
 	canvas: document.createElement("canvas"),
@@ -29,7 +42,7 @@ var gameArea = {
 		this.context = this.canvas.getContext("2d");
 		this.canvas.style = "background-color: white";
 		document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
-		this.interval = setInterval(updateGameArea,8);
+		this.interval = setInterval(updateGameArea,1000/120);
 
 			window.addEventListener("keydown", function(e)
 				{
@@ -55,6 +68,7 @@ function ballLaunch()
 		ball.x = ((800/2)-10);
 		ball.speedY = 0.2;
 		ball.speedX = 3;
+		ball.speed = 3;
 	}
 
 function currentPlayer()
@@ -70,6 +84,7 @@ function currentPlayer()
 function component(width, height,color,x,y){
 	this.width = width;
 	this.height = height;
+	this.speed = 3;
 	this.speedY = 0;
 	this.speedX = 0;
 	this.x = x;
@@ -110,8 +125,7 @@ function updateGameArea()
 		secondBlock.speedX = 0;
 		secondBlock.speedY = 0;
 		
-		// if (gameArea.keys && gameArea.keys[37]){myBlock.speedX = -3;}
-		// if (gameArea.keys && gameArea.keys[39]){myBlock.speedX = 3;}
+
 		if (gameArea.keys && gameArea.keys[87]){
 			myBlock.speedY = -3;
 			if (myBlock.y <= 0){myBlock.y = 0;}
@@ -145,14 +159,14 @@ function updateGameArea()
 		
 
 
-			
+		drawScore();
 		myBlock.newPos();
 		myBlock.update();
 		secondBlock.newPos();
 		secondBlock.update();
 		ball.newPos();
 		ball.update();
-
+		net.update();
 		if (ball.x <= 0){
 			resultRight += 1;
 			ballLaunch();
@@ -184,34 +198,22 @@ function updateGameArea()
 			else if (current === secondBlock)	{direction = -1;}
 			let angleRad = (Math.PI/4)*collidePoint;
 			
-			ball.speed = ball.speedX;	
-			ball.speedX = direction * 3 * Math.cos(angleRad);
-			ball.speedY = 3 * Math.sin(angleRad);
+
+			ball.speedX = direction * ball.speed * Math.cos(angleRad);
+			ball.speedY = ball.speed * Math.sin(angleRad);
 			
-			if (ball.speedX < 0){ball.speedX = ball.speedX -3; console.log("less")}
-			else if (ball.speedX>0){ball.speedX = ball.speedX + 4}
+
+			ball.speed += 0.5;
+
 			ball.newPos();
 			ball.update();
-			// if(collidePoint < 0)
-			// 	{	//go up
-			// 		ball.
-					
-			// 	}
-			// else if (collidePoint > 0)
-			// 	{	//go down
-			// 		console.log("go down");
-			// 	}
-			// else if (collidePoint === 0)
-			// 	{ //go straight
-			// 		console.log("go straight");
-			// 	}
-	
-
+			console.log(ball.speedX, "<<<<<< speed X");
+			
+			
 		}
 
 
 
 	}
-function reverse(a){
-	return a-(a*2);
-}
+
+function reverse(a){return a-(a*2);}

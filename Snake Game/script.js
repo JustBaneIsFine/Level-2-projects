@@ -1,24 +1,124 @@
+// to do:
+// clearRect
+// draw snake food grid
+// snake.move , snake.changeDirection , snake.addLenght , snake.death
+// food.newPosition 
+// etc..
+
 const canvas = document.getElementById("canvas");
 
-var secondBlock;
-var ball;
+var snake;
+var food;
 var score = 0;
 
 
-window.onload = () => {
-	startGame();
-}
+window.onload = () => {gameArea.start()}
 
 
-function startGame() {
-	
+var gameArea = 
+	{
+		canvas: document.createElement("canvas"),
+		start: function ()
+		{
+			snake = new snake(20,20,"red", 260,260);
+			food = new food(20,20,"green",400,400);
 
-	secondBlock = new component(20,80,"red",760,20);
-	ball = new component(20,20,"grey");
-	gameArea.start();
-	drawScore();
-}
+			this.canvas.width = 700;
+			this.canvas.height = 500;
+			this.context = this.canvas.getContext("2d");
+			this.canvas.style = "background-color: white";
+			document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
+			this.gameInterval = setInterval(updateGameArea,1000/120);
 
+				window.addEventListener("keydown", function(e)
+					{
+						var temp;
+						if (e.keycode === 38 || e.keycode === 87){
+							temp = "up";
+						} else if (e.keycode === 40 || e.keycode === 83){
+							temp = "down";
+						} else if (e.keycode === 37 || e.keycode === 65){
+							temp = "left";
+						} else if (e.keycode === 39 || e.keycode === 68){
+							temp = "right";
+						};
+
+						if (temp != undefined){snake.changeDirection(temp)};
+			
+					})
+		},
+		
+		clear: function()
+			{	
+				this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
+
+			}
+	};
+
+function snake(width, height,color,x,y)
+	{
+		this.width = width;
+		this.height = height;
+		this.color = color;
+		this.speed = 1;
+		this.x = x;
+		this.y = y;
+		this.body = [];
+		this.bodyCount;
+		this.direction = "right";
+		this.lenght = 1;
+		this.move = setInterval(moveHandler, speed*1000);
+
+		this.draw = function()
+			{
+				drawSnake(this.body);
+			}
+		this.moveHandler = function()
+			{
+				// if body === bodyCount ---> moveFull
+				// else if body != bodyCount ---> moveHead (once)
+			}
+		this.moveFull = function()
+			{
+				// move in the this.direction.
+				// if direction right, snake.body add to start (current x position + 20(one block) + current y position)
+				// remove last from snake.body
+			}
+		this.moveHead = function()
+			{
+				// same as moveFull except last is not removed until body.length and bodyCount match up (has to be on the move interval!)
+			}
+		this.addLength = function()
+			{
+				//when food and body[0] are in the same grid
+				//we increase bodyCount by x number..
+				// then the moveHead function will run until it's done and then the moveFull continues..
+
+			}
+		this.changeDirection = function (dir) 
+			{
+				 // if new direction right, left etc.
+				 // direction = right,left etc.
+			}
+	};
+
+function food(width, height,color,x,y)
+	{
+		this.width = width;
+		this.height = height;
+		this.x = x;
+		this.y = y;
+		this.color = color;
+		this.draw = function()
+			{
+				drawFood(this.body);
+			}
+		this.newPosition = function()
+			{
+				newFood();
+			}
+
+	};
 
 function drawScore()
 	{
@@ -27,189 +127,8 @@ function drawScore()
 		ctx.fillText(score, 4*800/8-5,20);
 	}
 
-var gameArea = {
-	canvas: document.createElement("canvas"),
-	start: function ()
+function updateGameArea()
 	{
 
-		this.canvas.width = 800;
-		this.canvas.height = 500;
-		this.keys = [];
-		this.context = this.canvas.getContext("2d");
-		this.canvas.style = "background-color: white";
-		document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
-		this.interval = setInterval(updateGameArea,1000/120);
-
-			window.addEventListener("keydown", function(e)
-				{
-					gameArea.keys = (gameArea.keys || []);
-					gameArea.keys[e.keyCode] = (e.type == "keydown");
-				})
-			window.addEventListener("keyup", function (e) {
-					gameArea.keys[e.keyCode] = (e.type == "keydown");
-				})
-	},
-	
-	clear: function()
-		{
-			this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
-		}
-};
-
-
-
-function ballLaunch()
-	{	
-		ball.y = 500/2;
-		ball.x = ((800/2)-10);
-		ball.speedY = 0.2;
-		ball.speedX = 3;
-		ball.speed = 3;
 	}
 
-function currentPlayer()
-	{
-		
-		if(ball.x < gameArea.canvas.width/2){
-			return "left";
-		}else {
-			return "right";
-		}
-	}
-
-function component(width, height,color,x,y){
-	this.width = width;
-	this.height = height;
-	this.speed = 3;
-	this.speedY = 0;
-	this.speedX = 0;
-	this.x = x;
-	this.y = y;
-	this.leftSide = this.x;
-	this.rightSide = this.x + this.width;
-	this.topSide = this.y;
-	this.bottomSide = this.y + this.height;
-	this.update = function () 
-		{
-		ctx=gameArea.context;
-		ctx.fillStyle = color;
-		ctx.fillRect(this.x, this.y, this.width, this.height)
-		}
-	this.newPos = function()
-		{
-			this.x += this.speedX;
-			this.y += this.speedY;
-			this.topSide = this.y;
-			this.bottomSide = this.y +this.height;
-			this.leftSide = this.x;
-			this.rightSide = this.x + this.width;
-		}
-}
-
-	function collisionDetection(b,p) 
-		{
-			if(b.rightSide > p.leftSide && b.leftSide < p.rightSide && b.topSide < p.bottomSide && b.bottomSide > p.topSide){
-				return true; 
-			}else {return false;}
-		}
-
-function updateGameArea() 
-	{
-		gameArea.clear();
-		// myBlock.speedX = 0;
-		// myBlock.speedY = 0;
-		// secondBlock.speedX = 0;
-		// secondBlock.speedY = 0;
-		
-
-		// if (gameArea.keys && gameArea.keys[87]){
-		// 	myBlock.speedY = -3;
-		// 	if (myBlock.y <= 0){myBlock.y = 0;}
-		// }
-		// if (gameArea.keys && gameArea.keys[83]){
-		// 	myBlock.speedY = 3;
-		// 	if (myBlock.y >= 420){myBlock.y = 420;}
-		// }
-
-		// if (gameArea.keys && gameArea.keys[38]){
-		// 	secondBlock.speedY = -3;
-		// 	if (secondBlock.y <= 0){secondBlock.y = 0;}
-		// }
-		// if (gameArea.keys && gameArea.keys[40]){
-		// 	secondBlock.speedY = 3;
-		// 	if (secondBlock.y >= 420){secondBlock.y = 420;}
-		// }
-		// var current;
-		// 	if (currentPlayer() === "left")
-		// 		{current = myBlock;}
-		// 	else
-		// 		{current = secondBlock};
-
-
-		// if (ball.y <= 0)
-		// 	{ball.speedY = reverse(ball.speedY)};
-		// if (ball.y >= gameArea.canvas.height-20)
-		// 	{ball.speedY = reverse(ball.speedY)};
-
-		
-		
-
-
-		drawScore();
-		// myBlock.newPos();
-		// myBlock.update();
-		// secondBlock.newPos();
-		// secondBlock.update();
-		// ball.newPos();
-		// ball.update();
-		// net.update();
-		// if (ball.x <= 0){
-		// 	resultRight += 1;
-		// 	ballLaunch();
-		// 	// ball.speedX = 0;
-		// 	// ball.speedY = 0;
-		// 	// ball.newPos();
-		// 	// ball.update();
-		// 	// startGame();
-			
-		// }else if (ball.x >=800){
-		// 	resultLeft +=1;
-		// 	ballLaunch();
-		// 	// ball.speedX = 0;
-		// 	// ball.speedY = 0;
-		// 	// ball.newPos();
-		// 	// ball.update();
-		// 	// startGame();
-		// }
-
-		// if(collisionDetection(ball,current)){
-		// 	// ball.speedX = reverse(ball.speedX);
-
-		// 	let collidePoint = ((ball.y + ((ball.height)/2)) - (current.y + current.height/2))/(current.height/2);
-		// 	console.log(collidePoint);
-
-		// 	var direction;
-
-		// 	if (current === myBlock) 			{direction = 1;}
-		// 	else if (current === secondBlock)	{direction = -1;}
-		// 	let angleRad = (Math.PI/4)*collidePoint;
-			
-
-		// 	ball.speedX = direction * ball.speed * Math.cos(angleRad);
-		// 	ball.speedY = ball.speed * Math.sin(angleRad);
-			
-
-		// 	ball.speed += 0.5;
-
-		// 	ball.newPos();
-		// 	ball.update();
-		// 	console.log(ball.speedX, "<<<<<< speed X");
-			
-			
-		}
-
-
-
-	
-
-function reverse(a){return a-(a*2);}

@@ -10,7 +10,6 @@ const canvas = document.getElementById("canvas");
 var snake;
 var food;
 var score = 0;
-var grid = [];
 
 window.onload = () => {gameArea.start()}
 
@@ -30,14 +29,13 @@ var gameArea =
 		{
 			snake = new snake(20,20,"red", 260,260);
 			food = new food(20,20,"green",400,400);
-
+			this.snakeInterval = setInterval(snake.moveHandler,snake.speed*1000);
 			this.canvas.width = 700;
 			this.canvas.height = 500;
 			this.context = this.canvas.getContext("2d");
 			this.canvas.style = "background-color: white";
 			document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
 			this.gameInterval = setInterval(updateGameArea,1000/30);
-			grid.push()
 
 				window.addEventListener("keydown", function(e)
 					{
@@ -59,12 +57,14 @@ var gameArea =
 		
 		clear: function()
 			{	
-				this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
-
+				this.context.fillStyle = "white";
+				this.context.fillRect(0,0,this.canvas.height,this.canvas.width);
 			}
 	};
 
-ctx = gameArea.context;
+var ctx = gameArea.canvas.getContext("2d");
+
+
 
 function snake(width, height,color,x,y)
 	{
@@ -74,38 +74,101 @@ function snake(width, height,color,x,y)
 		this.speed = 1;
 		this.x = x;
 		this.y = y;
-		this.body = [];
-		this.bodyCount;
+		this.body = [{"x":260, "y":260}];
+		this.bodyCount = 1;
 		this.direction = "right";
 		this.length = 1;
-		this.moveHandler = setInterval(moveHandler, speed*1000);
+		// this.moveInterval = setInterval(this.moveHandler, this.speed*1000);
 		this.isDead = false;
 
 		this.update = function()
 			{
 				//----For each body part, do this..
-				ctx.fillStyle = this.color;
-				ctx.fillRect(this.x, this.y, this.width, this.height)
+				this.body.forEach(o =>{
+					ctx.fillStyle = this.color;
+					ctx.fillRect(o.x, o.y, this.width, this.height);
+
+				})
+
+				
 			}
 		this.moveHandler = function()
 			{
+				
+				var headPosition = snake.body[0];
 
-				if (!isDead && bodyCount === body.length)
+				var headX = headPosition.x;
+				var headY = headPosition.y;
+				
+
+				if (!snake.isDead && snake.bodyCount === snake.body.length) // works without second argument
 					{
-						function moveFull()
-							{
-								// move in the this.direction.
-								// if direction right, snake.body add to start (current x position + 20(one block) + current y position)
-								// remove last from snake.body
-							}
+
+						//moves whole body once
+							
+
+								switch(snake.direction)	
+									{
+
+										case "up":
+										headX -= 20;
+										snake.body.push({"y": headY, "x":headX});
+										snake.body.pop();
+										break;
+
+										case "down":
+										headX += 20;
+										snake.body.push({"y": headY, "x":headX});
+										snake.body.pop();
+										break;
+
+										case "left":
+										headY -= 20;
+										snake.body.push({"y": headY, "x":headX});
+										snake.body.pop();
+										break;
+
+										case "right":
+										headY += 20;
+										snake.body.unshift({"y": headY, "x":headX});
+										// snake.body.pop();
+										
+										break;
+									}
+								checkAllPositions();
+						
 					} 
-				else if (!isDead && bodyCount != body.length)
+				else if (!snake.isDead && snake.bodyCount != snake.body.length)
 					{
 
+
+						// moves only the head once, leaves the rest of the body where it was.
+						// until bodyCount and bodyLength match up..
 						function moveHead()
 							{
-								// same as moveFull except last is not removed until body.length and bodyCount match up (has to be on the move interval!)
-								// we make one move, then update, on next move() iteration, it will do the same, until bodyCount === body.length.
+								switch(snake.direction)	
+									{
+										case "up":
+										headX -= 20;
+										snake.body.push({"y": headY, "x":headX});
+										break;
+
+										case "down":
+										headX += 20;
+										snake.body.push({"y": headY, "x":headX});
+										break;
+
+										case "left":
+										headY -= 20;
+										snake.body.push({"y": headY, "x":headX});
+										break;
+
+										case "right":
+										headY += 20;
+										snake.body.push({"y": headY, "x":headX});
+										break;
+									}
+								checkAllPositions();
 							}
 					}
 				else 
@@ -120,16 +183,6 @@ function snake(width, height,color,x,y)
 			
 				
 			}
-		
-		this.addLength = function()
-			{
-
-				//when food and body[0] are in the same grid
-				//we increase bodyCount by x number..
-				// then the moveHead function will run until it's done and then the moveFull continues..
-
-			}
-			
 		this.changeDirection = function (dir) 
 			{
 				switch(dir){
@@ -141,11 +194,11 @@ function snake(width, height,color,x,y)
 					if (!direction === "left"){}
 					direction = dir;
 					break;
-					case "up";
+					case "up":
 					if (!direction === "down"){}
 					direction = dir;
 					break;
-					case "down";
+					case "down":
 					if (!direction === "up"){}
 					direction = dir;
 					break;
@@ -156,6 +209,12 @@ function snake(width, height,color,x,y)
 		this.newSnake = function()
 			{
 				//reset all snake stats which starts the game again
+				snake.bodyCount = 1; 
+				snake.body = [];		
+				snake.x = 260;
+				snake.y = 260;
+				snake.direction = "right";
+				
 			}
 	};
 
@@ -182,35 +241,51 @@ function food(width, height,color,x,y)
 
 function updateScore()
 	{
-		
 		ctx.font = "20px Arial";
 		ctx.fillText(score, 4*800/8-5,20);
 	}
 
 function updateGameArea()
 	{
-
-		//update the same as snake speed interval?
-
-
-
-
+		gameArea.clear();
+		snake.update();
+		food.update();
+		//update the same as snake speed interval
 
 
 
-
-
-
-
-		if (checkPositions(snake.x,snake.y,food.x,food.y))
-			{
-				snake.addLength();
-				food.newPosition();
-			}
-		
 	}
 
-function checkPositions(ax,ay,bx,by)
+function checkAllPositions()
 	{
-		ax === bx && ay === by ? true : false;
+		var head = snake.body[0];
+		var canvasX = gameArea.canvas.height;
+		var canvasY = gameArea.canvas.width;
+		var snakeHasEaten = false;
+
+		//checks colision with food 1st
+		if (head.x === food.x && head.y === food.y)
+			{
+				snake.bodyCount += 5;
+				snakeHasEaten = true;
+				food.newPosition();
+			}
+		if(!snakeHasEaten)
+			{
+				// checks collision with wall 2nd
+				if(head.x >= canvasX || head.x <= 0 || head.x >= canvasY || head.x <= 0)
+					{snake.isDead = true;}
+
+				if(!snake.isDead)
+				{
+					//checks colision with body <<<<<<< do this last since it will take longest, and if already dead or position is food, no need to check this
+					snake.body.forEach(o => {
+						if (snake.body.indexOf(o) != 0)	//if item compared is not the first one
+							{ 
+								if(o.x === head.x && o.y === head.y ) // if position of part of body === position of head
+									{snake.isDead = true;}
+							}
+					})
+				}
+			}
 	}

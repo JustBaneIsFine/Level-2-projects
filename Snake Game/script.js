@@ -11,15 +11,23 @@ var snake;
 var food;
 var score = 0;
 
-window.onload = () => {gameArea.start()}
+window.onload = () => {gameArea.start();snakeSpeed(snake.speed);}
 
 														// blockSize = 20;
-														// xBlockNumber = 25;	//vertical
-														// yBlockNumber = 35;	//horizontal
-
-														// numberOfBlocks = 875;
+												// YBlockNumber = 25;	//vertical   
+														// XBlockNumber = 35;	//horizontal
 
 
+
+
+												// numberOfBlocks = 875;
+var interval;
+
+function snakeSpeed(speed)
+	{	clearInterval(interval);
+		interval = setInterval(snake.moveHandler, speed * 1000);
+		
+	}
 
 
 var gameArea = 
@@ -27,26 +35,29 @@ var gameArea =
 		canvas: document.createElement("canvas"),
 		start: function ()
 		{
-			snake = new snake(20,20,"red", 260,260);
+			snake = new snake(20,20,"blue", 260,260);
 			food = new food(20,20,"green",400,400);
-			this.snakeInterval = setInterval(snake.moveHandler,snake.speed*1000);
 			this.canvas.width = 700;
 			this.canvas.height = 500;
 			this.context = this.canvas.getContext("2d");
 			this.canvas.style = "background-color: white";
 			document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
-			this.gameInterval = setInterval(updateGameArea,1000/30);
+			this.gameInterval = setInterval(updateGameArea,1000/60);
+			
+			
 
 				window.addEventListener("keydown", function(e)
 					{
+
 						var temp;
-						if (e.keycode === 38 || e.keycode === 87){
+						if (e.keyCode === 38 || e.keyCode === 87){
 							temp = "up";
-						} else if (e.keycode === 40 || e.keycode === 83){
+
+						} else if (e.keyCode === 40 || e.keyCode === 83){
 							temp = "down";
-						} else if (e.keycode === 37 || e.keycode === 65){
+						} else if (e.keyCode === 37 || e.keyCode === 65){
 							temp = "left";
-						} else if (e.keycode === 39 || e.keycode === 68){
+						} else if (e.keyCode === 39 || e.keyCode === 68){
 							temp = "right";
 						};
 
@@ -58,7 +69,7 @@ var gameArea =
 		clear: function()
 			{	
 				this.context.fillStyle = "white";
-				this.context.fillRect(0,0,this.canvas.height,this.canvas.width);
+				this.context.fillRect(0,0,this.canvas.width,this.canvas.height);
 			}
 	};
 
@@ -71,14 +82,14 @@ function snake(width, height,color,x,y)
 		this.width = width;
 		this.height = height;
 		this.color = color;
-		this.speed = 1;
+		this.speed = 0.2;
 		this.x = x;
 		this.y = y;
-		this.body = [{"x":260, "y":260}];
+		this.body = [{"x":0, "y":260}];
 		this.bodyCount = 1;
-		this.direction = "right";
+		this.direction = "up";
 		this.length = 1;
-		// this.moveInterval = setInterval(this.moveHandler, this.speed*1000);
+		this.moveInterval = setInterval(this.moveHandler, this.speed*1000);
 		this.isDead = false;
 
 		this.update = function()
@@ -111,28 +122,28 @@ function snake(width, height,color,x,y)
 									{
 
 										case "up":
-										headX -= 20;
-										snake.body.push({"y": headY, "x":headX});
+										headY -= 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										snake.body.pop();
+
 										break;
 
 										case "down":
-										headX += 20;
-										snake.body.push({"y": headY, "x":headX});
+										headY += 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										snake.body.pop();
 										break;
 
 										case "left":
-										headY -= 20;
-										snake.body.push({"y": headY, "x":headX});
+										headX -= 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										snake.body.pop();
 										break;
 
 										case "right":
-										headY += 20;
+										headX += 20;
 										snake.body.unshift({"y": headY, "x":headX});
-										// snake.body.pop();
-										
+										snake.body.pop();
 										break;
 									}
 								checkAllPositions();
@@ -144,32 +155,33 @@ function snake(width, height,color,x,y)
 
 						// moves only the head once, leaves the rest of the body where it was.
 						// until bodyCount and bodyLength match up..
-						function moveHead()
-							{
+						
+
 								switch(snake.direction)	
 									{
+
 										case "up":
-										headX -= 20;
-										snake.body.push({"y": headY, "x":headX});
+										headY -= 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										break;
 
 										case "down":
-										headX += 20;
-										snake.body.push({"y": headY, "x":headX});
+										headY += 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										break;
 
 										case "left":
-										headY -= 20;
-										snake.body.push({"y": headY, "x":headX});
+										headX -= 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										break;
 
 										case "right":
-										headY += 20;
-										snake.body.push({"y": headY, "x":headX});
+										headX += 20;
+										snake.body.unshift({"y": headY, "x":headX});
 										break;
 									}
 								checkAllPositions();
-							}
+							
 					}
 				else 
 					{
@@ -187,20 +199,20 @@ function snake(width, height,color,x,y)
 			{
 				switch(dir){
 					case "left":
-					if (!direction === "right"){}
-					direction = dir;
+					if (this.direction != "right")
+					{this.direction = dir;}
 					break;
 					case "right":
-					if (!direction === "left"){}
-					direction = dir;
+					if (this.direction != "left")
+					{this.direction = dir;}
 					break;
 					case "up":
-					if (!direction === "down"){}
-					direction = dir;
+					if (this.direction != "down")
+					{this.direction = dir;}
 					break;
 					case "down":
-					if (!direction === "up"){}
-					direction = dir;
+					if (this.direction != "up")
+					{this.direction = dir;}
 					break;
 				}
 				 // if new direction right, left etc.
@@ -213,7 +225,7 @@ function snake(width, height,color,x,y)
 				snake.body = [];		
 				snake.x = 260;
 				snake.y = 260;
-				snake.direction = "right";
+				snake.direction = "down";
 				
 			}
 	};
@@ -259,8 +271,8 @@ function updateGameArea()
 function checkAllPositions()
 	{
 		var head = snake.body[0];
-		var canvasX = gameArea.canvas.height;
-		var canvasY = gameArea.canvas.width;
+		var canvasX = gameArea.canvas.width;
+		var canvasY = gameArea.canvas.height;
 		var snakeHasEaten = false;
 
 		//checks colision with food 1st
@@ -273,8 +285,8 @@ function checkAllPositions()
 		if(!snakeHasEaten)
 			{
 				// checks collision with wall 2nd
-				if(head.x >= canvasX || head.x <= 0 || head.x >= canvasY || head.x <= 0)
-					{snake.isDead = true;}
+				if(head.x >= canvasX || head.x < 0 || head.y >= canvasY || head.y < 0)
+					{snake.isDead = true; console.log("wall")}
 
 				if(!snake.isDead)
 				{
@@ -283,7 +295,7 @@ function checkAllPositions()
 						if (snake.body.indexOf(o) != 0)	//if item compared is not the first one
 							{ 
 								if(o.x === head.x && o.y === head.y ) // if position of part of body === position of head
-									{snake.isDead = true;}
+									{snake.isDead = true; console.log("self")}
 							}
 					})
 				}

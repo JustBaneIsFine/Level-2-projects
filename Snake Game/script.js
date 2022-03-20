@@ -8,15 +8,17 @@ if(storage.getItem("store") === null)
 
 var storedHighscore = JSON.parse(storage.getItem("store"));
 
-
+const canvas = document.getElementById("canvas");
 const highscoreBox = document.getElementById("highScore");
 const increaseB = document.getElementById("increaseSpeed");
 const decreaseB = document.getElementById("decreaseSpeed");
-const showSpeed = document.getElementById("currentSpeed");
-const canvas = document.getElementById("canvas");
 
-var snake;
-var food;
+const showSpeed = document.getElementById("currentSpeed");
+
+
+var spaceShip;
+var playerBullet;
+var invaderBullet;
 var score;
 var previousMove;
 var changed;
@@ -29,17 +31,8 @@ window.onload = () =>
 		gameArea.start();
 		snakeSpeed(snake.speed);
 		highscoreBox.innerHTML =  JSON.parse(storage.getItem("store"));
-		currentSpeed.innerHTML = snake.speed;
-	}
-
-														// blockSize = 20;
-												// YBlockNumber = 25;	//vertical   
-														// XBlockNumber = 35;	//horizontal
-
-
-
-
-												// numberOfBlocks = 875;
+		currentSpeed.innerHTML = invaders.speed;
+		
 
 
 

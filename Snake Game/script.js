@@ -1,10 +1,18 @@
-// to do:
-// clearRect
-// update snake food grid
-// snake.move , snake.changeDirection , snake.addLenght , snake.death
-// food.newPosition 
-// etc..
+const storage = window.localStorage;
 
+if(storage.getItem("store") === null)
+	{
+		storage.setItem("store",JSON.stringify(0));
+
+	} // if no storage, create storage
+
+var storedHighscore = JSON.parse(storage.getItem("store"));
+
+
+const highscoreBox = document.getElementById("highScore");
+const increaseB = document.getElementById("increaseSpeed");
+const decreaseB = document.getElementById("decreaseSpeed");
+const showSpeed = document.getElementById("currentSpeed");
 const canvas = document.getElementById("canvas");
 
 var snake;
@@ -12,8 +20,17 @@ var food;
 var score;
 var previousMove;
 var changed;
-var highscore = 0;
-window.onload = () => {gameArea.start();snakeSpeed(snake.speed);}
+var interval;
+
+
+
+window.onload = () => 
+	{
+		gameArea.start();
+		snakeSpeed(snake.speed);
+		highscoreBox.innerHTML =  JSON.parse(storage.getItem("store"));
+		currentSpeed.innerHTML = snake.speed;
+	}
 
 														// blockSize = 20;
 												// YBlockNumber = 25;	//vertical   
@@ -23,13 +40,15 @@ window.onload = () => {gameArea.start();snakeSpeed(snake.speed);}
 
 
 												// numberOfBlocks = 875;
-var interval;
+
+
 
 function snakeSpeed(speed)
 	{	clearInterval(interval);
 		interval = setInterval(snake.moveHandler, speed * 1000);
-		
+		snake.speed = speed;
 	}
+
 
 
 var gameArea = 
@@ -39,6 +58,7 @@ var gameArea =
 		{
 			snake = new snake(20,20,"blue", 260,260);
 			food = new food(20,20,"green",400,400);
+			food.newPosition();
 			this.canvas.width = 700;
 			this.canvas.height = 500;
 			this.context = this.canvas.getContext("2d");
@@ -74,7 +94,6 @@ var gameArea =
 				this.context.fillRect(0,0,this.canvas.width,this.canvas.height);
 			}
 	};
-
 var ctx = gameArea.canvas.getContext("2d");
 
 
@@ -109,7 +128,7 @@ function snake(width, height,color,x,y)
 			{
 				
 				var headPosition = snake.body[0];
-
+				
 				var headX = headPosition.x;
 				var headY = headPosition.y;
 				
@@ -163,7 +182,7 @@ function snake(width, height,color,x,y)
 						// moves only the head once, leaves the rest of the body where it was.
 						// until bodyCount and bodyLength match up..
 						
-								console.log("outside");
+								
 
 								if (snake.direction === "up" && previousMove != "down")
 									{
@@ -239,15 +258,25 @@ function snake(width, height,color,x,y)
 		this.death = function()
 			{
 				// set timeout for newSnake 
-				var result = confirm("Do you want to play again? Your score is: " + score + " your highscore is: " + highscore); // add highscore <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+				var result = confirm("Do you want to play again? Your score is: " + score); 
 				if (result === true)
 					{snake.newSnake()};
-				if (score > highscore){highscore = score};
+				if (score > storedHighscore)
+					{
+						storedHighscore = score; 
+						storage.setItem("store",JSON.stringify(storedHighscore));
+					};
+
+
+				highscoreBox.innerHTML = JSON.parse(storage.getItem("store")); 
+
+
 			}
 		this.newSnake = function()
 			{
 				//reset all snake stats which starts the game again
-				console.log("youz ded");
 				snake.bodyCount = 1; 
 				snake.body = [{"x":260,"y":260}];		
 				snake.x = 260;
@@ -273,8 +302,38 @@ function food(width, height,color,x,y)
 			}
 		this.newPosition = function()
 			{
-				this.y = (Math.floor(Math.random()*(25)))*20;
-				this.x = (Math.floor(Math.random()*(35)))*20;
+				var onBody = false;
+
+				function generateNew()
+					{
+						food.y = (Math.floor(Math.random()*(25)))*20;
+						food.x = (Math.floor(Math.random()*(35)))*20;
+					}
+
+				function checkIfOnBody()
+					{
+						snake.body.forEach(x => 
+						{
+							if(food.y === x.y && food.x === x.x)
+								{
+									onBody = true;
+									return;
+								}
+						})
+					}
+
+				generateNew();
+				checkIfOnBody();
+
+				if(onBody)
+					{
+						food.newPosition();
+					} 
+				else if (!onBody)	
+					{
+						food.update();
+					}
+
 			}
 
 	};
@@ -285,6 +344,7 @@ function updateScore()
 		ctx.font = "20px Arial";
 		ctx.fillStyle= "red";
 		ctx.fillText(score, 700/2,20);
+
 	}
 
 function updateGameArea()
@@ -309,9 +369,11 @@ function checkAllPositions()
 		//checks colision with food 1st
 		if (head.x === food.x && head.y === food.y)
 			{
-				snake.bodyCount += 5;
+				snake.bodyCount += 2;
 				snakeHasEaten = true;
 				food.newPosition();
+
+				
 			}
 		if(!snakeHasEaten)
 			{
@@ -319,7 +381,6 @@ function checkAllPositions()
 				if(head.x >= canvasX || head.x < 0 || head.y >= canvasY || head.y < 0)
 					{
 						snake.isDead = true; 
-						console.log("wall")
 						snake.death();
 					}
 
@@ -332,7 +393,6 @@ function checkAllPositions()
 								if(o.x === head.x && o.y === head.y ) // if position of part of body === position of head
 									{
 										snake.isDead = true; 
-										console.log("self");
 										snake.death();
 									}
 							}
@@ -341,3 +401,23 @@ function checkAllPositions()
 			}
 	}
 	
+
+function increaseHandler()
+	{
+		var newSpeed = snake.speed-0.05;
+		if(newSpeed < 0.05){newSpeed = 0.05}
+		snakeSpeed(newSpeed);
+	currentSpeed.innerHTML = Math.round(newSpeed * 100) / 100;
+	};
+
+
+function decreaseHandler()
+	{
+		var newSpeed = snake.speed+0.05;
+		snakeSpeed(newSpeed);
+		currentSpeed.innerHTML = Math.round(newSpeed * 100) / 100;
+	};
+
+
+increaseB.addEventListener("click", increaseHandler);
+decreaseB.addEventListener("click", decreaseHandler);

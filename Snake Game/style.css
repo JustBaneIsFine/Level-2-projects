@@ -41,3 +41,20 @@ main
 	}
 
 #canvas{background-color: black;}
+
+#buttons{
+	text-align: center;
+}
+
+
+#highScore
+{
+	
+	background-color: black;
+	border-style: none;
+	color: rgb(0, 255, 0);		
+}
+
+label{
+	color: white;
+}

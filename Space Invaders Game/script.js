@@ -18,8 +18,10 @@ var player;
 var invaders;
 var score;
 var playerBullet;
+var playerBullets = [];
 var invadersBullet;
 var pBulletFired = false;
+
 
 window.onload = () => 
 	{
@@ -37,6 +39,7 @@ var gameArea =
 		{
 			invaders = new invaders(40,20,"red", 260,260);
 			player = new player(50,20,"green",400,460);
+			playerBullet = new playerBullet(0,0)
 			this.canvas.width = 800;
 			this.canvas.height = 500;
 			var tempLeft;
@@ -45,40 +48,36 @@ var gameArea =
 			this.canvas.style = "background-color: white";
 			document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
 			this.gameInterval = setInterval(updateGameArea,1000/120);
-
+			this.keys = 
+				{
+					 37: {pressed: false, func: function(){player.speedX = -3}},
+					 65: {pressed: false, func: function(){player.speedX = -3}},  
+					 39: {pressed: false, func: function(){player.speedX= 3}},  
+					 68: {pressed: false, func: function(){player.speedX= 3}},
+					 32: {pressed: false, func: function(){player.fireBullet()}}
+				};
 				window.addEventListener("keydown", function(e)
 					{
-						console.log("down ran")
-						if (e.keyCode === 37 || e.keyCode === 65)
-							{
-								player.speedX = -3;
-							} 
-						else if (e.keyCode === 39 || e.keyCode === 68)
-							{
-								player.speedX= 3;
-							}
-						else if (e.keyCode === 32){
-							player.fireBullet();
-							pBulletFired = true;
+						
+						if(gameArea.keys[e.keyCode]){
+							gameArea.keys[e.keyCode].pressed = true;
 						}
 
 					});
-				window.addEventListener("keyup", function(e){
-					console.log("up ran");
-						if (e.keyCode === 37 || e.keyCode === 65)
-							{
-								player.speedX = 0;
-							} 
-						else if (e.keyCode === 39 || e.keyCode === 68)
-							{
-								player.speedX = 0;
-							};
 
+				window.addEventListener("keyup", function(e){
+						if(gameArea.keys[e.keyCode]){
+							gameArea.keys[e.keyCode].pressed = false;
+							player.speedX = 0;
+						}
 						})
+
+
 						// if (tempLeft != undefined || tempRight != undefined){player.changeDirection(temp)};
 			
 					
-
+								//
+								//;
 
 		},
 		
@@ -118,15 +117,26 @@ function player(width, height,color,x,y)
 			}
 		this.fireBullet = function()
 			{
-				var middle = this.x + 20;
-				playerBullet = new playerBullet(middle,this.y);
+				if(!pBulletFired)
+					{
+						var middle = this.x + 20;
+						var middleTop = this.y -15;
+						playerBullets.push({"x":middle,"y":middleTop})
+						pBulletFired = true;
+						setTimeout(()=>pBulletFired=false,100); //sets the amount of bullets that can be fired in a given time..
+					} 
+				else 
+					{
+						console.log("there is already a bullet");
+					}
+				
+				
+
 			}
 
 		this.death = function()
 			{
 				
-
-
 				var result = confirm("Do you want to play again? Your score is: " + score); 
 				if (result === true)
 					{
@@ -156,43 +166,70 @@ function invaders(width, height,color,x,y)
 	{
 	};
 
-function playerBullet(x,y)	
-	{
-		this.width = 5;
-		this.height = 15;
-		this.x = x;
-		this.y = y;
-		this.speed = 5;
-
+function playerBullet(x,y)
+{	
+	
 							
-		this.update = function()
+		this.render = function()
 			{
-				ctx.fillStyle = "red";
-				ctx.fillRect(playerBullet.x, playerBullet.y,playerBullet.width,playerBullet.height);
+				playerBullets.forEach(b => {
+					if(b.x != 0 || b.y != 0)
+						{
+							// render bullet
+							ctx.fillStyle = "red";
+							ctx.fillRect(b.x, b.y,5,15);
+						}
+				})
 			}
 		this.updatePosition = function()
 			{
-				playerBullet.y -= 5;
+				playerBullets.forEach(b => {
+					b.y -= 5;
+
+				})
 			}
 		this.checkPosition = function()
 			{
-
-
-				if (playerBullet.y < 0){
-					deleteBullet();
+				if (playerBullets.length === 0){
 					pBulletFired = false;
-				};
+				} else 
+				{
 
-				function deleteBullet()
-					{
-						playerBullet = undefined;
-						console.log("it raAAn")
-					}
+				 playerBullets.forEach(b => {
+				 	if(b.y < 0){
+				 		playerBullet.deleteBullet(playerBullets.indexOf(b));
+				 	} 
+
+				 })
+
+
+
+				}
+
+				
+				// for each bullet, check if y position is less than 0
+				// if so, get index and delete that bullet
+
+				// if (playerBullet.y < 0){
+				// 	deleteBullet();
+				// 	pBulletFired = false;
+				// 	console.log("it raAAn");
+				// };
+
+				// function deleteBullet()
+				// 	{
+				// 		playerBullet = undefined;
+				// 		console.log("it del");
+				// 	}
 
 			}
-
+		this.deleteBullet = function(index)
+			{
+				playerBullets.splice(index,1);
+			}
 		
-	}
+	
+}
 
 function invadersBullet()
 	{
@@ -221,12 +258,15 @@ function updateGameArea()
 
 		// invaders.updatePosition();
 		// invaders.update();
+
+		Object.keys(gameArea.keys).forEach(x => {  if(gameArea.keys[x].pressed){gameArea.keys[x].func();};
+		})	
 		
 		player.updatePosition();
 		player.update();
-		if(pBulletFired)
+		if(playerBullets.length != 0)
 			{
-				playerBullet.update();
+				playerBullet.render();
 				playerBullet.updatePosition();
 				playerBullet.checkPosition();
 			}

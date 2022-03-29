@@ -15,13 +15,13 @@ const highscoreBox = document.getElementById("highScore");
 const canvas = document.getElementById("canvas");
 
 var player;
-var invaders;
+var invade;
+var invaders = [[],[],[],[],[]];
 var score;
 var playerBullet;
 var playerBullets = [];
 var invadersBullet;
 var pBulletFired = false;
-
 
 window.onload = () => 
 	{
@@ -37,7 +37,10 @@ var gameArea =
 		canvas: document.createElement("canvas"),
 		start: function ()
 		{
-			invaders = new invaders(40,20,"red", 260,260);
+			invade = new invader();
+			// for invaderSpeed that is slower (classical step by step move)
+			//this.invaderInterval = setInterval(invade.move,500);
+
 			player = new player(50,20,"green",400,460);
 			playerBullet = new playerBullet(0,0)
 			this.canvas.width = 800;
@@ -162,8 +165,71 @@ function player(width, height,color,x,y)
 			}
 	};
 
-function invaders(width, height,color,x,y)
-	{
+function invader()
+	{	
+		
+		this.moveDirection = 1.5 // positive goes right, negative goes left
+		// invaderCount =  50;
+		// horizontal = 10;
+		// vertical = 5;
+
+		var counterX = 150;
+		var counterY = 30; 
+		invaders.forEach(column =>{
+
+			for (i=0;i<10;i++){
+
+				column.push({"x": counterX,"y":counterY}); // add new invader to this row
+
+				counterX += 50;	 // move to the right
+
+				if(i === 9) 				//if it's the last row
+					{
+						counterY += 30;	 //move down 30px
+						counterX = 150;  //return to starting horizontal point 
+					}
+
+			}
+		})	
+		
+		this.render = function()
+			{
+				invaders.forEach(column =>{
+					column.forEach(invader =>{
+
+						// for each invader, draw invader
+						ctx.fillStyle = "red";
+						ctx.fillRect(invader.x,invader.y,40,20);
+
+					})
+
+				})
+			}
+		this.moveHandler = function()
+			{
+				//if not dead
+				//if gameStart
+				// for each invader, move 
+				// if last invader on right is too far, switch movement direction and lower down
+				if(invaders[0][9].x > 760)
+					{invade.moveDirection = -1.5}
+				else if (invaders[0][0].x < 0)
+					{invade.moveDirection = 1.5}			//test			//<<<<<<<<<<<<<<< THIS IS WHERE YOU LEFT OF <<<<<<<<<<<<<<<<<<<<<<
+
+
+
+			}
+		this.move = function()
+			{
+				invaders.forEach(column =>{
+
+					column.forEach(invader=>{
+
+						invader.x += invade.moveDirection;
+						})
+
+					})
+			}
 	};
 
 function playerBullet(x,y)
@@ -251,7 +317,13 @@ function updateScore()
 
 function updateGameArea()
 	{
+
+		
 		gameArea.clear();
+		invade.render();
+		invade.move();
+		invade.moveHandler();
+
 		// if (playerBullet === fired){playerBulletUpdate()};
 		// if (invadersBullet === fired){invadersBulletUpdate()};
 

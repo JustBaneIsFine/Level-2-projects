@@ -21,8 +21,12 @@ var score;
 var playerBullet;
 var playerBullets = [];
 var invadersBullet;
+var invadersBullets;
 var pBulletFired = false;
-
+var iBulletFired = false;
+var leftMostInvader = 0;
+var rightMostInvader = 0;
+var lowestInvader = 0;
 window.onload = () => 
 	{
 		gameArea.start();
@@ -172,25 +176,45 @@ function invader()
 		// invaderCount =  50;
 		// horizontal = 10;
 		// vertical = 5;
-
+		
 		var counterX = 150;
 		var counterY = 30; 
-		invaders.forEach(column =>{
+		var counterLeft= 150;
+		var counterRight = 190;
+		var counterTop = 30;
+		var counterBottom = 50;
 
-			for (i=0;i<10;i++){
+		this.drawInvaders = function()
+			{
+				invaders.forEach(column =>{
 
-				column.push({"x": counterX,"y":counterY}); // add new invader to this row
+					for (i=0;i<10;i++){
 
-				counterX += 50;	 // move to the right
+					column.push({
+					"x": counterX,
+					"y":counterY,
+					"left":counterLeft,
+					"right":counterRight,
+					"top":counterTop,
+					"bottom":counterBottom
+					});
 
-				if(i === 9) 				//if it's the last row
-					{
-						counterY += 30;	 //move down 30px
-						counterX = 150;  //return to starting horizontal point 
-					}
+					counterX += 50;
+					counterLeft +=50;
+					counterRight+=50;
 
+					if(i === 9) 				//if it's the last row
+						{
+							counterY += 30;
+							counterTop += 30;
+							counterBottom +=30; 
+							counterX = 150;
+							counterRight = 190;  //return to starting horizontal point 
+						}
+
+				}})	
 			}
-		})	
+		this.drawInvaders();
 		
 		this.render = function()
 			{
@@ -207,14 +231,108 @@ function invader()
 			}
 		this.moveHandler = function()
 			{
-				//if not dead
-				//if gameStart
-				// for each invader, move 
-				// if last invader on right is too far, switch movement direction and lower down
-				if(invaders[0][9].x > 760)
-					{invade.moveDirection = -1.5}
-				else if (invaders[0][0].x < 0)
-					{invade.moveDirection = 1.5}			//test			//<<<<<<<<<<<<<<< THIS IS WHERE YOU LEFT OF <<<<<<<<<<<<<<<<<<<<<<
+			
+				if(findRightMost() > 760) //if RightmostInvader is further than 760
+					{
+						invade.moveDirection = -1.5;
+						invaders.forEach(column =>{
+
+						column.forEach(invader=>{
+
+						invader.y += 10;
+						invader.top += 10;
+						invader.bottom += 10;
+						})
+					rightMostInvader = 0;
+
+					})
+
+
+					}
+				else if (findLeftMost() < 0) //if LeftMost invader is less than 0
+					{
+						invade.moveDirection = 1.5;
+
+						invaders.forEach(column =>{
+
+						column.forEach(invader=>{
+
+						invader.y += 10;
+						invader.top += 10;
+						invader.bottom += 10;
+
+						})})
+						leftMostInvader = 0;
+					}			//test			//<<<<<<<<<<<<<<< THIS IS WHERE YOU LEFT OF <<<<<<<<<<<<<<<<<<<<<<
+
+				if(findLowest()>440) // if lowest is lower than player GAME OVER
+					{
+						console.log("gameOver");
+
+						invaders = [[],[],[],[],[]];
+						counterX = 150;
+						counterY = 30;
+						counterLeft= 150;
+						counterRight = 190;
+						counterTop = 30;
+						counterBottom = 50;
+						leftMostInvader = 0;
+						rightMostInvader = 0;
+						lowestInvader = 0;
+
+						// run gameOver function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+						return;
+					}
+
+			//functions
+				function findLeftMost()
+					{
+
+						invaders.forEach(column =>{
+							if(column[0]!= undefined){
+							if(column[0].x<leftMostInvader)
+								{
+									leftMostInvader = column[0].x;
+								}
+
+						}});
+						return leftMostInvader;
+					}
+				function findRightMost()
+					{
+
+						invaders.forEach(column =>{
+							if(column[column.length-1] != undefined){
+							if(column[column.length-1].x>rightMostInvader)
+								{
+									rightMostInvader = column[column.length-1].x;
+								}
+							else if (column[column.length-1].x === undefined){
+								// do nothing
+								}
+						}});
+
+
+
+						return rightMostInvader;
+					}
+
+				function findLowest()
+					{
+
+						invaders.forEach(column =>{
+							if(column[0] != undefined){
+							if(column[0].y>lowestInvader)
+								{
+									lowestInvader = column[0].y;
+								} 
+							else if(column[0].y === undefined)
+								{console.log("it's undefined")};
+						}});
+						return lowestInvader;
+
+					}
+
 
 
 
@@ -226,6 +344,9 @@ function invader()
 					column.forEach(invader=>{
 
 						invader.x += invade.moveDirection;
+						invader.left = invader.x;
+						invader.right += invade.moveDirection;
+
 						})
 
 					})
@@ -233,9 +354,8 @@ function invader()
 	};
 
 function playerBullet(x,y)
-{	
-	
-							
+	{	
+						
 		this.render = function()
 			{
 				playerBullets.forEach(b => {
@@ -272,34 +392,102 @@ function playerBullet(x,y)
 
 				}
 
-				
-				// for each bullet, check if y position is less than 0
-				// if so, get index and delete that bullet
-
-				// if (playerBullet.y < 0){
-				// 	deleteBullet();
-				// 	pBulletFired = false;
-				// 	console.log("it raAAn");
-				// };
-
-				// function deleteBullet()
-				// 	{
-				// 		playerBullet = undefined;
-				// 		console.log("it del");
-				// 	}
-
 			}
 		this.deleteBullet = function(index)
 			{
 				playerBullets.splice(index,1);
 			}
-		
+
+		this.collisionDetection = function()
+			{
+				playerBullets.forEach(b => {
+					invaders.forEach(column => {
+
+						column.forEach(invader=>{
+							if(b.x > invader.left && b.x+5 < invader.right && b.y < invader.bottom && b.y+15 > invader.top){
+
+
+								// do something with that bullet and that invader..
+								var indexBullet = playerBullets.indexOf(b);
+								playerBullet.deleteBullet(indexBullet);
+
+								if(column.indexOf(invader) != -1)
+									{
+										column.splice(column.indexOf(invader),1);
+									}
+								
+								
+								console.log("SHOT");
+							}
+
+						})
+					})
+					
+					//if bullet position === invader position (get invaders sides, bottom, left, right and top >> look at ping pong game)
+					//Delete invader (in future maybe add health) and delete bullet.
+				})
+			}
 	
-}
+	}
 
 function invadersBullet()
 	{
+		this.render = function()
+			{
+				invadersBullets.forEach(b => {
+					if(b.x != 0 || b.y != 0)
+						{
+							// render bullet
+							ctx.fillStyle = "black";
+							ctx.fillRect(b.x, b.y,5,15);
+						}
+				})
+			}
+		this.updatePosition = function()
+			{
+				invadersBullets.forEach(b => {
+					b.y += 5;
 
+				})
+			}
+		this.checkPosition = function()
+			{
+				if (invadersBullets.length === 0){
+					iBulletFired = false;
+				} else 
+				{
+
+				 invadersBullets.forEach(b => {
+				 	if(b.y > 500){
+				 		invadersBullets.deleteBullet(invadersBullets.indexOf(b));
+				 	} 
+
+				 })
+
+
+
+				}
+
+			}
+		this.deleteBullet = function(index)
+			{
+				invadersBullets.splice(index,1);
+			}
+		this.collisionDetection = function()
+			{
+				invadersBullets.forEach(b => {
+							if(b.x > player.left && b.x+5 < player.right && b.y < player.bottom && b.y+15 > player.top){
+
+
+								// do something with that bullet and that invader..
+								var indexBullet = invadersBullets.indexOf(b);
+								invadersBullets.deleteBullet(indexBullet);
+
+								//deathScreen Function
+								// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< THIS IS WHERE YOU LEFT OF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+							}})
+			}			
+	
 	}
 
 function updateScore()
@@ -341,7 +529,17 @@ function updateGameArea()
 				playerBullet.render();
 				playerBullet.updatePosition();
 				playerBullet.checkPosition();
+				playerBullet.collisionDetection();
 			}
+			
+		// if (invadersBullets.length != 0)
+		// 	{
+		// 		invadersBullet.render();
+		// 		invadersBullet.updatePosition();
+		// 		invadersBullet.checkPosition();
+		// 		invadersBullet.collisionDetection();
+
+		// 	}
 		
 		;
 

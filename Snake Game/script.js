@@ -32,7 +32,7 @@ window.onload = () =>
 		snakeSpeed(snake.speed);
 		highscoreBox.innerHTML =  JSON.parse(storage.getItem("store"));
 		currentSpeed.innerHTML = invaders.speed;
-		
+	}
 
 
 

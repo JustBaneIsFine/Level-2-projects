@@ -20,13 +20,14 @@ var invaders = [[],[],[],[],[]];
 var score;
 var playerBullet;
 var playerBullets = [];
-var invadersBullet;
-var invadersBullets;
+var invaderBullet;
+var invadersBullets = [];
 var pBulletFired = false;
 var iBulletFired = false;
 var leftMostInvader = 0;
 var rightMostInvader = 0;
 var lowestInvader = 0;
+
 window.onload = () => 
 	{
 		gameArea.start();
@@ -44,7 +45,8 @@ var gameArea =
 			invade = new invader();
 			// for invaderSpeed that is slower (classical step by step move)
 			//this.invaderInterval = setInterval(invade.move,500);
-
+			invaderBullet = new invadersBullet();
+			this.invaderBulletInterval = setInterval(invaderBullet.generateBullet,500)
 			player = new player(50,20,"green",400,460);
 			playerBullet = new playerBullet(0,0)
 			this.canvas.width = 800;
@@ -107,7 +109,10 @@ function player(width, height,color,x,y)
 		this.y = y;
 		this.speedX = 0;
 		this.speedY = 0;
-		this.isDead = false;
+		this.left;
+		this.right;
+		this.bottom;
+		this.top;
 
 		this.update = function()
 			{
@@ -118,6 +123,10 @@ function player(width, height,color,x,y)
 			{
 				this.x += player.speedX;
 				this.y += player.speedY;
+				this.left = this.x;
+				this.right = this.x+40;
+				this.bottom = this.y+20;
+				this.top = this.y;
 
 				if (player.x > 750){player.x = 750}
 				else if (player.x < 0){player.x = 0};
@@ -147,8 +156,14 @@ function player(width, height,color,x,y)
 				var result = confirm("Do you want to play again? Your score is: " + score); 
 				if (result === true)
 					{
+						player.newGame();
 					//start new game
+					}
+					else if(result ===false)
+					{
+						this.death()
 					};
+
 				if (score > storedHighscore)
 					{
 						storedHighscore = score; 
@@ -163,8 +178,12 @@ function player(width, height,color,x,y)
 		this.newGame = function()
 			{
 				//reset all stats and start the game again
-				
-				player.isDead = false;
+				invade.resetAll();
+				invade.drawInvaders();
+				playerBullets = [];
+				invadersBullets = [];
+				gameArea.keys.forEach(x => x.pressed = false);
+
 				
 			}
 	};
@@ -269,18 +288,11 @@ function invader()
 					{
 						console.log("gameOver");
 
-						invaders = [[],[],[],[],[]];
-						counterX = 150;
-						counterY = 30;
-						counterLeft= 150;
-						counterRight = 190;
-						counterTop = 30;
-						counterBottom = 50;
+						this.resetAll()
 						leftMostInvader = 0;
 						rightMostInvader = 0;
 						lowestInvader = 0;
-
-						// run gameOver function <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+						player.death();
 						return;
 					}
 
@@ -351,6 +363,18 @@ function invader()
 
 					})
 			}
+		this.resetAll = function()
+			{
+				counterX = 150;
+				counterY = 30; 
+				counterLeft= 150;
+				counterRight = 190;
+				counterTop = 30;
+				counterBottom = 50;
+				this.moveDirection = 1.5;
+				invaders = [[],[],[],[],[]];
+			}
+		
 	};
 
 function playerBullet(x,y)
@@ -432,13 +456,49 @@ function playerBullet(x,y)
 
 function invadersBullet()
 	{
+		this.generateBullet = function()
+			{
+				//1. we need to choose which invader will shoot..
+				// so we need to take all the available invaders, and choose from them..
+				// generate a random number in the available range
+				console.log("ran");
+				var invaderCount = 0;
+				
+				invaders.forEach(column=> {
+					column.forEach(invader => invaderCount+=1)
+				})
+
+				if(invaderCount != 0){
+					var random = randomInteger(0,invaderCount); //5
+					var counter = 0;
+					var exit = false;
+
+					invaders.forEach(column=> {
+						if(exit){return};
+						column.forEach(invader => {
+							if(exit){return};
+							if (counter === random)
+								{
+
+									invadersBullets.push({"x":invader.x+20,"y":invader.y+10})
+									//this invader fires bullet
+									exit = true;
+								}
+
+							counter+=1;
+						})
+					})
+				}
+
+
+			}
 		this.render = function()
 			{
 				invadersBullets.forEach(b => {
 					if(b.x != 0 || b.y != 0)
 						{
 							// render bullet
-							ctx.fillStyle = "black";
+							ctx.fillStyle = "red";
 							ctx.fillRect(b.x, b.y,5,15);
 						}
 				})
@@ -452,21 +512,15 @@ function invadersBullet()
 			}
 		this.checkPosition = function()
 			{
-				if (invadersBullets.length === 0){
-					iBulletFired = false;
-				} else 
-				{
-
+				
 				 invadersBullets.forEach(b => {
 				 	if(b.y > 500){
-				 		invadersBullets.deleteBullet(invadersBullets.indexOf(b));
-				 	} 
-
-				 })
+				 		invaderBullet.deleteBullet(invadersBullets.indexOf(b));
+				 	}})
 
 
 
-				}
+				
 
 			}
 		this.deleteBullet = function(index)
@@ -476,15 +530,14 @@ function invadersBullet()
 		this.collisionDetection = function()
 			{
 				invadersBullets.forEach(b => {
-							if(b.x > player.left && b.x+5 < player.right && b.y < player.bottom && b.y+15 > player.top){
-
+							if(b.x+5 > player.left && b.x < player.right && b.y < player.bottom && b.y+15 > player.top){
+								console.log("hit");
 
 								// do something with that bullet and that invader..
 								var indexBullet = invadersBullets.indexOf(b);
-								invadersBullets.deleteBullet(indexBullet);
+								invaderBullet.deleteBullet(indexBullet);
 
-								//deathScreen Function
-								// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< THIS IS WHERE YOU LEFT OF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+								player.death();
 							}})
 			}			
 	
@@ -521,9 +574,9 @@ function updateGameArea()
 
 		Object.keys(gameArea.keys).forEach(x => {  if(gameArea.keys[x].pressed){gameArea.keys[x].func();};
 		})	
-		
 		player.updatePosition();
 		player.update();
+
 		if(playerBullets.length != 0)
 			{
 				playerBullet.render();
@@ -531,15 +584,16 @@ function updateGameArea()
 				playerBullet.checkPosition();
 				playerBullet.collisionDetection();
 			}
-			
-		// if (invadersBullets.length != 0)
-		// 	{
-		// 		invadersBullet.render();
-		// 		invadersBullet.updatePosition();
-		// 		invadersBullet.checkPosition();
-		// 		invadersBullet.collisionDetection();
 
-		// 	}
+		
+		if (invadersBullets.length != 0)
+			{
+				invaderBullet.render();
+				invaderBullet.updatePosition();
+				invaderBullet.checkPosition();
+				invaderBullet.collisionDetection();
+
+			}
 		
 		;
 
@@ -557,3 +611,7 @@ function increaseSpeed()
 	{
 	};
 
+function randomInteger(min, max) 
+					{
+						  return Math.floor(Math.random() * (max - min + 1)) + min;
+					}

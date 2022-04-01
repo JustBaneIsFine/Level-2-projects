@@ -17,7 +17,7 @@ const canvas = document.getElementById("canvas");
 var player;
 var invade;
 var invaders = [[],[],[],[],[]];
-var score;
+var score = 0;
 var playerBullet;
 var playerBullets = [];
 var invaderBullet;
@@ -27,7 +27,8 @@ var iBulletFired = false;
 var leftMostInvader = 0;
 var rightMostInvader = 0;
 var lowestInvader = 0;
-
+var level = 1;
+var invaderBulletCount = 500;
 window.onload = () => 
 	{
 		gameArea.start();
@@ -46,7 +47,7 @@ var gameArea =
 			// for invaderSpeed that is slower (classical step by step move)
 			//this.invaderInterval = setInterval(invade.move,500);
 			invaderBullet = new invadersBullet();
-			this.invaderBulletInterval = setInterval(invaderBullet.generateBullet,500)
+			this.invaderBulletInterval = setInterval(invaderBullet.generateBullet,invaderBulletCount)
 			player = new player(50,20,"green",400,460);
 			playerBullet = new playerBullet(0,0)
 			this.canvas.width = 800;
@@ -59,10 +60,10 @@ var gameArea =
 			this.gameInterval = setInterval(updateGameArea,1000/120);
 			this.keys = 
 				{
-					 37: {pressed: false, func: function(){player.speedX = -3}},
-					 65: {pressed: false, func: function(){player.speedX = -3}},  
-					 39: {pressed: false, func: function(){player.speedX= 3}},  
-					 68: {pressed: false, func: function(){player.speedX= 3}},
+					 37: {pressed: false, func: function(){player.speedX = -Math.abs(player.moveSpeed)}},
+					 65: {pressed: false, func: function(){player.speedX = -Math.abs(player.moveSpeed)}},  
+					 39: {pressed: false, func: function(){player.speedX= Math.abs(player.moveSpeed)}},  
+					 68: {pressed: false, func: function(){player.speedX= Math.abs(player.moveSpeed)}},
 					 32: {pressed: false, func: function(){player.fireBullet()}}
 				};
 				window.addEventListener("keydown", function(e)
@@ -113,6 +114,8 @@ function player(width, height,color,x,y)
 		this.right;
 		this.bottom;
 		this.top;
+		this.bulletTime = 500;
+		this.moveSpeed = 3;
 
 		this.update = function()
 			{
@@ -139,7 +142,7 @@ function player(width, height,color,x,y)
 						var middleTop = this.y -15;
 						playerBullets.push({"x":middle,"y":middleTop})
 						pBulletFired = true;
-						setTimeout(()=>pBulletFired=false,100); //sets the amount of bullets that can be fired in a given time..
+						setTimeout(()=>pBulletFired=false,this.bulletTime); //sets the amount of bullets that can be fired in a given time..
 					} 
 				else 
 					{
@@ -172,6 +175,8 @@ function player(width, height,color,x,y)
 
 
 				highscoreBox.innerHTML = JSON.parse(storage.getItem("store")); 
+				score = 0;
+				level = 1;
 
 
 			}
@@ -182,19 +187,41 @@ function player(width, height,color,x,y)
 				invade.drawInvaders();
 				playerBullets = [];
 				invadersBullets = [];
-				gameArea.keys.forEach(x => x.pressed = false);
+
+				//if button was held when player died, clear all movment for the new game
+				Object.values(gameArea.keys).forEach(x =>
+					{
+						x.pressed = false;
+						console.log(x);
+					})
+				this.speedX = 0;
+				this.speedY = 0;
+
 
 				
+			}
+		this.newLevel = function()
+			{
+				
+				this.newGame();
+				invade.moveDirection += 0.5;
+				invaderBullet.bulletSpeed += 1;
+				invaderBulletCount -= 50;
+				player.bulletTime -= 50;
+				if (player.bulletTime < 100){
+					player.bulletTime = 100;
+				}
+				player.moveSpeed +=0.5;
+				level += 1;
+
+
 			}
 	};
 
 function invader()
 	{	
 		
-		this.moveDirection = 1.5 // positive goes right, negative goes left
-		// invaderCount =  50;
-		// horizontal = 10;
-		// vertical = 5;
+		this.moveDirection = 1.5;
 		
 		var counterX = 150;
 		var counterY = 30; 
@@ -253,7 +280,7 @@ function invader()
 			
 				if(findRightMost() > 760) //if RightmostInvader is further than 760
 					{
-						invade.moveDirection = -1.5;
+						invade.moveDirection = -Math.abs(invade.moveDirection);
 						invaders.forEach(column =>{
 
 						column.forEach(invader=>{
@@ -270,7 +297,7 @@ function invader()
 					}
 				else if (findLeftMost() < 0) //if LeftMost invader is less than 0
 					{
-						invade.moveDirection = 1.5;
+						invade.moveDirection = Math.abs(invade.moveDirection);
 
 						invaders.forEach(column =>{
 
@@ -441,7 +468,8 @@ function playerBullet(x,y)
 									}
 								
 								
-								console.log("SHOT");
+								score += 1;
+								console.log(score);
 							}
 
 						})
@@ -456,6 +484,7 @@ function playerBullet(x,y)
 
 function invadersBullet()
 	{
+		this.bulletSpeed = 5;
 		this.generateBullet = function()
 			{
 				//1. we need to choose which invader will shoot..
@@ -488,7 +517,7 @@ function invadersBullet()
 							counter+=1;
 						})
 					})
-				}
+				} else if (invaderCount === 0){player.newLevel()};
 
 
 			}
@@ -506,7 +535,7 @@ function invadersBullet()
 		this.updatePosition = function()
 			{
 				invadersBullets.forEach(b => {
-					b.y += 5;
+					b.y += this.bulletSpeed;
 
 				})
 			}
@@ -545,14 +574,14 @@ function invadersBullet()
 
 function updateScore()
 	{
-		// score = >>>> score is the difference of remaining vs all the invaders..
-		// times the level. if lvl 1 score = 1*score..
-		// if lvl 2, score = 2*score etc...
-		//levels differ only on invader speed and their bullet speed
+		ctx.font = "20px Arial";
+		ctx.fillStyle= "red";
+		ctx.fillText(score, 500,20);
+		ctx.font = "20px Arial";
+		ctx.fillStyle= "red";
+		ctx.fillText("current level: "+ level, 800/4,20);
 
-		// ctx.font = "20px Arial";
-		// ctx.fillStyle= "red";
-		// ctx.fillText(score, 700/2,20);
+
 
 	};
 
@@ -597,15 +626,11 @@ function updateGameArea()
 		
 		;
 
-		// updateScore();
+		updateScore();
 
 
 	}
 
-function checkAllPositions()
-	{
-	
-	}
 	
 function increaseSpeed()
 	{

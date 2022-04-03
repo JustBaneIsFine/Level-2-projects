@@ -4,31 +4,32 @@ const storage = window.localStorage;
 if(storage.getItem("store") === null)
 	{
 		storage.setItem("store",JSON.stringify(0));
-
 	} 
 
+
+
 var storedHighscore = JSON.parse(storage.getItem("store"));
-
-
 const highscoreBox = document.getElementById("highScore");
-
+var score = 0;
 const canvas = document.getElementById("canvas");
 
+var level = 1;
 var player;
 var invade;
 var invaders = [[],[],[],[],[]];
-var score = 0;
+
 var playerBullet;
 var playerBullets = [];
 var invaderBullet;
 var invadersBullets = [];
 var pBulletFired = false;
-var iBulletFired = false;
+var invaderBulletCount = 500;
+
 var leftMostInvader = 0;
 var rightMostInvader = 0;
 var lowestInvader = 0;
-var level = 1;
-var invaderBulletCount = 500;
+
+
 window.onload = () => 
 	{
 		gameArea.start();
@@ -42,54 +43,51 @@ var gameArea =
 	{
 		canvas: document.createElement("canvas"),
 		start: function ()
-		{
-			invade = new invader();
-			// for invaderSpeed that is slower (classical step by step move)
-			//this.invaderInterval = setInterval(invade.move,500);
-			invaderBullet = new invadersBullet();
-			this.invaderBulletInterval = setInterval(invaderBullet.generateBullet,invaderBulletCount)
-			player = new player(50,20,"green",400,460);
-			playerBullet = new playerBullet(0,0)
-			this.canvas.width = 800;
-			this.canvas.height = 500;
-			var tempLeft;
-			var tempRight;
-			this.context = this.canvas.getContext("2d");
-			this.canvas.style = "background-color: white";
-			document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
-			this.gameInterval = setInterval(updateGameArea,1000/120);
-			this.keys = 
-				{
-					 37: {pressed: false, func: function(){player.speedX = -Math.abs(player.moveSpeed)}},
-					 65: {pressed: false, func: function(){player.speedX = -Math.abs(player.moveSpeed)}},  
-					 39: {pressed: false, func: function(){player.speedX= Math.abs(player.moveSpeed)}},  
-					 68: {pressed: false, func: function(){player.speedX= Math.abs(player.moveSpeed)}},
-					 32: {pressed: false, func: function(){player.fireBullet()}}
-				};
-				window.addEventListener("keydown", function(e)
+			{
+				invade = new invader();
+				invaderBullet = new invadersBullet();
+				this.invaderBulletInterval = setInterval(invaderBullet.generateBullet,invaderBulletCount);
+				player = new player(50,20,"green",400,460);
+				playerBullet = new playerBullet(0,0);
+				this.gameInterval = setInterval(updateGameArea,1000/120);
+
+				this.canvas.width = 800;
+				this.canvas.height = 500;
+				this.context = this.canvas.getContext("2d");
+				this.canvas.style = "background-color: white";
+				document.body.childNodes[3].insertBefore(this.canvas, document.body.childNodes[3].childNodes[0]);
+				
+				this.keys = 
 					{
-						
-						if(gameArea.keys[e.keyCode]){
-							gameArea.keys[e.keyCode].pressed = true;
-						}
+						 37: {pressed: false, func: function(){player.speedX = -Math.abs(player.moveSpeed)}},
+						 65: {pressed: false, func: function(){player.speedX = -Math.abs(player.moveSpeed)}},  
+						 39: {pressed: false, func: function(){player.speedX= Math.abs(player.moveSpeed)}},  
+						 68: {pressed: false, func: function(){player.speedX= Math.abs(player.moveSpeed)}},
+						 32: {pressed: false, func: function(){player.fireBullet()}}
+					};
+				window.addEventListener("keydown", function(e)
+						{
+							
+							if(gameArea.keys[e.keyCode]){
+								gameArea.keys[e.keyCode].pressed = true;
+							}
 
-					});
-
+						});
 				window.addEventListener("keyup", function(e){
-						if(gameArea.keys[e.keyCode]){
-							gameArea.keys[e.keyCode].pressed = false;
-							player.speedX = 0;
-						}
-						})
+							if(gameArea.keys[e.keyCode]){
+								gameArea.keys[e.keyCode].pressed = false;
+								player.speedX = 0;
+							}
+							})
 
 
-						// if (tempLeft != undefined || tempRight != undefined){player.changeDirection(temp)};
-			
-					
-								//
-								//;
+							// if (tempLeft != undefined || tempRight != undefined){player.changeDirection(temp)};
+				
+						
+									//
+									//;
 
-		},
+			},
 		
 		clear: function()
 			{	
@@ -120,7 +118,7 @@ function player(width, height,color,x,y)
 		this.update = function()
 			{
 				ctx.fillStyle = color;
-				ctx.fillRect(player.x, player.y,player.width,player.height);
+				ctx.fillRect(this.x, this.y,this.width,this.height);
 			}
 		this.updatePosition = function () 
 			{
@@ -131,22 +129,20 @@ function player(width, height,color,x,y)
 				this.bottom = this.y+20;
 				this.top = this.y;
 
+			
 				if (player.x > 750){player.x = 750}
 				else if (player.x < 0){player.x = 0};
 			}
 		this.fireBullet = function()
-			{
-				if(!pBulletFired)
+			{	
+				//generates bullet to be rendered, IF bullet hasn't been fired for a time(bulletTime);
+				if(!pBulletFired) 
 					{
 						var middle = this.x + 20;
 						var middleTop = this.y -15;
 						playerBullets.push({"x":middle,"y":middleTop})
 						pBulletFired = true;
 						setTimeout(()=>pBulletFired=false,this.bulletTime); //sets the amount of bullets that can be fired in a given time..
-					} 
-				else 
-					{
-						console.log("there is already a bullet");
 					}
 				
 				
@@ -156,11 +152,10 @@ function player(width, height,color,x,y)
 		this.death = function()
 			{
 				
-				var result = confirm("Do you want to play again? Your score is: " + score); 
+				var result = confirm("You died. Want to try again? Your score is: " + score); 
 				if (result === true)
 					{
 						player.newGame();
-					//start new game
 					}
 					else if(result ===false)
 					{
@@ -188,7 +183,7 @@ function player(width, height,color,x,y)
 				playerBullets = [];
 				invadersBullets = [];
 
-				//if button was held when player died, clear all movment for the new game
+				//if button was held when player died, clear all movement for the new game
 				Object.values(gameArea.keys).forEach(x =>
 					{
 						x.pressed = false;
@@ -202,7 +197,7 @@ function player(width, height,color,x,y)
 			}
 		this.newLevel = function()
 			{
-				
+				// resets some stats and increases game speed (bullets, movement...)
 				this.newGame();
 				invade.moveDirection += 0.5;
 				invaderBullet.bulletSpeed += 1;
@@ -232,6 +227,7 @@ function invader()
 
 		this.drawInvaders = function()
 			{
+				//for each column create 10 invaders
 				invaders.forEach(column =>{
 
 					for (i=0;i<10;i++){
@@ -264,6 +260,7 @@ function invader()
 		
 		this.render = function()
 			{
+				//draws each invader
 				invaders.forEach(column =>{
 					column.forEach(invader =>{
 
@@ -277,8 +274,8 @@ function invader()
 			}
 		this.moveHandler = function()
 			{
-			
-				if(findRightMost() > 760) //if RightmostInvader is further than 760
+			//If all to the left or right, change direction and go down one step
+				if(findRightMost() > 760)
 					{
 						invade.moveDirection = -Math.abs(invade.moveDirection);
 						invaders.forEach(column =>{
@@ -405,8 +402,7 @@ function invader()
 	};
 
 function playerBullet(x,y)
-	{	
-						
+	{				
 		this.render = function()
 			{
 				playerBullets.forEach(b => {
@@ -427,30 +423,31 @@ function playerBullet(x,y)
 			}
 		this.checkPosition = function()
 			{
-				if (playerBullets.length === 0){
-					pBulletFired = false;
-				} else 
-				{
-
-				 playerBullets.forEach(b => {
-				 	if(b.y < 0){
-				 		playerBullet.deleteBullet(playerBullets.indexOf(b));
-				 	} 
-
-				 })
-
-
-
-				}
+				if (playerBullets.length === 0)
+					{
+						pBulletFired = false;
+					} 
+				else 
+					{
+					 	playerBullets.forEach(b => {
+						 	if(b.y < 0){
+						 		playerBullet.deleteBullet(playerBullets.indexOf(b));
+						 	} 
+					 	})
+					}
 
 			}
 		this.deleteBullet = function(index)
 			{
 				playerBullets.splice(index,1);
 			}
-
 		this.collisionDetection = function()
 			{
+				// for each bullet
+				// if bullet position is the same as invader
+				// delete bullet and invader
+				// increase score 
+
 				playerBullets.forEach(b => {
 					invaders.forEach(column => {
 
@@ -474,9 +471,7 @@ function playerBullet(x,y)
 
 						})
 					})
-					
-					//if bullet position === invader position (get invaders sides, bottom, left, right and top >> look at ping pong game)
-					//Delete invader (in future maybe add health) and delete bullet.
+
 				})
 			}
 	
@@ -487,9 +482,9 @@ function invadersBullet()
 		this.bulletSpeed = 5;
 		this.generateBullet = function()
 			{
-				//1. we need to choose which invader will shoot..
-				// so we need to take all the available invaders, and choose from them..
-				// generate a random number in the available range
+				// generates a random number in range(0 to invaderCount)
+				// matches that number with the invader that will shoot.
+
 				console.log("ran");
 				var invaderCount = 0;
 				
@@ -526,7 +521,6 @@ function invadersBullet()
 				invadersBullets.forEach(b => {
 					if(b.x != 0 || b.y != 0)
 						{
-							// render bullet
 							ctx.fillStyle = "red";
 							ctx.fillRect(b.x, b.y,5,15);
 						}
@@ -541,16 +535,10 @@ function invadersBullet()
 			}
 		this.checkPosition = function()
 			{
-				
 				 invadersBullets.forEach(b => {
 				 	if(b.y > 500){
 				 		invaderBullet.deleteBullet(invadersBullets.indexOf(b));
 				 	}})
-
-
-
-				
-
 			}
 		this.deleteBullet = function(index)
 			{
@@ -560,12 +548,8 @@ function invadersBullet()
 			{
 				invadersBullets.forEach(b => {
 							if(b.x+5 > player.left && b.x < player.right && b.y < player.bottom && b.y+15 > player.top){
-								console.log("hit");
-
-								// do something with that bullet and that invader..
 								var indexBullet = invadersBullets.indexOf(b);
 								invaderBullet.deleteBullet(indexBullet);
-
 								player.death();
 							}})
 			}			
@@ -580,41 +564,32 @@ function updateScore()
 		ctx.font = "20px Arial";
 		ctx.fillStyle= "red";
 		ctx.fillText("current level: "+ level, 800/4,20);
-
-
-
 	};
 
 function updateGameArea()
 	{
+		//player movement 
+		Object.keys(gameArea.keys).forEach(x => 
+			{
+				if(gameArea.keys[x].pressed)
+					{gameArea.keys[x].func()}
+			})
 
-		
 		gameArea.clear();
+		player.updatePosition();
+		player.update();
 		invade.render();
 		invade.move();
 		invade.moveHandler();
 
-		// if (playerBullet === fired){playerBulletUpdate()};
-		// if (invadersBullet === fired){invadersBulletUpdate()};
-
-
-		// invaders.updatePosition();
-		// invaders.update();
-
-		Object.keys(gameArea.keys).forEach(x => {  if(gameArea.keys[x].pressed){gameArea.keys[x].func();};
-		})	
-		player.updatePosition();
-		player.update();
-
+		//if there are bullets
 		if(playerBullets.length != 0)
 			{
 				playerBullet.render();
 				playerBullet.updatePosition();
 				playerBullet.checkPosition();
 				playerBullet.collisionDetection();
-			}
-
-		
+			}	
 		if (invadersBullets.length != 0)
 			{
 				invaderBullet.render();
@@ -623,19 +598,10 @@ function updateGameArea()
 				invaderBullet.collisionDetection();
 
 			}
-		
-		;
 
 		updateScore();
-
-
 	}
-
 	
-function increaseSpeed()
-	{
-	};
-
 function randomInteger(min, max) 
 					{
 						  return Math.floor(Math.random() * (max - min + 1)) + min;

@@ -24,13 +24,13 @@ window.onload = () =>
 	}
 
 //Shapes
-var cubeShape = new cubeShapec();
-var leftLShape;
-var rightLShape;
-var tShape;
-var leftZShape;
-var rightZShape;
-var lineShape;
+var cubeShape = new cubeShapeF();
+var leftLShape = new leftLShapeF();
+var rightLShape = new rightLShapeF();
+var tShape = new tShapeF();
+var leftZShape = new leftZShapeF();
+var rightZShape = new rightZShapeF();
+var lineShape = new lineShapeF();
 
 var gameArea = 
 	{
@@ -40,7 +40,7 @@ var gameArea =
 				
 				
 				
-				//this.gameInterval = setInterval(updateGameArea,1000/120);
+				this.gameInterval = setInterval(updateGameArea,1000/120);
 
 				this.canvas.width = 800;
 				this.canvas.height = 500;
@@ -97,46 +97,110 @@ var shapeNum = 7;
 
 function cubeShapeF()
 	{
-		this.x = 0;
-		this.y = 0;
+		this.x = 50;
+		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.dimension = 20;
-		this.orientation1 = [{"x":this.x,"y":this.y},{"x":this.x+20,"y":this.y},{"x":this.x,"y":this.y+20},{"x":this.x+20,"y":this.y+20}];
-		this.orientation2 =	orientation1;
-		this.orientation3 =	orientation1;
-		this.orientation4 =	orientation1;
-		this.currentPosition;
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":40}];
+		this.orientation2 =	this.orientation1;
+		this.orientation3 =	this.orientation1;
+		this.orientation4 =	this.orientation1;
+		this.currentOrientation = this.orientation1;
+		this.orientNum = 1;
+		this.color = "red";
+
 	};
+
 function leftLShapeF()
 	{
-		this.x = 0;
-		this.y = 0;
+		this.x = 100;
+		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.dimens
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":20},{"x":this.x,"y":this.y+20,"sizeX":60,"sizeY":20}];
+		this.orientation2 = [{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y,"sizeX":20,"sizeY":20}];	
+		this.orientation3 = [{"x":this.x,"y":this.y+20,"sizeX":60,"sizeY":20},{"x":this.x+40,"y":this.y+40,"sizeX":20,"sizeY":20}];	
+		this.orientation4 = [{"x":this.x,"y":this.y+40,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":60}];	
+		this.currentOrientation = this.orientation1;
+		this.orientNum = 1;
+		this.color = "blue";
+	}
 
-function tShapeF()ionSmall = 20;
-		this.dimensionBig = 60;
-		this.shape = [{"x":0,"y":0},{"x":20,"y":0},{"x":0,"y":20},{"x":20,"y":20}];
-		this.orientation1 = [{"x":this.x,"y":this.y},{"x":this.x+20,"y":this.y}];
-		this.orientation2 =	[{"x":this.x,"y":this.y},{"x":this.x+20,"y":this.y}];
-		this.orientation3 =	[{"x":this.x,"y":this.y},{"x":this.x+20,"y":this.y}];
-		this.orientation4 =	[{"x":this.x,"y":this.y},{"x":this.x+20,"y":this.y}];
-		this.currentPosition 	};
+function tShapeF()
+	{
+		this.x = 180;
+		this.y = 100;
+		this.lowestPoint;
+		this.highestPoint;
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":20}];
+		this.orientation2 = [{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y,"sizeX":20,"sizeY":20}];	
+		this.orientation3 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+20,"y":this.y+20,"sizeX":20,"sizeY":20}];	
+		this.orientation4 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60}];	
+		this.currentOrientation = this.orientation1;
+		this.orientNum = 1;
+		this.color = "brown";
+
+	};
 
 function rightLShapeF()
-	{};
-	{};
+	{
+		this.x = 250;
+		this.y = 100;
+		this.lowestPoint;
+		this.highestPoint;
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":20}];
+		this.orientation2 = [{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y+20,"sizeX":20,"sizeY":20}];	
+		this.orientation3 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x,"y":this.y+20,"sizeX":20,"sizeY":20}];	
+		this.orientation4 = [{"x":this.x,"y":this.y-20,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60}];	
+		this.currentOrientation = this.orientation1;
+		this.orientNum = 1;
+		this.color = "purple";
+	};
 
 function leftZShapeF()
-	{};
+	{
+		this.x = 320;
+		this.y = 100;
+		this.lowestPoint;
+		this.highestPoint;
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y+20,"sizeX":40,"sizeY":20}];
+		this.orientation2 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":40},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.orientation3 = [{"x":this.x,"y":this.y-20,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y,"sizeX":40,"sizeY":20}];	
+		this.orientation4 = [{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":40},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.currentOrientation = this.orientation1;
+		this.orientNum = 1;
+		this.color = "pink";
+	};
 
 function rightZShapeF()
-	{};
+	{
+		this.x = 400;
+		this.y = 100;
+		this.lowestPoint;
+		this.highestPoint;
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":40,"sizeY":20}];
+		this.orientation2 = [{"x":this.x,"y":this.y-40,"sizeX":20,"sizeY":40},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.orientation3 = [{"x":this.x,"y":this.y-20,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y-40,"sizeX":40,"sizeY":20}];	
+		this.orientation4 = [{"x":this.x+20,"y":this.y-40,"sizeX":20,"sizeY":40},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.currentOrientation = this.orientation1;
+		this.orientNum = 1;
+		this.color = "black";
+	};
 
 function lineShapeF()
-	{};
+	{
+		this.x = 450;
+		this.y = 100;
+		this.lowestPoint;
+		this.highestPoint;
+		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":80,"sizeY":20}];
+		this.orientation2 = [{"x":this.x+20,"y":this.y-40,"sizeX":20,"sizeY":80}];	
+		this.orientation3 = [{"x":this.x,"y":this.y-20,"sizeX":80,"sizeY":20}];	
+		this.orientation4 = [{"x":this.x+40,"y":this.y-40,"sizeX":20,"sizeY":80}];	
+		this.currentOrientation = this.orientation4;
+		this.orientNum = 1;
+		this.color = "green";
+	};
 
 
 
@@ -230,7 +294,6 @@ function player(width, height,color,x,y)
 				Object.values(gameArea.keys).forEach(x =>
 					{
 						x.pressed = false;
-						console.log(x);
 					})
 				this.speedX = 0;
 				this.speedY = 0;
@@ -271,6 +334,7 @@ function updateScore()
 
 function updateGameArea()
 	{
+		gameArea.clear();
 		//player movement 
 		Object.keys(gameArea.keys).forEach(x => 
 			{
@@ -278,34 +342,41 @@ function updateGameArea()
 					{gameArea.keys[x].func()}
 			})
 
-		gameArea.clear();
-		player.updatePosition();
-		player.update();
-		invade.render();
-		invade.move();
-		invade.moveHandler();
-
-		//if there are bullets
-		if(playerBullets.length != 0)
-			{
-				playerBullet.render();
-				playerBullet.updatePosition();
-				playerBullet.checkPosition();
-				playerBullet.collisionDetection();
-			}	
-		if (invadersBullets.length != 0)
-			{
-				invaderBullet.render();
-				invaderBullet.updatePosition();
-				invaderBullet.checkPosition();
-				invaderBullet.collisionDetection();
-
-			}
-
+		
 		updateScore();
+		render(cubeShape);
+		render(leftLShape);
+		render(rightLShape);
+		render(tShape);
+		render(leftZShape);
+		render(rightZShape);
+		render(lineShape);
+
 	}
 	
 function randomInteger(min, max) 
 					{
 						  return Math.floor(Math.random() * (max - min + 1)) + min;
 					}
+
+function render(shape)
+	{
+		var shapeOr = shape.currentOrientation;
+
+		shapeOr.forEach(s => {
+			ctx.fillStyle = shape.color;
+			ctx.fillRect(s.x,s.y,s.sizeX,s.sizeY)
+		})
+	}
+
+function changeOrientation(direction,shape)
+	{
+		if(direction === "clockwise")
+			{
+				shape.orientNum += 1;
+			}
+		else if (direction === "counter")
+			{
+				shape.orientNum -= 1;
+			}
+	}

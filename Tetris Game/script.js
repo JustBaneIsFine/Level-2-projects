@@ -11,10 +11,12 @@ if(storage.getItem("store") === null)
 var storedHighscore = JSON.parse(storage.getItem("store"));
 const highscoreBox = document.getElementById("highScore");
 var score = 0;
+
 const canvas = document.getElementById("canvas");
 
 var level = 1;
-
+var currentShape;
+var collection = [];
 
 
 window.onload = () => 
@@ -41,7 +43,7 @@ var gameArea =
 				
 				
 				this.gameInterval = setInterval(updateGameArea,1000/120);
-
+				this.moveInterval = setInterval(moveShapeDown,500);
 				this.canvas.width = 800;
 				this.canvas.height = 500;
 				this.context = this.canvas.getContext("2d");
@@ -91,9 +93,7 @@ var shapeNum = 7;
 
 
 
-//Each shape has 4 orientations
-
-
+//Each shape has 4 rotations
 
 function cubeShapeF()
 	{
@@ -101,13 +101,18 @@ function cubeShapeF()
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":40}];
-		this.orientation2 =	this.orientation1;
-		this.orientation3 =	this.orientation1;
-		this.orientation4 =	this.orientation1;
-		this.currentOrientation = this.orientation1;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":40}];
+		this.rotation2 =	this.rotation1;
+		this.rotation3 =	this.rotation1;
+		this.rotation4 =	this.rotation1;
+		this.currentRotation = this.rotation1;
+		this.rotationNum = 1;
 		this.color = "red";
+		this.collision1 = [{"cX":this.x,"cY":this.y+40 ,"cW":40}]
+		this.collision2 = this.collision1;
+		this.collision3 = this.collision1;
+		this.collision4 = this.collision1;
+
 
 	};
 
@@ -117,12 +122,12 @@ function leftLShapeF()
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":20},{"x":this.x,"y":this.y+20,"sizeX":60,"sizeY":20}];
-		this.orientation2 = [{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y,"sizeX":20,"sizeY":20}];	
-		this.orientation3 = [{"x":this.x,"y":this.y+20,"sizeX":60,"sizeY":20},{"x":this.x+40,"y":this.y+40,"sizeX":20,"sizeY":20}];	
-		this.orientation4 = [{"x":this.x,"y":this.y+40,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":60}];	
-		this.currentOrientation = this.orientation1;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":20},{"x":this.x,"y":this.y+20,"sizeX":60,"sizeY":20}];
+		this.rotation2 = [{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y,"sizeX":20,"sizeY":20}];	
+		this.rotation3 = [{"x":this.x,"y":this.y+20,"sizeX":60,"sizeY":20},{"x":this.x+40,"y":this.y+40,"sizeX":20,"sizeY":20}];	
+		this.rotation4 = [{"x":this.x,"y":this.y+40,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":60}];	
+		this.currentRotation = this.rotation1;
+		this.rotationNum = 1;
 		this.color = "blue";
 	}
 
@@ -132,12 +137,12 @@ function tShapeF()
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":20}];
-		this.orientation2 = [{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y,"sizeX":20,"sizeY":20}];	
-		this.orientation3 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+20,"y":this.y+20,"sizeX":20,"sizeY":20}];	
-		this.orientation4 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60}];	
-		this.currentOrientation = this.orientation1;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":20}];
+		this.rotation2 = [{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y,"sizeX":20,"sizeY":20}];	
+		this.rotation3 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+20,"y":this.y+20,"sizeX":20,"sizeY":20}];	
+		this.rotation4 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60}];	
+		this.currentRotation = this.rotation1;
+		this.rotationNum = 1;
 		this.color = "brown";
 
 	};
@@ -148,179 +153,139 @@ function rightLShapeF()
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":20}];
-		this.orientation2 = [{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y+20,"sizeX":20,"sizeY":20}];	
-		this.orientation3 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x,"y":this.y+20,"sizeX":20,"sizeY":20}];	
-		this.orientation4 = [{"x":this.x,"y":this.y-20,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60}];	
-		this.currentOrientation = this.orientation1;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":20}];
+		this.rotation2 = [{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60},{"x":this.x+40,"y":this.y+20,"sizeX":20,"sizeY":20}];	
+		this.rotation3 = [{"x":this.x,"y":this.y,"sizeX":60,"sizeY":20},{"x":this.x,"y":this.y+20,"sizeX":20,"sizeY":20}];	
+		this.rotation4 = [{"x":this.x,"y":this.y-20,"sizeX":20,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":60}];	
+		this.currentrotation = this.rotation1;
+		this.rotationNum = 1;
 		this.color = "purple";
 	};
 
-function leftZShapeF()
+funcRion leftZShapeF()
 	{
 		this.x = 320;
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y+20,"sizeX":40,"sizeY":20}];
-		this.orientation2 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":40},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":40}];	
-		this.orientation3 = [{"x":this.x,"y":this.y-20,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y,"sizeX":40,"sizeY":20}];	
-		this.orientation4 = [{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":40},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":40}];	
-		this.currentOrientation = this.orientation1;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y+20,"sizeX":40,"sizeY":20}];
+		this.rotation2 = [{"x":this.x,"y":this.y,"sizeX":20,"sizeY":40},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.rotation3 = [{"x":this.x,"y":this.y-20,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y,"sizeX":40,"sizeY":20}];	
+		this.rotation4 = [{"x":this.x+20,"y":this.y,"sizeX":20,"sizeY":40},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.currentrotation = this.rotation1;
+		this.rotationNum = 1;
 		this.color = "pink";
 	};
 
-function rightZShapeF()
+funcRion rightZShapeF()
 	{
 		this.x = 400;
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":40,"sizeY":20}];
-		this.orientation2 = [{"x":this.x,"y":this.y-40,"sizeX":20,"sizeY":40},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":40}];	
-		this.orientation3 = [{"x":this.x,"y":this.y-20,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y-40,"sizeX":40,"sizeY":20}];	
-		this.orientation4 = [{"x":this.x+20,"y":this.y-40,"sizeX":20,"sizeY":40},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":40}];	
-		this.currentOrientation = this.orientation1;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y-20,"sizeX":40,"sizeY":20}];
+		this.rotation2 = [{"x":this.x,"y":this.y-40,"sizeX":20,"sizeY":40},{"x":this.x+20,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.rotation3 = [{"x":this.x,"y":this.y-20,"sizeX":40,"sizeY":20},{"x":this.x+20,"y":this.y-40,"sizeX":40,"sizeY":20}];	
+		this.rotation4 = [{"x":this.x+20,"y":this.y-40,"sizeX":20,"sizeY":40},{"x":this.x+40,"y":this.y-20,"sizeX":20,"sizeY":40}];	
+		this.currentrotation = this.rotation1;
+		this.rotationNum = 1;
 		this.color = "black";
 	};
 
-function lineShapeF()
+funcRion lineShapeF()
 	{
 		this.x = 450;
 		this.y = 100;
 		this.lowestPoint;
 		this.highestPoint;
-		this.orientation1 = [{"x":this.x,"y":this.y,"sizeX":80,"sizeY":20}];
-		this.orientation2 = [{"x":this.x+20,"y":this.y-40,"sizeX":20,"sizeY":80}];	
-		this.orientation3 = [{"x":this.x,"y":this.y-20,"sizeX":80,"sizeY":20}];	
-		this.orientation4 = [{"x":this.x+40,"y":this.y-40,"sizeX":20,"sizeY":80}];	
-		this.currentOrientation = this.orientation4;
-		this.orientNum = 1;
+		this.rotation1 = [{"x":this.x,"y":this.y,"sizeX":80,"sizeY":20}];
+		this.rotation2 = [{"x":this.x+20,"y":this.y-40,"sizeX":20,"sizeY":80}];	
+		this.rotation3 = [{"x":this.x,"y":this.y-20,"sizeX":80,"sizeY":20}];	
+		this.rotation4 = [{"x":this.x+40,"y":this.y-40,"sizeX":20,"sizeY":80}];	
+		this.currentrotation = this.rotation4;
+		this.rotationNum = 1;
 		this.color = "green";
 	};
 
-
-
-
-
-function player(width, height,color,x,y)
+funcRion generateShape()
 	{
-		this.width = width;
-		this.height = height;
-		this.color = color;
-		this.x = x;
-		this.y = y;
-		this.speedX = 0;
-		this.speedY = 0;
-		this.left;
-		this.right;
-		this.bottom;
-		this.top;
-		this.bulletTime = 500;
-		this.moveSpeed = 3;
+		let random = randomInteger(0,6);
+		var shape;
+		switch (random) {
+			case 0:
+				shape = cubeShape;
+				break;
+			case 1:
+				shape = leftLShape;
+				break;
+			case 2:
+				shape = rightLShape;
+				break;
+			case 3:
+				shape = tShape;
+				break;
+			case 4:
+				shape = leftZShape;
+				break;
+			case 5:
+				shape = rightZShape;
+				break;
+			case 6:
+				shape = lineShape;
+				break;
+		}
 
-		this.update = function()
+		return shape;
+	}
+
+//so we have shapes and rotations.
+// now we need to generate a shape if there is no shape currently on screen
+function moveShapeDown()
+	{
+		if(currentShape === undefined)
 			{
-				ctx.fillStyle = color;
-				ctx.fillRect(this.x, this.y,this.width,this.height);
+				currentShape = generateShape();
 			}
-		this.updatePosition = function () 
-			{
-				this.x += player.speedX;
-				this.y += player.speedY;
-				this.left = this.x;
-				this.right = this.x+40;
-				this.bottom = this.y+20;
-				this.top = this.y;
+		else {
+			currentShape.y += 20;
+			checkPosition();
+		}
 
-			
-				if (player.x > 750){player.x = 750}
-				else if (player.x < 0){player.x = 0};
-			}
-		this.fireBullet = function()
-			{	
-				//generates bullet to be rendered, IF bullet hasn't been fired for a time(bulletTime);
-				if(!pBulletFired) 
-					{
-						var middle = this.x + 20;
-						var middleTop = this.y -15;
-						playerBullets.push({"x":middle,"y":middleTop})
-						pBulletFired = true;
-						setTimeout(()=>pBulletFired=false,this.bulletTime); //sets the amount of bullets that can be fired in a given time..
-					}
-				
-				
+		// if current shape is same, continues on
+		// if current shape has reached bottom, now current shape is undefined..
+		// we let one more step go, and then generate new shape
 
-			}
-
-		this.death = function()
-			{
-				
-				var result = confirm("You died. Want to try again? Your score is: " + score); 
-				if (result === true)
-					{
-						player.newGame();
-					}
-					else if(result ===false)
-					{
-						this.death()
-					};
-
-				if (score > storedHighscore)
-					{
-						storedHighscore = score; 
-						storage.setItem("store",JSON.stringify(storedHighscore));
-					};
+		
 
 
-				highscoreBox.innerHTML = JSON.parse(storage.getItem("store")); 
-				score = 0;
-				level = 1;
+	}
+
+function checkPosition()
+	{
+		var cX = currentShape.currentRotation.cX; 
+		var cY = currentShape.currentRotation.cY;
+		var cW = currentShape.currentRotation.cW;
+		// the above can work but i also need to iterate over all the 
+		if (hasShape(cX,cY,cW){
+
+			//stop movment and save this position and shape to collection
+			//currentShape = undefined
+		} //else do nothing..
+	}
+
+function hasShape(x,y,width)
+	{
+		var imgData = ctx.getImageData(x,y,width,1);
+		data = imgData.data;
+		var hasShape = false;
+		data.forEach(x =>{
+			if (x != 255)
+			{hasShape = true};
+		})
+		return hasShape;
 
 
-			}
-		this.newGame = function()
-			{
-				//reset all stats and start the game again
-				invade.resetAll();
-				invade.drawInvaders();
-				playerBullets = [];
-				invadersBullets = [];
-
-				//if button was held when player died, clear all movement for the new game
-				Object.values(gameArea.keys).forEach(x =>
-					{
-						x.pressed = false;
-					})
-				this.speedX = 0;
-				this.speedY = 0;
-
-
-				
-			}
-		this.newLevel = function()
-			{
-				// resets some stats and increases game speed (bullets, movement...)
-				this.newGame();
-				invade.moveDirection += 0.5;
-				invaderBullet.bulletSpeed += 1;
-				invaderBulletCount -= 50;
-				player.bulletTime -= 50;
-				if (player.bulletTime < 100){
-					player.bulletTime = 100;
-				}
-				player.moveSpeed +=0.5;
-				level += 1;
-
-
-			}
-	};
-
-
-
+	}
 
 function updateScore()
 	{
@@ -342,7 +307,8 @@ function updateGameArea()
 					{gameArea.keys[x].func()}
 			})
 
-		
+
+
 		updateScore();
 		render(cubeShape);
 		render(leftLShape);
@@ -351,6 +317,12 @@ function updateGameArea()
 		render(leftZShape);
 		render(rightZShape);
 		render(lineShape);
+
+		
+		//activate later
+		//if (currentShape != undefined){render(currentShape)};
+		//if (collection.length != 0) {render(collection)};
+
 
 	}
 	
@@ -361,7 +333,7 @@ function randomInteger(min, max)
 
 function render(shape)
 	{
-		var shapeOr = shape.currentOrientation;
+		var shapeOr = shape.currentrotation;
 
 		shapeOr.forEach(s => {
 			ctx.fillStyle = shape.color;
@@ -369,14 +341,14 @@ function render(shape)
 		})
 	}
 
-function changeOrientation(direction,shape)
+funcRion changerotation(direction,shape)
 	{
 		if(direction === "clockwise")
 			{
-				shape.orientNum += 1;
+				shape.rotationNum += 1;
 			}
 		else if (direction === "counter")
 			{
-				shape.orientNum -= 1;
+				shape.rotationNum -= 1;
 			}
 	}

@@ -124,7 +124,6 @@ function updateGameArea()
 		myBlock.speedY = 0;
 		secondBlock.speedX = 0;
 		secondBlock.speedY = 0;
-		
 
 		if (gameArea.keys && gameArea.keys[87]){
 			myBlock.speedY = -3;

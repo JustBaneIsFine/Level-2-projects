@@ -1,0 +1,23 @@
+{
+  "name": "web-scraper",
+  "version": "1.0.0",
+  "description": "web scraper",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustBaneIsFine/JustBaneIsFine.github.io.git"
+  },
+  "keywords": [
+    "web",
+    "scraper"
+  ],
+  "author": "JustBaneIsFine",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JustBaneIsFine/JustBaneIsFine.github.io/issues"
+  },
+  "homepage": "https://github.com/JustBaneIsFine/JustBaneIsFine.github.io#readme"
+}

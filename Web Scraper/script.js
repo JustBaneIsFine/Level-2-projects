@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
-const URLkupujem = "https://www.kupujemprodajem.com/automobili/kategorija/2013";
+const URLkupujem = "https://www.kupujemprodajem.com/automobili/opel/grupa/2013/2073";
 const URLpolovni = "https://www.polovniautomobili.com/";
 const URLg = "https://www.google.com/";
 var tries = 0;
@@ -10,23 +10,76 @@ var success = false;
 var browserClosed = false;
 var contentLoaded = false;
 var ran = false;
+var theList = [];
 
-loadPage(URLkupujem);
+var URLkupujemList = [];
+var numOfPages = 29;
+
+
+
+
+
+//loadPage(URLkupujem);
+
+//The async function runs page by page where as the ordinary function below runs multiple pages at once..
+
+		// (async function(){
+
+		// 	for (i=0;i<3;i++)
+		// 		{
+		// 			success = false;
+		// 			contentLoaded = false;
+		// 			var url = URLkupujem.concat("/"+(i+1));
+		// 			var a = await loadPage(url);
+		// 			theList.push(a);
+		// 			console.log(theList[0][0]);
+		// 		}	
+
+		// })();
+
+for (i=0;i<6;i++)
+				{
+					success = false;
+					contentLoaded = false;
+					var url = URLkupujem.concat("/"+(i+1));
+					var a = loadPage(url);
+					a.then(x => {
+						theList.push(x);
+							if(theList.length >= i){
+								for(n=0;n<theList.length;n++)	
+									{
+										console.log(theList[n]);
+									}
+							};
+						});
+				}	
+		
+
+// setTimeout(()=> {
+// 	for(n=0;n<theList.length;n++)	
+// 									{
+// 										console.log(theList[n]);
+// 									}	
+// },20000);
+
+
 
 
 
 async function loadPage (URL) 
 	{
+		var list = [];
 		//while the page throws error or is not loaded properly, try again..
 		try{
+
 		while(!success)
 			{
-				const browser = await puppeteer.launch({headless:false});
+				const browser = await puppeteer.launch({headless:true});
 				const page = await browser.newPage();
 				await page.setRequestInterception(true);
 
 					// when categoryTitle shows up, do this
-					page.waitForSelector('.categoryTitle').then(() => 
+					page.waitForSelector('.adName').then(() => 
 						{
 							success = true;
 							contentLoaded = true;
@@ -35,23 +88,21 @@ async function loadPage (URL)
 									(async function()
 										{
 											const text = await page.evaluate(() => {
-										   	var a = document.getElementsByClassName("categoryTitle");
+										   	var name = document.getElementsByClassName("adName");
+										   	var price = document.getElementsByClassName("adPrice");
 										   	var array = [];
-										   	for (i = 0;i<a.length;i++)
+										   	for (i = 0;i<name.length;i++)
 										   		{
-										   			array.push(a[i].childNodes[3].innerText);
+										   			array.push({"name": name[i].innerText, "price": price[i].innerText});
 										   		}
-
-										   	return array; 
-										})
-
-										console.log(text);
-										await browser.close();
+										   	return array;
+ 
+											})
+											list.push(text);
+											await browser.close();
 										}
 
-									)();	
-
-							
+									)();
 
 
 						});
@@ -78,23 +129,27 @@ async function loadPage (URL)
 									        body: "foo"
 									     	})
 										    
-										 	console.log("aborted request");
+										 	//console.log("aborted request");
 										}
 								  else
 									  {
-									  	console.log("allowed request");
+									  	//console.log("allowed request");
 									    request.continue();
 									  }	
 									}
 								
 						})
 
-					await page.goto(URLkupujem);
+					await page.goto(URL);
 			}
 		}
 		catch(e){console.log(e + " Expected navigation error")}
 
+		return list;
 	};
+
+
+
 
 
 

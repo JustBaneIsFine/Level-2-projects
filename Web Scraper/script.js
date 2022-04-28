@@ -6,9 +6,9 @@ const URLpolovni = "https://www.polovniautomobili.com/";
 const URLg = "https://www.google.com/";
 var tries = 0;
 var maxTries = 10;
-var success = false;
+
 var browserClosed = false;
-var contentLoaded = false;
+
 var ran = false;
 var theList = [];
 
@@ -21,7 +21,7 @@ var numOfPages = 29;
 
 //loadPage(URLkupujem);
 
-//The async function runs page by page where as the ordinary function below runs multiple pages at once..
+//The async function runs page by page whereas the ordinary function below runs multiple pages at once..
 
 		// (async function(){
 
@@ -37,21 +37,28 @@ var numOfPages = 29;
 
 		// })();
 
-for (i=0;i<6;i++)
+for (i=0;i<5;i++)
 				{
 					success = false;
 					contentLoaded = false;
 					var url = URLkupujem.concat("/"+(i+1));
-					var a = loadPage(url);
+					try {
+						var a = loadPage(url);
+					} catch(e) {
+						console.log(e);
+					}
+
+
+					
 					a.then(x => {
 						theList.push(x);
-							if(theList.length >= i){
+							if(theList.length >= i || i === 15){
 								for(n=0;n<theList.length;n++)	
 									{
 										console.log(theList[n]);
 									}
 							};
-						});
+						}).catch((e)=>console.log(e+"ERORE ER ERER E"));
 				}	
 		
 
@@ -68,47 +75,59 @@ for (i=0;i<6;i++)
 
 async function loadPage (URL) 
 	{
+		var success = false;
+		var contentLoaded = false;
 		var list = [];
 		//while the page throws error or is not loaded properly, try again..
 		try{
 
 		while(!success)
 			{
-				const browser = await puppeteer.launch({headless:true});
+				const browser = await puppeteer.launch({headless:false});
 				const page = await browser.newPage();
 				await page.setRequestInterception(true);
+				page.setDefaultNavigationTimeout(0);
 
 					// when categoryTitle shows up, do this
-					page.waitForSelector('.adName').then(() => 
-						{
-							success = true;
-							contentLoaded = true;
+								page.waitForSelector('.adName').then(() => 
+							{
+								success = true;
+								contentLoaded = true;
 
-									//here we do what we have to with the code
-									(async function()
-										{
-											const text = await page.evaluate(() => {
-										   	var name = document.getElementsByClassName("adName");
-										   	var price = document.getElementsByClassName("adPrice");
-										   	var array = [];
-										   	for (i = 0;i<name.length;i++)
-										   		{
-										   			array.push({"name": name[i].innerText, "price": price[i].innerText});
-										   		}
-										   	return array;
- 
-											})
-											list.push(text);
-											await browser.close();
-										}
+										//here we do what we have to with the code
+										(async function()
+											{
+												try 
+												{
+													const text = await page.evaluate(() => {
+												   	var name = document.getElementsByClassName("adName");
+												   	var price = document.getElementsByClassName("adPrice");
+												   	var array = [];
+												   	for (i = 0;i<name.length;i++)
+												   		{
+												   			array.push({"name": name[i].innerText, "price": price[i].innerText});
+												   		}
+											   		return array;
+	 
+													})
+													list.push(text);
+													await browser.close();
 
-									)();
+												} 
+												catch(e) 
+												{
+													console.log(e + "EROR NEW");
+												}
+												
+
+											}
+
+										)();
 
 
-						});
-
-					
-					
+						}).catch((e)=> {console.log(e+"THE NEW ERROR HANDLER");browser.close();success = false;
+								contentLoaded = false;});
+				
 					//intercept page requests.
 						page.on('request', request => {
 
@@ -142,9 +161,13 @@ async function loadPage (URL)
 
 					await page.goto(URL);
 			}
+
 		}
 		catch(e){console.log(e + " Expected navigation error")}
 
+		
+		console.log("WORKS"); 
+		if(!success){throw "manmade error"};
 		return list;
 	};
 

@@ -51,14 +51,17 @@ for (i=0;i<5;i++)
 
 					
 					a.then(x => {
+						if(x != undefined){
 						theList.push(x);
-							if(theList.length >= i || i === 15){
+							if(theList.length === 5){
 								for(n=0;n<theList.length;n++)	
 									{
 										console.log(theList[n]);
 									}
 							};
-						}).catch((e)=>console.log(e+"ERORE ER ERER E"));
+						}})
+					.catch((e)=>console.log(e+"ERORE ER ERER E"));
+
 				}	
 		
 
@@ -72,103 +75,156 @@ for (i=0;i<5;i++)
 
 
 
-
+// load page should return the data we need, or it should fail..
+// if it fails that means it has tried x times to get the data, but failed..
 async function loadPage (URL) 
 	{
-		var success = false;
-		var contentLoaded = false;
-		var list = [];
-		//while the page throws error or is not loaded properly, try again..
-		try{
+		//we need to track how many times it has tried to get that data..
+		count = 0;
+		success = false;
+		data = [];
 
-		while(!success)
+		//then we say
+		//repeat this code until we get the data we need
+		// or we failed 5 times...
+		while (!success && count<5)
 			{
-				const browser = await puppeteer.launch({headless:false});
-				const page = await browser.newPage();
-				await page.setRequestInterception(true);
-				page.setDefaultNavigationTimeout(0);
+				count++;
 
-					// when categoryTitle shows up, do this
-								page.waitForSelector('.adName').then(() => 
-							{
-								success = true;
-								contentLoaded = true;
+				try
+					{
+						//start up the browser and set config
+						const browser = await puppeteer.launch({headless:false});
+						const page = await browser.newPage();
+						await page.setRequestInterception(true);
+						page.setDefaultNavigationTimeout(0);
 
-										//here we do what we have to with the code
-										(async function()
-											{
-												try 
-												{
-													const text = await page.evaluate(() => {
-												   	var name = document.getElementsByClassName("adName");
-												   	var price = document.getElementsByClassName("adPrice");
-												   	var array = [];
-												   	for (i = 0;i<name.length;i++)
-												   		{
-												   			array.push({"name": name[i].innerText, "price": price[i].innerText});
-												   		}
-											   		return array;
-	 
-													})
-													list.push(text);
-													await browser.close();
+						//when categoryTitle shows up, do this
+						// IMPORTANT!
+						// This is an eventListener, so javascript will run it when it comes to it..
+						// in the meantime it will run the rest of the code until completion..
+						// this is where you left of <<<<<<<<<<<<<<<<<<<<<__________________________
+							page.waitForSelector('.adName')
+							.then(()=>
+								{
 
-												} 
-												catch(e) 
-												{
-													console.log(e + "EROR NEW");
-												}
-												
+								})
+							.catch((e)=>{console.log(e+"Timeout error caught");success = false;})
+						// this is where you left of <<<<<<<<<<<<<<<<<<<<<__________________________
+						//the current issue is how to await inside the while loop..
+						//since page.waitforselector runs at some time in the future, we need 
+						// to await it's result, but if we await it's result, we can't load the page..
 
-											}
+						// what i want to do is if the page loads that and we get the data, we change
+						// success to true, and then we return the data and that's the end..
+						// and if we fail to get the data, then success remains at false, so this block of
+						// code runs again 4 more times or until we get data..
+						
 
-										)();
+					}
 
-
-						}).catch((e)=> {console.log(e+"THE NEW ERROR HANDLER");browser.close();success = false;
-								contentLoaded = false;});
-				
-					//intercept page requests.
-						page.on('request', request => {
-
-								if (!contentLoaded){
-								  if ( 
-								  	request.resourceType() === 'image' || 
-								  	request.resourceType() ==='imageset' ||
-								  	request.resourceType() ==='media'||
-								  	request.resourceType() === 'font'||
-								  	request.resourceType() === 'object'||
-								  	request.resourceType() === 'object_subrequest'||	
-								  	request.resourceType() === 'sub_frame'||
-								  	request.resourceType() === 'xmlhttprequest'
-								  	)
-										{
-										 	request.respond({
-									        status: 200,
-									        body: "foo"
-									     	})
-										    
-										 	//console.log("aborted request");
-										}
-								  else
-									  {
-									  	//console.log("allowed request");
-									    request.continue();
-									  }	
-									}
-								
-						})
-
-					await page.goto(URL);
+				catch(e){console.log(e+" Expected navigation error")}
 			}
+// old code bellow ______________________________________________
 
+
+		while(!success){
+			var list = [];
+			//while the page throws error or is not loaded properly, try again..
+
+			try{
+				// instead of while 
+			
+					const browser = await puppeteer.launch({headless:false});
+					const page = await browser.newPage();
+					await page.setRequestInterception(true);
+					page.setDefaultNavigationTimeout(0);
+
+						// when categoryTitle shows up, do this
+									page.waitForSelector('.adName').then(() => 
+								{
+									store = (async function()
+												{
+													try 
+													{
+														const text = await page.evaluate(() => {
+													   	var name = document.getElementsByClassName("adName");
+													   	var price = document.getElementsByClassName("adPrice");
+													   	var array = [];
+													   	for (i = 0;i<name.length;i++)
+													   		{
+													   			array.push({"name": name[i].innerText, "price": price[i].innerText});
+													   		}
+												   		return array;
+		 
+														})
+														
+														success = true;
+														await browser.close();
+														return text;
+
+													} 
+													catch(e) 
+													{
+														console.log(e + "EROR NEW");
+													}
+													
+
+												}
+
+											)();
+
+									//success = true;
+									contentLoaded = true;
+
+											//here we do what we have to with the code
+											//this is the function we reuse
+										
+
+											store.then(console.log(store));
+							}).catch((e)=> {console.log(e+"THE NEW ERROR HANDLER TIMEOUT");browser.close();success = false;
+									contentLoaded = false;});
+					
+						//intercept page requests.
+							page.on('request', request => {
+
+									if (!contentLoaded){
+									  if ( 
+									  	request.resourceType() === 'image' || 
+									  	request.resourceType() ==='imageset' ||
+									  	request.resourceType() ==='media'||
+									  	request.resourceType() === 'font'||
+									  	request.resourceType() === 'object'||
+									  	request.resourceType() === 'object_subrequest'||	
+									  	request.resourceType() === 'sub_frame'||
+									  	request.resourceType() === 'xmlhttprequest'
+									  	)
+											{
+											 	request.respond({
+										        status: 200,
+										        body: "foo"
+										     	})
+											    
+											 	//console.log("aborted request");
+											}
+									  else
+										  {
+										  	//console.log("allowed request");
+										    request.continue();
+										  }	
+										}
+									
+							})
+
+						await page.goto(URL);
+				}
+
+			
+			catch(e){console.log(e + " Expected navigation error")}
+
+			
+			if(success){return list};
 		}
-		catch(e){console.log(e + " Expected navigation error")}
-
-		
-		console.log("WORKS"); 
-		if(!success){throw "manmade error"};
-		return list;
 	};
 
 

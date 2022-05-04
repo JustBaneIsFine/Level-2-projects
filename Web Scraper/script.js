@@ -36,161 +36,99 @@ var numOfPages = 29;
 		// 		}	
 
 		// })();
+//____ WORKING CODE
+	// for (i=0;i<5;i++)
+	// 				{
+	// 					var url = URLkupujem.concat("/"+(i+1));
 
-for (i=0;i<5;i++)
-				{
-					success = false;
-					contentLoaded = false;
-					var url = URLkupujem.concat("/"+(i+1));
-					try {
-						var a = loadPage(url);
-					} catch(e) {
-						console.log(e);
-					}
+	// 					var a = loadHandler(url);
 
 
-					
-					a.then(x => {
-						if(x != undefined){
-						theList.push(x);
-							if(theList.length === 5){
-								for(n=0;n<theList.length;n++)	
-									{
-										console.log(theList[n]);
-									}
-							};
-						}})
-					.catch((e)=>console.log(e+"ERORE ER ERER E"));
+						
+	// 					a.then(x => {
+	// 						if(a != false){
+	// 						theList.push(x);
+	// 							if(theList.length === 5){
+	// 								for(n=0;n<theList.length;n++)	
+	// 									{
+	// 										console.log(theList[n]);
+	// 									}
+	// 							};
+	// 						}})
+	// 					.catch((e)=>console.log(e+"Failed to get data from a page"));
 
-				}	
-		
-
-// setTimeout(()=> {
-// 	for(n=0;n<theList.length;n++)	
-// 									{
-// 										console.log(theList[n]);
-// 									}	
-// },20000);
+	// 				}	
+//____		
 
 
 
+
+x = loadHandler(URLkupujem);
+x.then((x)=>{console.log(x)});
 
 // load page should return the data we need, or it should fail..
 // if it fails that means it has tried x times to get the data, but failed..
 async function loadPage (URL) 
 	{
-		//we need to track how many times it has tried to get that data..
-		count = 0;
-		success = false;
-		data = [];
+		var contentLoaded = false;
 
-		//then we say
-		//repeat this code until we get the data we need
-		// or we failed 5 times...
-		while (!success && count<5)
-			{
-				count++;
-
-				try
-					{
-						//start up the browser and set config
-						const browser = await puppeteer.launch({headless:false});
-						const page = await browser.newPage();
-						await page.setRequestInterception(true);
-						page.setDefaultNavigationTimeout(0);
-
-						//when categoryTitle shows up, do this
-						// IMPORTANT!
-						// This is an eventListener, so javascript will run it when it comes to it..
-						// in the meantime it will run the rest of the code until completion..
-						// this is where you left of <<<<<<<<<<<<<<<<<<<<<__________________________
-							page.waitForSelector('.adName')
-							.then(()=>
-								{
-
-								})
-							.catch((e)=>{console.log(e+"Timeout error caught");success = false;})
-						// this is where you left of <<<<<<<<<<<<<<<<<<<<<__________________________
-						//the current issue is how to await inside the while loop..
-						//since page.waitforselector runs at some time in the future, we need 
-						// to await it's result, but if we await it's result, we can't load the page..
-
-						// what i want to do is if the page loads that and we get the data, we change
-						// success to true, and then we return the data and that's the end..
-						// and if we fail to get the data, then success remains at false, so this block of
-						// code runs again 4 more times or until we get data..
-						
-
-					}
-
-				catch(e){console.log(e+" Expected navigation error")}
-			}
-// old code bellow ______________________________________________
-
-
-		while(!success){
-			var list = [];
-			//while the page throws error or is not loaded properly, try again..
-
-			try{
-				// instead of while 
-			
+			try
+				{
+					//start up the browser and set config
 					const browser = await puppeteer.launch({headless:false});
 					const page = await browser.newPage();
 					await page.setRequestInterception(true);
 					page.setDefaultNavigationTimeout(0);
 
-						// when categoryTitle shows up, do this
-									page.waitForSelector('.adName').then(() => 
-								{
-									store = (async function()
-												{
-													try 
-													{
-														const text = await page.evaluate(() => {
-													   	var name = document.getElementsByClassName("adName");
-													   	var price = document.getElementsByClassName("adPrice");
-													   	var array = [];
-													   	for (i = 0;i<name.length;i++)
-													   		{
-													   			array.push({"name": name[i].innerText, "price": price[i].innerText});
-													   		}
-												   		return array;
-		 
-														})
+					//when .adName content shows up, extract the data
+					page.waitForSelector('.adName')
+						.then(()=>
+							{
+
+								contentLoaded = true;
+								//when .adName shows up, do this:
+								(async function()
+									
+									{
+
+										try
+											{
+												const text = await page.evaluate(()=>{
+													var name = document.getElementsByClassName("adName");
+													var price = document.getElementsByClassName("adPrice");
+													var array = [];
+
+													for (i=0;i<name.length;i++)
+														{
+															array.push({"name":name[i].innerText, "price":price[i].innerText});
+														}
 														
-														success = true;
-														await browser.close();
-														return text;
+													return array; // text is now array..
 
-													} 
-													catch(e) 
-													{
-														console.log(e + "EROR NEW");
-													}
-													
+												})
 
-												}
+											console.log(text, "<<<<<< THIS IS TEXT")
+											data = text;
+											console.log(data, "<<< THIS IS DATA");
+											await browser.close();
+											}
 
-											)();
+										catch(e){}
+									}
 
-									//success = true;
-									contentLoaded = true;
+								)();
 
-											//here we do what we have to with the code
-											//this is the function we reuse
-										
+								return text;
+							})
+						.catch((e)=>{console.log(e+"Timeout error caught");})
 
-											store.then(console.log(store));
-							}).catch((e)=> {console.log(e+"THE NEW ERROR HANDLER TIMEOUT");browser.close();success = false;
-									contentLoaded = false;});
-					
-						//intercept page requests.
-							page.on('request', request => {
 
-									if (!contentLoaded){
-									  if ( 
-									  	request.resourceType() === 'image' || 
+					//intercept page requests
+					page.on('request',request => {
+
+						if(!contentLoaded)
+							{
+								if(request.resourceType() === 'image' || 
 									  	request.resourceType() ==='imageset' ||
 									  	request.resourceType() ==='media'||
 									  	request.resourceType() === 'font'||
@@ -198,39 +136,64 @@ async function loadPage (URL)
 									  	request.resourceType() === 'object_subrequest'||	
 									  	request.resourceType() === 'sub_frame'||
 									  	request.resourceType() === 'xmlhttprequest'
-									  	)
-											{
-											 	request.respond({
-										        status: 200,
-										        body: "foo"
-										     	})
-											    
-											 	//console.log("aborted request");
-											}
-									  else
-										  {
-										  	//console.log("allowed request");
-										    request.continue();
-										  }	
+									)
+										{
+											//cancel request
+											request.respond({
+												status:200,
+												body:"foo"
+											})	
 										}
-									
-							})
+								else
+									{
+										request.continue();
+									}
 
-						await page.goto(URL);
+							}
+					})
+
+					//go to this page
+					await page.goto(URL);
+
+
 				}
+			catch(e){console.log(e+" Expected navigation error")}
+
 
 			
-			catch(e){console.log(e + " Expected navigation error")}
+		if(contentLoaded){return data}else{return false};
 
-			
-			if(success){return list};
-		}
-	};
+	}
 
+async function loadHandler(URL)
+	{
+		var fail = true;
+		var count = 0;
+		let data;
 
+			while(fail && count < 5)
+				{
+					count ++;
 
+					await loadPage(URL);
+					console.log(data + "<<< DATA");
 
+						if (data != undefined || data != false)
+							{
+								fail = false;
+							}
+						else{fail = true; data = false}
 
+					
+					//console.log(a);
+						//if promise fulfiled and it's not undefined or 0 length
+						
+						// if(a != undefined || a.length != 0)
+						// 	{fail === false; data = x}
+						// else {fail = true; data = false;}
+				}
+		return data;
+	}
 
 
 const getRawData = (URL) => 

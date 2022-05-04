@@ -1,0 +1,93 @@
+This txt file is for keeping personal notes, tracking my progress and also instead of 
+talking to a duck, i find writing works better for me.. Also forgive the spelling..
+
+
+I decided to upload these files as well with each app, someone might find it useful or interesting, or funny
+to see how i solve some issues..
+
+
+------------------------------------03.04.2022------------------------------------
+
+__CURRENT ISSUE___
+
+What i want to do:
+	I want to load 5 pages at a time..
+	so for 20 pages that would be 4 cycles..
+
+ 	! Now if one page fails to load, i want that page to try again 3 times..
+
+! <- this is where i have an issue...
+
+
+I am trying to achieve that like this:
+loadPage(){
+	While(!success){doSomething}
+}
+
+
+If something inside doSomething fails, it will set success to false..
+If it succeeds it will set success to true
+
+
+---------
+That is what im trying to do and it sounds pretty simple...
+
+What changes that state of success is an event listener...
+
+So this event listener waits for the page to load up to a certain point,
+and then it runs some code to extract the data...
+If that event listener fails then it sets success to false...
+
+____THE ISSUE____
+
+That event listener changes the success to false or true,
+however javascript has exited the while loop already,
+so nothing happens...
+
+It would be great if we could await that event listener
+so that javascript doesnt continue to go trough the while function until
+we say it should
+
+However i need javascript to continue loading the page...
+
+----What are other ways of doing this?
+1. i can load page by page, which will be slower but easier to work with and control
+
+2. i can do it this way, but instead of handling the page reload inside
+the function, i can handle it outside by storing the pages that did not return the correct data
+
+I can do it the other two ways, but this current way of doing it seems
+like the best way for me
+And also it's a challenge to solve..
+
+
+______Possible solutions______
+
+What if i create another function
+
+A function that will regulate this issue..
+
+async function handler(URL)
+	{
+		var fail = true;
+		var count = 0;
+		var data;
+
+		while(fail && count < 5)
+			{
+				count ++;
+
+				var a = await loadPage(url);
+
+				if (a === promise.failed || a === undefined || a === bad data)
+					{
+						fail = true;
+						data = false;
+					}
+				else { fail = false; data = a;}
+			}
+		
+
+
+			if( data != false){return data;}else{return false;}
+	}

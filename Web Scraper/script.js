@@ -1,76 +1,76 @@
+const fs = require('fs');
+const file = fs.createWriteStream('/Users/Theseus/Desktop/test.txt');
+
+
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const URLkupujem = "https://www.kupujemprodajem.com/automobili/opel/grupa/2013/2073";
 const URLpolovni = "https://www.polovniautomobili.com/";
-const URLg = "https://www.google.com/";
-var tries = 0;
-var maxTries = 10;
 
-var browserClosed = false;
 
-var ran = false;
 var theList = [];
-
-var URLkupujemList = [];
-var numOfPages = 29;
-
-
+var pageNum = 5;
+// Need to set it up so that if there are 80 pages,
+// i can load 5 or 10 at a time, instead of all 80..
 
 
+for (i=0;i<pageNum;i++)
+	{
+		var url = URLkupujem.concat("/"+(i+1));
 
-//loadPage(URLkupujem);
+		var data = loadHandler(url);
+		
+		data.then(x => 
+		{
+			if(x != false)
+			{
+				theList.push(x);
 
-//The async function runs page by page whereas the ordinary function below runs multiple pages at once..
+				if(theList.length === pageNum)
+				{
+					content = [];
 
-		// (async function(){
+					//for each page content -> 5 pages
+					for(n=0;n<theList.length;n++)	
+						{
+							//make the data writable
+							var cont = [];
 
-		// 	for (i=0;i<3;i++)
-		// 		{
-		// 			success = false;
-		// 			contentLoaded = false;
-		// 			var url = URLkupujem.concat("/"+(i+1));
-		// 			var a = await loadPage(url);
-		// 			theList.push(a);
-		// 			console.log(theList[0][0]);
-		// 		}	
+							theList[n].forEach(x=>{
+								var x = [JSON.stringify(x.name).replaceAll(' ',' '),JSON.stringify(x.price).replaceAll(' ',' ')];
+								cont.push(x);
+							});
+							//join the data up
+							cont = cont.join('\n');
+							content.push(cont);
+					
+							
+						};
+						content = content.join('\n');
 
-		// })();
-//____ WORKING CODE
-	// for (i=0;i<5;i++)
-	// 				{
-	// 					var url = URLkupujem.concat("/"+(i+1));
+					fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
+						 	//throws an error, you could also catch it here
+						    if (err) throw err;
 
-	// 					var a = loadHandler(url);
-
-
-						
-	// 					a.then(x => {
-	// 						if(a != false){
-	// 						theList.push(x);
-	// 							if(theList.length === 5){
-	// 								for(n=0;n<theList.length;n++)	
-	// 									{
-	// 										console.log(theList[n]);
-	// 									}
-	// 							};
-	// 						}})
-	// 					.catch((e)=>console.log(e+"Failed to get data from a page"));
-
-	// 				}	
-//____		
-
-
-
-
-x = loadHandler(URLkupujem);
-x.then((x)=>{console.log(x)});
+						    // success case, the file was saved
+						    console.log('Lyric saved!');
+						});;
+				}
+			}
+		})
+		.catch((e)=>console.log(e+"Failed to get data from a page"));
+	}	
+// ____		
 
 // load page should return the data we need, or it should fail..
 // if it fails that means it has tried x times to get the data, but failed..
 async function loadPage (URL) 
 	{
+	
+
 		var contentLoaded = false;
+		var data;
 
 			try
 				{
@@ -81,13 +81,11 @@ async function loadPage (URL)
 					page.setDefaultNavigationTimeout(0);
 
 					//when .adName content shows up, extract the data
-					page.waitForSelector('.adName')
+					data = page.waitForSelector('.adName',{timeout: 5000})
 						.then(()=>
 							{
-
-								contentLoaded = true;
 								//when .adName shows up, do this:
-								(async function()
+								return (async function()
 									
 									{
 
@@ -107,20 +105,21 @@ async function loadPage (URL)
 
 												})
 
-											console.log(text, "<<<<<< THIS IS TEXT")
-											data = text;
-											console.log(data, "<<< THIS IS DATA");
+											//console.log(text, "<<<<<< THIS IS TEXT")
+											//data = text;
+											//console.log(data, "<<< THIS IS DATA");
 											await browser.close();
+											contentLoaded = true;
+											return text;
 											}
 
 										catch(e){}
+										return text;
 									}
 
 								)();
-
-								return text;
 							})
-						.catch((e)=>{console.log(e+"Timeout error caught");})
+						.catch((e)=>{console.log(e+"Timeout error caught"); browser.close();return false;})
 
 
 					//intercept page requests
@@ -159,9 +158,7 @@ async function loadPage (URL)
 				}
 			catch(e){console.log(e+" Expected navigation error")}
 
-
-			
-		if(contentLoaded){return data}else{return false};
+		return data; //returns promise
 
 	}
 
@@ -175,28 +172,20 @@ async function loadHandler(URL)
 				{
 					count ++;
 
-					await loadPage(URL);
-					console.log(data + "<<< DATA");
+					data = await loadPage(URL);
 
-						if (data != undefined || data != false)
+						if (data === undefined || data === false)
 							{
+								fail = true; data = false;
+							}
+						else{
 								fail = false;
 							}
-						else{fail = true; data = false}
-
-					
-					//console.log(a);
-						//if promise fulfiled and it's not undefined or 0 length
-						
-						// if(a != undefined || a.length != 0)
-						// 	{fail === false; data = x}
-						// else {fail = true; data = false;}
 				}
 		return data;
 	}
 
-
-const getRawData = (URL) => 
+function getRawData (URL) 
 	{
 		return fetch(URL)
 		.then((response)=>response.text())

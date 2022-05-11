@@ -1,70 +1,74 @@
 const fs = require('fs');
 const file = fs.createWriteStream('/Users/Theseus/Desktop/test.txt');
 
-
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const URLkupujem = "https://www.kupujemprodajem.com/automobili/opel/grupa/2013/2073";
 const URLpolovni = "https://www.polovniautomobili.com/";
 
-
+var data;
 var theList = [];
-var pageNum = 5;
-// Need to set it up so that if there are 80 pages,
-// i can load 5 or 10 at a time, instead of all 80..
+var pageNum = 29;
+var pageCounter = 0;
 
-
-for (i=0;i<pageNum;i++)
+(async()=>{
+	 while(pageCounter<pageNum)
 	{
-		var url = URLkupujem.concat("/"+(i+1));
-
-		var data = loadHandler(url);
-		
-		data.then(x => 
-		{
-			if(x != false)
+		var amount = 5;
+		if(pageNum-pageCounter < 5)
 			{
-				theList.push(x);
-
-				if(theList.length === pageNum)
-				{
-					content = [];
-
-					//for each page content -> 5 pages
-					for(n=0;n<theList.length;n++)	
-						{
-							//make the data writable
-							var cont = [];
-
-							theList[n].forEach(x=>{
-								var x = [JSON.stringify(x.name).replaceAll(' ',' '),JSON.stringify(x.price).replaceAll(' ',' ')];
-								cont.push(x);
-							});
-							//join the data up
-							cont = cont.join('\n');
-							content.push(cont);
-					
-							
-						};
-						content = content.join('\n');
-
-					fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
-						 	//throws an error, you could also catch it here
-						    if (err) throw err;
-
-						    // success case, the file was saved
-						    console.log('Lyric saved!');
-						});;
-				}
+				amount = pageNum-pageCounter;
 			}
-		})
-		.catch((e)=>console.log(e+"Failed to get data from a page"));
-	}	
-// ____		
+		for (i=0;i<amount;i++)
+			{
+				
+				var url = URLkupujem.concat("/"+(pageCounter+1));
+				pageCounter++;
+				data = loadHandler(url);
+				data.then(x => 
+				{
+					if(x != false)
+					{
+						theList.push(x);
 
-// load page should return the data we need, or it should fail..
-// if it fails that means it has tried x times to get the data, but failed..
+						if(theList.length === pageNum)
+						{
+							content = [];
+
+							
+							for(n=0;n<theList.length;n++)	
+								{
+									
+									var cont = [];
+
+									theList[n].forEach(x=>{
+										var x = [JSON.stringify(x.name).replaceAll(' ',' '),JSON.stringify(x.price).replaceAll(' ',' ')];
+										cont.push(x);
+									});
+
+									cont = cont.join('\n');
+									content.push(cont);
+							
+									
+								};
+								content = content.join('\n');
+
+							fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
+								 	
+								    if (err) throw err;
+								    console.log('Content saved!');
+								});;
+						}
+					}
+				})
+				.catch((e)=>console.log(e+"Failed to get data from a page"));
+			}	
+		await Promise.all([data,data,data,data,data]);
+	}
+})();
+	
+
 async function loadPage (URL) 
 	{
 	
@@ -75,13 +79,13 @@ async function loadPage (URL)
 			try
 				{
 					//start up the browser and set config
-					const browser = await puppeteer.launch({headless:false});
+					const browser = await puppeteer.launch({headless:true});
 					const page = await browser.newPage();
 					await page.setRequestInterception(true);
 					page.setDefaultNavigationTimeout(0);
 
 					//when .adName content shows up, extract the data
-					data = page.waitForSelector('.adName',{timeout: 5000})
+					data = page.waitForSelector('.adName',{timeout: 10000})
 						.then(()=>
 							{
 								//when .adName shows up, do this:

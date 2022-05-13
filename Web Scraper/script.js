@@ -1,6 +1,10 @@
 const fs = require('fs');
 const file = fs.createWriteStream('/Users/Theseus/Desktop/test.txt');
 
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const creds = require('./client_secret.json');
+
+
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
@@ -9,13 +13,16 @@ const URLpolovni = "https://www.polovniautomobili.com/";
 
 var data;
 var theList = [];
-var pageNum = 29;
+var pageNum = 6;
 var pageCounter = 0;
 
+// this function loads all pages, 5 at a time
+// then when all have been loaded, converts and uses that data 
 (async()=>{
 	 while(pageCounter<pageNum)
 	{
 		var amount = 5;
+		console.log("_________________Loading Pages_________________")
 		if(pageNum-pageCounter < 5)
 			{
 				amount = pageNum-pageCounter;
@@ -28,6 +35,7 @@ var pageCounter = 0;
 				data = loadHandler(url);
 				data.then(x => 
 				{
+					console.log("_________________got page_________________")
 					if(x != false)
 					{
 						theList.push(x);
@@ -39,32 +47,27 @@ var pageCounter = 0;
 							
 							for(n=0;n<theList.length;n++)	
 								{
-									
-									var cont = [];
-
 									theList[n].forEach(x=>{
-										var x = [JSON.stringify(x.name).replaceAll(' ',' '),JSON.stringify(x.price).replaceAll(' ',' ')];
-										cont.push(x);
+										//var c = [JSON.stringify(x.name).replaceAll(' ',' '),JSON.stringify(x.price).replaceAll(' ',' ')];
+										//cont.push(c);
+										content.push(x);
 									});
-
-									cont = cont.join('\n');
-									content.push(cont);
 							
 									
 								};
-								content = content.join('\n');
 
-							fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
-								 	
-								    if (err) throw err;
-								    console.log('Content saved!');
-								});;
+							//content is now usable as array of objects [{name-name,price-price},{etc}]
+								exportDataToExcel(content);
+								//content.forEach(x=>console.log(`${x.name}\n`));							
+
+							//writeToFile(content)
 						}
 					}
 				})
 				.catch((e)=>console.log(e+"Failed to get data from a page"));
 			}	
 		await Promise.all([data,data,data,data,data]);
+
 	}
 })();
 	
@@ -102,7 +105,7 @@ async function loadPage (URL)
 
 													for (i=0;i<name.length;i++)
 														{
-															array.push({"name":name[i].innerText, "price":price[i].innerText});
+															array.push({"Car Name":name[i].innerText, "Car Price":price[i].innerText});
 														}
 														
 													return array; // text is now array..
@@ -200,3 +203,39 @@ function getRawData (URL)
 	//car selling websites in Serbia
 	//Will also make web scraper and comparison for 
 	//amazon/ebay or some other sites, will see..
+
+async function exportDataToExcel(data)
+	{
+		console.log("_________________exporting data_________________");
+		//here i will get data as an array containing objects all the data like this:
+		// data = [{"name":"carname","price":5521$},{etc..}]
+
+		// then i take that and use the spreadsheet functions to insert it into the spreadsheet
+
+		const doc = new GoogleSpreadsheet('1lMEQtBDCCcHtDzLtZzgl9pOY_M77mw7hA5CCiVGR3G0');
+		await doc.useServiceAccountAuth({
+			client_email: creds.client_email,
+			private_key: creds.private_key,
+		});
+
+		const info = await doc.loadInfo();
+		console.log("_________________got info_________________");
+		const sheet = doc.sheetsByIndex[0];
+		const rows = await sheet.getRows({
+			offset:1
+		})
+		console.log("_________________ploting rows_________________")
+		console.log("_________________adding rows_________________")
+		await sheet.addRows(content);
+		console.log("__________________DONE!__________________")
+
+	}
+
+function writeToFile(content)
+	{
+		fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
+			 	
+			    if (err) throw err;
+			    console.log('Content saved!');
+			});;
+	}

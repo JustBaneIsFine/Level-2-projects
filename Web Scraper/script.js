@@ -13,7 +13,7 @@ const URLpolovni = "https://www.polovniautomobili.com/";
 
 var data;
 var theList = [];
-var pageNum = 6;
+var pageNum = 28;
 var pageCounter = 0;
 
 // this function loads all pages, 5 at a time
@@ -48,11 +48,23 @@ var pageCounter = 0;
 							for(n=0;n<theList.length;n++)	
 								{
 									theList[n].forEach(x=>{
-										//var c = [JSON.stringify(x.name).replaceAll(' ',' '),JSON.stringify(x.price).replaceAll(' ',' ')];
-										//cont.push(c);
-										content.push(x);
+										var carName = x["Car Name"].replaceAll(' ',' ');
+
+										var carPrice = (x["Car Price"].replaceAll(' ',' ')).replaceAll('.','');
+
+										if(
+											!carPrice.includes('Pozvati') &&
+											!carPrice.includes('Dogovor') &&
+											!carPrice.includes('Kupujem') &&
+											!carPrice.includes('Kontakt'))
+											{
+												carPrice = carPrice.slice(0,-5);
+											}
+										var c = [carName,carPrice];
+										content.push(c);
+
 									});
-							
+							 
 									
 								};
 
@@ -99,15 +111,22 @@ async function loadPage (URL)
 										try
 											{
 												const text = await page.evaluate(()=>{
-													var name = document.getElementsByClassName("adName");
-													var price = document.getElementsByClassName("adPrice");
+													//or i could do, for each of these, get name,price and href.
+													var listOfNames = document.getElementsByClassName("adName");
 													var array = [];
 
-													for (i=0;i<name.length;i++)
+													for (i=0;i<listOfNames.length;i++)
 														{
-															array.push({"Car Name":name[i].innerText, "Car Price":price[i].innerText});
+															var parentElement = listOfNames[i].parentElement.parentElement.parentElement.parentElement;
+															var name = parentElement.childNodes[3].childNodes[1].childNodes[1].innerText;
+															var price = parentElement.childNodes[7].childNodes[1].innerText;
+															var href =  parentElement.childNodes[3].childNodes[1].childNodes[1].childNodes[1].href;
+															name = `\"${name}\"`;
+															href = `\"${href}\"`;
+															var adObj = {"Car Name":`=HYPERLINK(${href},${name})`,"Car Price": price};
+															array.push(adObj);
 														}
-														
+
 													return array; // text is now array..
 
 												})
@@ -163,7 +182,7 @@ async function loadPage (URL)
 
 
 				}
-			catch(e){console.log(e+" Expected navigation error")}
+			catch(e){}
 
 		return data; //returns promise
 

@@ -13,7 +13,7 @@ const URLpolovni = "https://www.polovniautomobili.com/";
 
 var data;
 var theList = [];
-var pageNum = 28;
+var pageNum = 6;
 var pageCounter = 0;
 
 // this function loads all pages, 5 at a time
@@ -49,8 +49,11 @@ var pageCounter = 0;
 								{
 									theList[n].forEach(x=>{
 										var carName = x["Car Name"].replaceAll(' ',' ');
-
 										var carPrice = (x["Car Price"].replaceAll(' ',' ')).replaceAll('.','');
+										var carYear =  x["Car Year"];
+										var carFuel = x["Car Fuel"];
+										var carCC = x["Car CC"];
+										var carKM = x["Car KM"];
 
 										if(
 											!carPrice.includes('Pozvati') &&
@@ -60,7 +63,7 @@ var pageCounter = 0;
 											{
 												carPrice = carPrice.slice(0,-5);
 											}
-										var c = [carName,carPrice];
+										var c = [carName,carPrice,carYear,carFuel,carCC,carKM];
 										content.push(c);
 
 									});
@@ -100,7 +103,7 @@ async function loadPage (URL)
 					page.setDefaultNavigationTimeout(0);
 
 					//when .adName content shows up, extract the data
-					data = page.waitForSelector('.adName',{timeout: 10000})
+					data = page.waitForSelector('.adName',{timeout: 15000})
 						.then(()=>
 							{
 								//when .adName shows up, do this:
@@ -117,14 +120,35 @@ async function loadPage (URL)
 
 													for (i=0;i<listOfNames.length;i++)
 														{
-															var parentElement = listOfNames[i].parentElement.parentElement.parentElement.parentElement;
-															var name = parentElement.childNodes[3].childNodes[1].childNodes[1].innerText;
-															var price = parentElement.childNodes[7].childNodes[1].innerText;
-															var href =  parentElement.childNodes[3].childNodes[1].childNodes[1].childNodes[1].href;
+															
+															var parent = listOfNames[i].parentElement.parentElement.parentElement.parentElement;
+															var name = parent.childNodes[3].childNodes[1].childNodes[1].innerText;
+															var price = parent.childNodes[7].childNodes[1].innerText;
+															var href =  parent.childNodes[3].childNodes[1].childNodes[1].childNodes[1].href;
+
+															
+															var description = parent.childNodes[3].childNodes[1].childNodes[3].innerText;
+															description = description.split(',');
+
+															var year = description[0];
+															var fuel =  description[3].split('.')[0];
+															var cc =  description[2]
+															var km =  description[1];
+
 															name = `\"${name}\"`;
 															href = `\"${href}\"`;
-															var adObj = {"Car Name":`=HYPERLINK(${href},${name})`,"Car Price": price};
+
+															var adObj = {
+																"Car Name":`=HYPERLINK(${href},${name})`,
+																"Car Price": price,
+																"Car Year":year,
+																"Car Fuel":fuel,
+																"Car KM":km,
+																"Car CC":cc,
+																}
+
 															array.push(adObj);
+															
 														}
 
 													return array; // text is now array..
@@ -145,7 +169,7 @@ async function loadPage (URL)
 
 								)();
 							})
-						.catch((e)=>{console.log(e+"Timeout error caught"); browser.close();return false;})
+						.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
 
 
 					//intercept page requests

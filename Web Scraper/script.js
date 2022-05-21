@@ -9,15 +9,17 @@ const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const URLkupujem = "https://www.kupujemprodajem.com/automobili/opel/grupa/2013/2073";
-const URLpolovni = "https://www.polovniautomobili.com/";
+const URLpolovni = "https://www.polovniautomobili.com/auto-oglasi/pretraga?page=1&sort=basic&brand=opel";
 
 var data;
 var theList = [];
-var pageNum = 6;
+var pageNum = 25;
 var pageCounter = 0;
 
 // this function loads all pages, 5 at a time
 // then when all have been loaded, converts and uses that data 
+
+
 (async()=>{
 	 while(pageCounter<pageNum)
 	{
@@ -29,15 +31,23 @@ var pageCounter = 0;
 			}
 		for (i=0;i<amount;i++)
 			{
-				
+				//change this
+				//used for polovni...
+				//var url = `https://www.polovniautomobili.com/auto-oglasi/pretraga?page=${pageCounter+1}&sort=basic&brand=opel`;
+				//below url is for testing
+				//var url = `https://www.polovniautomobili.com/auto-oglasi/snizena-cena?page=${pageCounter+1}&sort=last_changed_desc&`;
+				//used for kupujemprodajem
 				var url = URLkupujem.concat("/"+(pageCounter+1));
 				pageCounter++;
 				data = loadHandler(url);
 				data.then(x => 
 				{
+
 					console.log("_________________got page_________________")
+					//console.log(x[0]);
 					if(x != false)
 					{
+
 						theList.push(x);
 
 						if(theList.length === pageNum)
@@ -47,22 +57,25 @@ var pageCounter = 0;
 							
 							for(n=0;n<theList.length;n++)	
 								{
-									theList[n].forEach(x=>{
-										var carName = x["Car Name"].replaceAll(' ',' ');
-										var carPrice = (x["Car Price"].replaceAll(' ',' ')).replaceAll('.','');
-										var carYear =  x["Car Year"];
-										var carFuel = x["Car Fuel"];
-										var carCC = x["Car CC"];
-										var carKM = x["Car KM"];
+									theList[n].forEach(obj=>{
 
-										if(
-											!carPrice.includes('Pozvati') &&
-											!carPrice.includes('Dogovor') &&
-											!carPrice.includes('Kupujem') &&
-											!carPrice.includes('Kontakt'))
-											{
-												carPrice = carPrice.slice(0,-5);
-											}
+										var carName = obj["Car Name"].replaceAll(' ',' ');
+										var carPrice = obj["Car Price"];
+										var carYear =  obj["Car Year"];
+										var carFuel = obj["Car Fuel"];
+										var carCC = obj["Car CC"];
+										var carKM = obj["Car KM"];
+
+										// if(
+										// 	!carPrice.includes('Pozvati') &&
+										// 	!carPrice.includes('Dogovor') &&
+										// 	!carPrice.includes('Kupujem') &&
+										// 	!carPrice.includes('Kontakt'))
+										// 	{
+										// 		//carPrice = carPrice.slice(0,-5);
+										// 	}
+
+
 										var c = [carName,carPrice,carYear,carFuel,carCC,carKM];
 										content.push(c);
 
@@ -102,7 +115,10 @@ async function loadPage (URL)
 					await page.setRequestInterception(true);
 					page.setDefaultNavigationTimeout(0);
 
-					//when .adName content shows up, extract the data
+					//changeThis
+					//when .adName content shows up, extract the data -> used for kupujemprodjame website
+					//when .info content shows up, extract the data -> used for polovniautomobili website
+
 					data = page.waitForSelector('.adName',{timeout: 15000})
 						.then(()=>
 							{
@@ -115,40 +131,106 @@ async function loadPage (URL)
 											{
 												const text = await page.evaluate(()=>{
 													//or i could do, for each of these, get name,price and href.
+
+													//changeThis
+													//adName for kupujemprodajem
+													//textContentHolder for polovni automobili
+
 													var listOfNames = document.getElementsByClassName("adName");
 													var array = [];
 
-													for (i=0;i<listOfNames.length;i++)
+													for (i=0;i<listOfNames.length-1;i++)
 														{
-															
-															var parent = listOfNames[i].parentElement.parentElement.parentElement.parentElement;
-															var name = parent.childNodes[3].childNodes[1].childNodes[1].innerText;
-															var price = parent.childNodes[7].childNodes[1].innerText;
-															var href =  parent.childNodes[3].childNodes[1].childNodes[1].childNodes[1].href;
+															//changeThis
+															//used for kupujem 
+															//_______
 
-															
-															var description = parent.childNodes[3].childNodes[1].childNodes[3].innerText;
-															description = description.split(',');
+																var parent = listOfNames[i].parentElement.parentElement.parentElement.parentElement;
+																var name = parent.childNodes[3].childNodes[1].childNodes[1].innerText;
+																var price = parent.childNodes[7].childNodes[1].innerText.replaceAll("din","").replaceAll(".",",").replaceAll("€","");
+																var href =  parent.childNodes[3].childNodes[1].childNodes[1].childNodes[1].href;
 
-															var year = description[0];
-															var fuel =  description[3].split('.')[0];
-															var cc =  description[2]
-															var km =  description[1];
+																
+																var description = parent.childNodes[3].childNodes[1].childNodes[3].innerText;
+																description = description.split(',');
 
-															name = `\"${name}\"`;
-															href = `\"${href}\"`;
+																var year = description[0];
+																var fuel =  description[3].split('.')[0];
+																var cc =  description[2].replaceAll("cm3","");
+																var km =  description[1].replaceAll("km","").replaceAll(".",",");
 
-															var adObj = {
-																"Car Name":`=HYPERLINK(${href},${name})`,
-																"Car Price": price,
-																"Car Year":year,
-																"Car Fuel":fuel,
-																"Car KM":km,
-																"Car CC":cc,
-																}
+																name = `\"${name}\"`;
+																href = `\"${href}\"`;
 
-															array.push(adObj);
-															
+																var adObj = {
+																	"Car Name":`=HYPERLINK(${href},${name})`,
+																	"Car Price": price,
+																	"Car Year":year,
+																	"Car Fuel":fuel,
+																	"Car KM":km,
+																	"Car CC":cc,
+																	}
+
+																array.push(adObj);
+
+															//_______
+
+															//used for polovni
+															//_______
+
+																// var parent = listOfNames[i].parentElement;
+
+																// var name = parent.querySelector(".ga-title").innerText;
+																// var priceDiscount = parent.querySelector(".price").querySelector(".priceDiscount");
+																// var price = parent.querySelector(".price").innerText;
+
+																// if(priceDiscount != null)
+																// 	{
+																// 		price = priceDiscount.innerText;
+																// 	}
+
+																// if(price.includes("+"))
+																// 	{	
+																// 		var b;
+																// 		b = price.split("+");
+																// 		price = b[0];
+																// 	}
+																// else if(price.includes("\n"))
+																// 	{
+																// 		var b;
+																// 		b = price.split("\n");
+																// 		price = b[1];
+																// 	};
+
+																// price = price.replaceAll(" ","").replaceAll(".",",").replaceAll("€","");
+
+
+																// var href = parent.querySelector(".ga-title").href;
+																
+																// //access info trough children  description.children[0] etc..
+																// var description = parent.querySelector(".info");
+
+																// var year = description.children[0].innerText.split('\n')[0].split('.')[0];
+																// var fuel = description.children[0].innerText.split('\n')[1].split("|")[0];
+																// var cc =  description.children[0].innerText.split('\n')[1].split("|")[1].replaceAll("cm3","");
+																// var km =  description.children[1].innerText.split("\n")[0].replaceAll(".",",").replaceAll("km","");
+
+																// name = `\"${name}\"`;
+																// href = `\"${href}\"`;
+
+																// var adObj = {
+																// 	"Car Name":`=HYPERLINK(${href},${name})`,
+																// 	"Car Price": price,
+																// 	"Car Year":year,
+																// 	"Car Fuel":fuel,
+																// 	"Car KM":km,
+																// 	"Car CC":cc,
+																// 	}
+
+																// array.push(adObj);
+
+															//_______
+
 														}
 
 													return array; // text is now array..
@@ -158,12 +240,13 @@ async function loadPage (URL)
 											//console.log(text, "<<<<<< THIS IS TEXT")
 											//data = text;
 											//console.log(data, "<<< THIS IS DATA");
+
 											await browser.close();
 											contentLoaded = true;
 											return text;
 											}
 
-										catch(e){}
+										catch(e){console.log(e,"error that we get")}
 										return text;
 									}
 
@@ -235,12 +318,6 @@ async function loadHandler(URL)
 		return data;
 	}
 
-function getRawData (URL) 
-	{
-		return fetch(URL)
-		.then((response)=>response.text())
-		.then((data) => {return data});
-	};
 
 
 	//car selling websites in Serbia
@@ -263,6 +340,7 @@ async function exportDataToExcel(data)
 
 		const info = await doc.loadInfo();
 		console.log("_________________got info_________________");
+		//changeThis to 1 or 0 for sheet number
 		const sheet = doc.sheetsByIndex[0];
 		const rows = await sheet.getRows({
 			offset:1

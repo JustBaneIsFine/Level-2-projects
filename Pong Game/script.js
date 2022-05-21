@@ -189,7 +189,7 @@ function updateGameArea()
 			// ball.speedX = reverse(ball.speedX);
 
 			let collidePoint = ((ball.y + ((ball.height)/2)) - (current.y + current.height/2))/(current.height/2);
-			console.log(collidePoint);
+			
 
 			var direction;
 
@@ -206,7 +206,7 @@ function updateGameArea()
 
 			ball.newPos();
 			ball.update();
-			console.log(ball.speedX, "<<<<<< speed X");
+			
 			
 			
 		}

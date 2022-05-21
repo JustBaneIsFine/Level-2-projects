@@ -187,7 +187,6 @@ function player(width, height,color,x,y)
 				Object.values(gameArea.keys).forEach(x =>
 					{
 						x.pressed = false;
-						console.log(x);
 					})
 				this.speedX = 0;
 				this.speedY = 0;
@@ -310,7 +309,7 @@ function invader()
 
 				if(findLowest()>440) // if lowest is lower than player GAME OVER
 					{
-						console.log("gameOver");
+						
 
 						this.resetAll()
 						leftMostInvader = 0;
@@ -363,7 +362,7 @@ function invader()
 									lowestInvader = column[0].y;
 								} 
 							else if(column[0].y === undefined)
-								{console.log("it's undefined")};
+								{};
 						}});
 						return lowestInvader;
 
@@ -466,7 +465,7 @@ function playerBullet(x,y)
 								
 								
 								score += 1;
-								console.log(score);
+								
 							}
 
 						})
@@ -485,7 +484,7 @@ function invadersBullet()
 				// generates a random number in range(0 to invaderCount)
 				// matches that number with the invader that will shoot.
 
-				console.log("ran");
+				
 				var invaderCount = 0;
 				
 				invaders.forEach(column=> {

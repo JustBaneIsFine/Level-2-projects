@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 const fs = require('fs');
 const file = fs.createWriteStream('/Users/Theseus/Desktop/test.txt');
 
@@ -362,4 +360,3 @@ function writeToFile(content)
 			    console.log('Content saved!');
 			});;
 	}
->>>>>>> webScraper

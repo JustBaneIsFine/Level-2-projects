@@ -122,7 +122,6 @@ const main = (e) => {
 
 			if (symbol != "" && a != "" && checkIfSign(x) != null) // if symbol and a and is a sign
 				{
-					console.log(count + symbol + a);
 					var temp1 = parseFloat(count);
 					var temp2 = parseFloat(a);
 					

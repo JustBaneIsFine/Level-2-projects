@@ -11,18 +11,8 @@ const puppeteer = require('puppeteer');
 const URLkupujem = "https://www.kupujemprodajem.com/automobili/opel/grupa/2013/2073";
 const URLpolovni = "https://www.polovniautomobili.com/auto-oglasi/pretraga?page=1&sort=basic&brand=opel";
 
-// let isExportingDone = new Promise(function(resolve, reject) {
-	
-// 	if(exportDone)
-// 		{
-// 			resolve();
-// 		}
-// 	else {reject()}
 
-// });
 
-var exportDone = false;
-var data;
 var theList = [];
 var pageNum =27;
 var pageCounter = 0;
@@ -35,30 +25,27 @@ var amount = pagesPerCycle;
 var displayCount = 0;
 
 
+mainHandler();
 
 
-// this function loads all pages, 5 at a time
-// then when all have been loaded, converts and uses that data 
-loadWebsites();
-
-async function loadWebsites()
+async function mainHandler()
 	{
-		sheetNum = 0;
-		await mainHandlerKupujem();
-		data = undefined;
+		await loadKupujem();
 		theList = [];
 		sheetNum = 1;
 		pageCounter = 0;
 		amount = pagesPerCycle;
 		displayCount = 0;
-		await mainHandlerPolovni();
+		await loadPolovni();
 		console.log("DONE!");
 	}
 
-async function mainHandlerKupujem()
+//these functions load 5 pages at a time and store the data that gets returned.
+async function loadKupujem()
 	{
 
 		console.log("KUPUJEM LOADING")
+
 		while(pageCounter<pageNum)
 			{
 
@@ -72,10 +59,7 @@ async function mainHandlerKupujem()
 						var url = URLkupujem.concat("/"+(pageCounter+1));
 						pageCounter++;
 
-						//new
 						store[i] = loadHandler(url,"kupujem");
-
-						//data = loadHandler(url,"kupujem");
 
 						store[i].then(x => 
 						{
@@ -92,23 +76,11 @@ async function mainHandlerKupujem()
 
 					}
 
-				await Promise.all(store)
-				
-				
+				await Promise.all(store);
 			}
-
-			//once it finished up there
-			// it goes here. but here it may not yet be done with exporting.
-			//so we must not allow this function to resolve until exporting is done..
-
-			//So i have multiple promises here that need to be fulfiled until it ends..
-			// what if i wrap it all in another async and await
-
 			await handleData();
-
 	}
-
-async function mainHandlerPolovni()
+async function loadPolovni()
 	{
 
 		console.log("POLOVNI LOADING")
@@ -125,7 +97,6 @@ async function mainHandlerPolovni()
 						var url = `https://www.polovniautomobili.com/auto-oglasi/pretraga?page=${pageCounter+1}&sort=basic&brand=opel`;
 						
 						pageCounter++;
-						//data = loadHandler(url,"polovni");
 						store[i] = loadHandler(url,"polovni");
 
 						store[i].then(x => 
@@ -141,44 +112,49 @@ async function mainHandlerPolovni()
 		await handleData();
 	}
 
+//this function is where everything happens..
+//this is where we open our browser, and extract the data we want
+//as well as block any unwanted data from loading and slowing down the process..
 
 async function loadPage (URL,choice) 
 	{
 		var contentLoaded = false;
 		var data;
 
-			try
-				{
-					//start up the browser and set config
-					const browser = await puppeteer.launch({headless:true});
-					const page = await browser.newPage();
-					await page.setRequestInterception(true);
-					page.setDefaultNavigationTimeout(0);
+		try
+			{
+				//start up the browser and set config
+				const browser = await puppeteer.launch({headless:true});
+				const page = await browser.newPage();
+				await page.setRequestInterception(true);
+				page.setDefaultNavigationTimeout(0);
 
-					if (choice === "kupujem")
+
+				if (choice === "kupujem")
+					{
+						data = page.waitForSelector('.adName',{timeout: 15000})
+						.then(()=>
 						{
-							data = page.waitForSelector('.adName',{timeout: 15000})
-							.then(()=>
+							return (async function()		
 							{
-								return (async function()		
-								{
 								try
+								{
+									const text = await page.evaluate(()=>
 									{
-										const text = await page.evaluate(()=>
+										return (async function() 
 										{
-											return (async function() 
-											{
-										
+									
+											
+											var promiseDom = new Promise((resolve,reject)=>
+												{
+													document.addEventListener('DOMContentLoaded',resolve);
+												});
+											await promiseDom;
+											//_______change this to change what you want to extract
+											// here we are actually inside the browser, all the code writen here,
+											// is executed in the browser...
+
 												var array = [];
-
-												var promiseDom = new Promise((resolve,reject)=>
-													{
-														document.addEventListener('DOMContentLoaded',resolve);
-													});
-
-
-												await promiseDom;
-												
 												var listOfNames = document.getElementsByClassName("adName");
 
 												for (i=0;i<listOfNames.length;i++)
@@ -232,57 +208,53 @@ async function loadPage (URL,choice)
 																}
 
 															array.push(adObj);
-													} //for closing
+												//_______change the above to change what you want to extract
+												} 
 
-													return array;
-												})();
+												return array;
+											})();
 
-													
-													
-											});
-										await browser.close();
-										contentLoaded = true;
-										return text;
 												
-									}
-									catch(e){console.log(e,"error that we get")};
-
-								})();
-							})
-							.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
-						} 
-					else if (choice === "polovni")
-
-							{
-								data = page.waitForSelector('.info',{timeout: 15000})
-									.then(()=>
-										{
-											return (async function()
 												
-												{
-													try
-														{
-															const text = await page.evaluate(()=>{
-																//or i could do, for each of these, get name,price and href.
+										});
+									await browser.close();
+									contentLoaded = true;
+									return text;
+											
+								}
+								catch(e){console.log(e,"error that we get")};
 
-																//changeThis
-																//adName for kupujemprodajem
-																//textContentHolder for polovni automobili
+							})();
+						})
+						.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
+					} 
+				else if (choice === "polovni")
 
-																return (async function() {
+						{
+							data = page.waitForSelector('.info',{timeout: 15000})
+								.then(()=>
+									{
+										return (async function()
+											{
+												try
+													{
+														const text = await page.evaluate(()=>{
+														
+
+															return (async function() {
+																
+
+
+
+																var promiseDom = new Promise((resolve,reject)=>
+																{
+																	document.addEventListener('DOMContentLoaded',resolve);
+																});
+
+
+																await promiseDom;
+																//_______change this to change what you want to extract
 																	var array = []
-
-
-
-																	var promiseDom = new Promise((resolve,reject)=>
-																	{
-																		document.addEventListener('DOMContentLoaded',resolve);
-																	});
-
-
-																	await promiseDom;
-																	//____new
-
 																	var listOfNames = document.getElementsByClassName("textContentHolder");
 
 																	for (i=0;i<listOfNames.length;i++)
@@ -324,17 +296,10 @@ async function loadPage (URL,choice)
 																			.replaceAll(",","")
 																			.replaceAll(" ","")
 																			.replaceAll("\n","")
-
-																			if(!price.includes("din"))
-																				{
-																					//price = price.slice(0,-2);
-																				}
 																		}
 																		
 
 																		var href = parent.querySelector(".ga-title").href;
-																		
-																		//access info trough children  description.children[0] etc..
 																		var description = parent.querySelector(".info");
 
 																		var year = description.children[0].innerText.split('\n')[0].split('.')[0];
@@ -355,77 +320,75 @@ async function loadPage (URL,choice)
 																			}
 
 																		array.push(adObj);
-																	}
-
-																 // text is now array..
-																
-																	//____
-
-																	return array;
-																})();
+																//_______change the above to change what you want to extract
+																}
+																return array;
+															})();
 
 
 
 
-															});
-														await browser.close();
-														contentLoaded = true;
-														return text;
-														}
-													catch(e){console.log(e,"error that we get")}
-												}
-											)();
-										})
-									.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
-							}
+														});
+													await browser.close();
+													contentLoaded = true;
+													return text;
+													}
+												catch(e){console.log(e,"error that we get")}
+											}
+										)();
+									})
+								.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
+						}
+				
 
-					
+				//intercept page requests
+				page.on('request',request => {
 
-					//intercept page requests
-					page.on('request',request => {
-
-						if(!contentLoaded)
-							{
-								if(request.resourceType() === 'image' || 
-									  	request.resourceType() ==='imageset' ||
-									  	request.resourceType() ==='media'||
-									  	request.resourceType() === 'font'||
-									  	request.resourceType() === 'object'||
-									  	request.resourceType() === 'object_subrequest'||	
-									  	request.resourceType() === 'sub_frame'||
-									  	request.resourceType() === 'xmlhttprequest'
-									)
-										{
-											//cancel request
-											request.respond({
-												status:200,
-												body:"foo"
-											})	
-										}
-								else
+					if(!contentLoaded)
+						{
+							if(request.resourceType() === 'image' || 
+								  	request.resourceType() ==='imageset' ||
+								  	request.resourceType() ==='media'||
+								  	request.resourceType() === 'font'||
+								  	request.resourceType() === 'object'||
+								  	request.resourceType() === 'object_subrequest'||	
+								  	request.resourceType() === 'sub_frame'||
+								  	request.resourceType() === 'xmlhttprequest'
+								)
 									{
-										request.continue();
+										//cancel request
+										request.respond({
+											status:200,
+											body:"foo"
+										})	
 									}
+							else
+								{
+									request.continue();
+								}
 
-							}
-					})
+						}
+				})
 
-					//go to this page
-					await page.goto(URL);
-				}
-			catch(e){}
+				await page.goto(URL);
+			}
+		catch(e){}
 
-		return data; //returns promise
+		return data;
 
 	}
 
+
+//this function handles failiure to load the page..
+//each page will have 5* attempts to load
 async function loadHandler(URL,choice)
 	{
 		var fail = true;
 		var count = 0;
-		let data;
+		var data;
+		var attempts = 5;
 
-			while(fail && count < 5)
+			while(fail && count < attempts)
 				{
 					count ++;
 
@@ -434,7 +397,7 @@ async function loadHandler(URL,choice)
 						if (data === undefined || data === false)
 							{
 								fail = true; data = false;
-								console.log("failed");
+								console.log("failed to get this page");
 							}
 						else{
 								fail = false;
@@ -443,65 +406,43 @@ async function loadHandler(URL,choice)
 		return data;
 	}
 
-
-
-	//car selling websites in Serbia
-	//Will also make web scraper and comparison for 
-	//amazon/ebay or some other sites, will see..
-
-async function exportDataToExcel(data)
+//as the name says, this function exports the data we collected
+async function exportDataToSpreadsheet(data)
 	{
 		console.log("_________________exporting data_________________");
-		//here i will get data as an array containing objects all the data like this:
-		// data = [{"name":"carname","price":5521$},{etc..}]
 
-		// then i take that and use the spreadsheet functions to insert it into the spreadsheet
-
+		//change this
+		//paste your spreadsheet adress here
 		const doc = new GoogleSpreadsheet('1lMEQtBDCCcHtDzLtZzgl9pOY_M77mw7hA5CCiVGR3G0');
+
 		await doc.useServiceAccountAuth({
 			client_email: creds.client_email,
 			private_key: creds.private_key,
 		});
 
 		const info = await doc.loadInfo();
-		console.log("_________________got info_________________");
-		//changeThis to 1 or 0 for sheet number
+		console.log("____________________got info____________________");
+
 		const sheet = doc.sheetsByIndex[sheetNum];
+
 		const rows = await sheet.getRows({
 			offset:1
 		})
-		console.log("_________________ploting rows_________________")
-		console.log("_________________adding rows_________________")
+		console.log("_________________exporting in progress__________")
 
 		await sheet.addRows(data);
-		console.log("__________________DONE!__________________")
+		console.log("______________________DONE!_____________________")
 
-		//exportIsDone = true;
-		return true;
+		//return true;
 	}
 
-function writeToFile(content)
-	{
-		fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
-			 	
-			    if (err) throw err;
-			    console.log('Content saved!');
-			});;
-	}
-
-function checkPageProgress()
-			{
-				if((pageNum-pageCounter) < pagesPerCycle) //7-5 < 5
-					{
-						amount = pageNum-pageCounter;
-
-					}
-			}
-
+//before the data is exported
+//we need to properly label everything, so that we can sort it nicely into columns that we want...
+//that is what this function does..
 async function handleData(x)
 	{
 		console.log("__________________Handling data__________________");
-		//the below code should be the same for both websites
+
 		var content = [];
 
 				if(theList.length === pageNum)
@@ -517,14 +458,6 @@ async function handleData(x)
 								var carCC = obj["Car CC"];
 								var carKM = obj["Car KM"];
 
-								// if(
-								// 	!carPrice.includes('Pozvati') &&
-								// 	!carPrice.includes('Dogovor') &&
-								// 	!carPrice.includes('Kupujem') &&
-								// 	!carPrice.includes('Kontakt'))
-								// 	{
-								// 		//carPrice = carPrice.slice(0,-5);
-								// 	}
 
 
 								var c = [carName,carPrice,carYear,carFuel,carCC,carKM];
@@ -535,8 +468,8 @@ async function handleData(x)
 							
 						};
 
-					//content is now usable as array of objects [{name-name,price-price},{etc}]
-						await exportDataToExcel(content);
+
+						await exportDataToSpreadsheet(content);
 
 												
 
@@ -544,3 +477,25 @@ async function handleData(x)
 				}
 			
 	}
+
+
+//checks the current number of pages left to load, and the amount of pages we want to load in a cycle..
+// if we want to load 5 but there is only 2 pages left..
+// then we want to load 2...
+function checkPageProgress() //< 5  -> amount = 2;
+	{
+		if((pageNum-pageCounter) < pagesPerCycle) //7-5 < 5
+		{
+			amount = pageNum-pageCounter;
+		}
+	}
+	
+function writeToFile(content)
+	{
+		fs.writeFile('/Users/Theseus/Desktop/test.txt', content, (err) => {
+			 	
+			    if (err) throw err;
+			    console.log('Content saved!');
+			});;
+	}
+

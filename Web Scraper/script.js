@@ -24,7 +24,7 @@ const URLpolovni = "https://www.polovniautomobili.com/auto-oglasi/pretraga?page=
 var exportDone = false;
 var data;
 var theList = [];
-var pageNum =12;
+var pageNum =27;
 var pageCounter = 0;
 var pagesPerCycle = 5;
 var carModel;
@@ -308,7 +308,7 @@ async function loadPage (URL,choice)
 																			{
 																				var b;
 																				b = price.split("\n");
-																				price = b[1];
+																				price = b[0];
 																			};
 
 																		if (
@@ -322,10 +322,12 @@ async function loadPage (URL,choice)
 																			.replaceAll("€","")
 																			.replaceAll(" ","")
 																			.replaceAll(",","")
+																			.replaceAll(" ","")
+																			.replaceAll("\n","")
 
 																			if(!price.includes("din"))
 																				{
-																					price = price.slice(0,-2);
+																					//price = price.slice(0,-2);
 																				}
 																		}
 																		

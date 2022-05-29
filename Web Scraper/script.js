@@ -14,7 +14,7 @@ const URLpolovni = "https://www.polovniautomobili.com/auto-oglasi/pretraga?page=
 
 
 var theList = [];
-var pageNum =27;
+var numberOfPages =27;
 var pageCounter = 0;
 var pagesPerCycle = 5;
 var carModel;
@@ -30,23 +30,23 @@ mainHandler();
 
 async function mainHandler()
 	{
-		await loadKupujem();
+		await loadHandlerKupujem();
 		theList = [];
 		sheetNum = 1;
 		pageCounter = 0;
 		amount = pagesPerCycle;
 		displayCount = 0;
-		await loadPolovni();
+		await loadHandlerPolovni();
 		console.log("DONE!");
 	}
 
 //these functions load 5 pages at a time and store the data that gets returned.
-async function loadKupujem()
+async function loadHandlerKupujem()
 	{
 
 		console.log("KUPUJEM LOADING")
 
-		while(pageCounter<pageNum)
+		while(pageCounter<numberOfPages)
 			{
 
 				var store = [];
@@ -59,12 +59,12 @@ async function loadKupujem()
 						var url = URLkupujem.concat("/"+(pageCounter+1));
 						pageCounter++;
 
-						store[i] = loadHandler(url,"kupujem");
+						store[i] = handleLoadingAndFailiure(url,"kupujem");
 
 						store[i].then(x => 
 						{
 							displayCount++;
-							console.log("_________________got page_________________", `${displayCount}/${pageNum}`);
+							console.log("_________________got page_________________", `${displayCount}/${numberOfPages}`);
 
 							if(x != false)
 								{
@@ -80,11 +80,11 @@ async function loadKupujem()
 			}
 			await handleData();
 	}
-async function loadPolovni()
+async function loadHandlerPolovni()
 	{
 
 		console.log("POLOVNI LOADING")
-		while(pageCounter<pageNum)
+		while(pageCounter<numberOfPages)
 			{
 				var store = [];
 				
@@ -97,7 +97,7 @@ async function loadPolovni()
 						var url = `https://www.polovniautomobili.com/auto-oglasi/pretraga?page=${pageCounter+1}&sort=basic&brand=opel`;
 						
 						pageCounter++;
-						store[i] = loadHandler(url,"polovni");
+						store[i] = handleLoadingAndFailiure(url,"polovni");
 
 						store[i].then(x => 
 						{
@@ -115,8 +115,7 @@ async function loadPolovni()
 //this function is where everything happens..
 //this is where we open our browser, and extract the data we want
 //as well as block any unwanted data from loading and slowing down the process..
-
-async function loadPage (URL,choice) 
+async function extractDataFromPage (URL,choice) 
 	{
 		var contentLoaded = false;
 		var data;
@@ -379,9 +378,9 @@ async function loadPage (URL,choice)
 	}
 
 
-//this function handles failiure to load the page..
-//each page will have 5* attempts to load
-async function loadHandler(URL,choice)
+
+//each page will have 5 attempts to load
+async function handleLoadingAndFailiure(URL,choice)
 	{
 		var fail = true;
 		var count = 0;
@@ -392,12 +391,12 @@ async function loadHandler(URL,choice)
 				{
 					count ++;
 
-					data = await loadPage(URL,choice);
+					data = await extractDataFromPage(URL,choice);
 
 						if (data === undefined || data === false)
 							{
 								fail = true; data = false;
-								console.log("failed to get this page");
+								console.log("failed");
 							}
 						else{
 								fail = false;
@@ -406,7 +405,7 @@ async function loadHandler(URL,choice)
 		return data;
 	}
 
-//as the name says, this function exports the data we collected
+
 async function exportDataToSpreadsheet(data)
 	{
 		console.log("_________________exporting data_________________");
@@ -445,7 +444,7 @@ async function handleData(x)
 
 		var content = [];
 
-				if(theList.length === pageNum)
+				if(theList.length === numberOfPages)
 				{
 					for(n=0;n<theList.length;n++)	
 						{
@@ -479,14 +478,12 @@ async function handleData(x)
 	}
 
 
-//checks the current number of pages left to load, and the amount of pages we want to load in a cycle..
-// if we want to load 5 but there is only 2 pages left..
-// then we want to load 2...
-function checkPageProgress() //< 5  -> amount = 2;
+
+function checkPageProgress() 
 	{
-		if((pageNum-pageCounter) < pagesPerCycle) //7-5 < 5
+		if((numberOfPages-pageCounter) < pagesPerCycle)
 		{
-			amount = pageNum-pageCounter;
+			amount = numberOfPages-pageCounter;
 		}
 	}
 	

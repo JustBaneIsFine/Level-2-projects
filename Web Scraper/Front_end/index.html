@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Web Scraper</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	
+</head>
+<body>
+
+<header>
+	<h1>Welcome to the Web Scraper</h1>
+</header>
+
+<main>
+<section>
+
+<!-- 
+Maybe and option to select which websites to take data from
+instad of comparing two different websites, we may want to compare
+two car models on the same website
+-->
+<label>Polovni Automobili</label>
+
+	<input list="carMakep" placeholder="Car make">
+	<datalist id="carMakep">
+	  <option value="Sunday">
+	  <option value="Monday">
+	</datalist>  
+
+	<input list="carModelp" placeholder="Car model">
+	<datalist id="carModelp">
+	  <option value="Sunday">
+	  <option value="Monday">
+	</datalist> 
+
+	<input list="carYearp" placeholder="Car year">
+	<datalist id="carYearp">
+	  <option value="Sunday">
+	  <option value="Monday">
+	</datalist> 
+
+
+</section>
+
+<section>
+<label>Kupujem Prodajem</label>
+
+	<input list="carMakek" placeholder="Car make">
+	<datalist id="carMakek">
+	  <option value="Sunday">
+	  <option value="Monday">
+	</datalist>  
+
+	<input list="carModelk" placeholder="Car model">
+	<datalist id="carModelk">
+	  <option value="Sunday">
+	  <option value="Monday">
+	</datalist> 
+
+	<input list="carYeark" placeholder="Car year">
+	<datalist id="carYeark">
+	  <option value="Sunday">
+	  <option value="Monday">
+	</datalist> 
+
+</section>
+
+<button>Get options</button>
+<button onclick="sendRequest()">Submit options</button>
+
+<button>Display data</button>
+<button>Sort data</button> <!--Maybe include this, and options on how we want to sort it, by price,year,name -ascending or descending --> 
+<button>Extract data to spreadsheet</button>
+<button>Extract data to file</button>
+<button>Save data to storage</button> <!--alert, this will override exsisting data--> 
+<button>Clear data from storage</button>   <!--alert, this will delete all the data from storage--> 
+
+</main>
+
+<section>
+	<!-- Section for table list includes title, price, year, each list sorted by price,year or name -->
+</section>
+
+<script type="text/javascript" src="index.js"></script>
+</body>
+</html>

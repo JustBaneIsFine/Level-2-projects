@@ -1,6 +1,7 @@
 body {margin: 0;
 background-color: black;
-font-family: monospace;}
+font-family: monospace;
+color: white;}
 
 header {
 	height: 5em;
@@ -21,11 +22,19 @@ h1 {
 
 	}
 
+a{
+	text-decoration: none;
+	color: rgb(150,150,255);
+}
 
-
+#testButtons{
+	margin-top:50px
+}
 
 p {
-	font-size: 1.5rem;
+	margin-left: 20%;
+	margin-right: 20%;
+	font-size: 1rem;
 	text-align: center;
 	border-bottom: black solid 5px;
 	border-radius: 50%;
@@ -57,4 +66,59 @@ main
 
 label{
 	color: white;
+}
+
+.tableLeft{
+	grid-area: left;
+}
+
+.tableRight{
+	grid-area: right;
+	}
+
+#tableSection{
+	width: 100%;
+	display: grid;
+ 	 grid:
+    "left center right" 1fr / 40% 20% 40%;
+ 	align-items: start;
+
+	
+}
+
+table{
+	border-collapse: collapse;
+} 
+/*this is where you left off*/
+
+table tr{
+	transition-duration: 2.5s;
+}
+
+table tr td:nth-child(3) ,table tr td:nth-child(4),table tr td:nth-child(5) { /* I don't think they are 0 based */
+   text-align: center;
+
+}
+table tr td:nth-child(5){
+	width: 10%;
+}
+
+table tr td:nth-child(3){
+	/*border-bottom: white 1px solid;
+	border-radius: 10px;*/
+}
+
+table td{
+
+	border: 1px solid rgba(255,255,255,0.1);
+	transition-duration: 0.5s;
+	padding-top: 3px;
+	padding-bottom: 3px;
+
+
+}
+
+table tr:hover {
+	transition-duration: 0.5s;
+	background-color: rgba(255, 255, 255, 0.4)
 }

@@ -31,25 +31,6 @@ export async function handleData(rawData,numberOfPages)
 							
 						};
 
-
-					//here i have the data.. now, i should export it 
-					// and then on user click i can run the appropriate function
-					// export to spreadsheet
-					// display data
-					// write to file..
-
-					//that choice should not be awaited, 
-					//instead appropriate functions will be run on button click
-					
-					await exportDataToSpreadsheet(content);
-					//writeToFile(content)
 				}
 			
 	}
-
-// now you can do what you want with the content
-// preferably, now you would wait for the user to click on something
-// then on click you do what needs to be done with data...
-// export to spreadsheet
-// write to file
-// display -> send to front end

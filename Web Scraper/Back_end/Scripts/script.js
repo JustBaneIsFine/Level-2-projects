@@ -4,9 +4,8 @@ const URLkupujem = "https://www.kupujemprodajem.com/automobili/opel/grupa/2013/2
 const URLpolovni = "https://www.polovniautomobili.com/auto-oglasi/pretraga?page=1&sort=basic&brand=opel";
 
 
-
 var theList = [];
-var numberOfPages =7;
+var numberOfPages;
 var pageCounter = 0;
 var pagesPerCycle = 5;
 var carModel;
@@ -14,35 +13,79 @@ var carMake;
 var carYear;
 var amount = pagesPerCycle;
 var displayCount = 0;
+var polovniList;
+var kupujemList;
 
 
-mainHandler();
 
-async function mainHandler()
+export async function mainHandler(siteName,dataToGet, urlAndNum)
 	{
-		await loadHandlerKupujem();
-		theList = [];
-		pageCounter = 0;
-		amount = pagesPerCycle;
-		displayCount = 0;
-		await loadHandlerPolovni();
-		console.log("DONE!");
+		var url = urlAndNum['url'];
+
+		if(urlAndNum['url'] === undefined || urlAndNum['pageNum'] === undefined)
+			{
+				return false;
+			}
+
+		var numOfPages = urlAndNum['pageNum'];
+
+		if (siteName === 'polovni')
+			{
+				await loadHandlerPolovni(url,numOfPages)
+				polovniList = theList;
+				theList = [];
+				pageCounter = 0;
+				amount = pagesPerCycle;
+				displayCount = 0;
+				return polovniList;
+
+
+			}
+		else if (siteName === 'kupujem')
+			{
+				await loadHandlerKupujem(url,numOfPages)
+				kupujemList = theList;
+				theList = [];
+				pageCounter = 0;
+				amount = pagesPerCycle;
+				displayCount = 0;
+				return kupujemList;
+				
+
+			}
+
 	}
 
-
-async function loadHandlerKupujem()
+async function loadHandlerKupujem(urla,numOfPages)
 	{
+		numberOfPages = numOfPages;
+
 
 		console.log("KUPUJEM LOADING")
-		while(pageCounter<numberOfPages)
-			{
+ 
+		while(pageCounter<numOfPages) //0 < 1 true
+			{		
 				var store = [];
 				console.log("_________________Loading Pages_________________");
-				checkPageProgress(); 
+				checkPageProgress();
+				var url;
 
 				for (let i=0;i<amount;i++)
 					{
-						var url = URLkupujem.concat("/"+(pageCounter+1));
+
+						if (urla.includes('[page]'))
+							{
+								url = urla.replace('[page]=2',`[page]=${pageCounter+1}`);
+							}
+						else if (urla.includes('%5Bpage%5D'))
+							{
+								url = urla.replace('%5Bpage%5D=2',`%5Bpage%5D=${pageCounter+1}`); 
+							}
+						else
+							{
+								url = urla;
+							}
+						console.log('url url url', url);
 						pageCounter++;
 
 						store[i] = handleLoadingAndFailiure(url,"kupujem");
@@ -63,13 +106,13 @@ async function loadHandlerKupujem()
 
 				await Promise.all(store);
 			}
-			await handleData(theList,numberOfPages);
 	}
-async function loadHandlerPolovni()
-	{
 
+async function loadHandlerPolovni(urla,numOfPages)
+	{
+		numberOfPages = numOfPages;
 		console.log("POLOVNI LOADING")
-		while(pageCounter<numberOfPages)
+		while(pageCounter<numOfPages)
 			{
 				var store = [];
 				
@@ -79,9 +122,10 @@ async function loadHandlerPolovni()
 				for (let i=0;i<amount;i++)
 					{
 
-						var url = `https://www.polovniautomobili.com/auto-oglasi/pretraga?page=${pageCounter+1}&sort=basic&brand=opel`;
-						
+						var url = urla.replace('page=2',`page=${pageCounter+1}`);
+						console.log('url url url', url);
 						pageCounter++;
+
 						store[i] = handleLoadingAndFailiure(url,"polovni");
 
 						store[i].then(x => 
@@ -93,10 +137,12 @@ async function loadHandlerPolovni()
 						})
 						.catch((e)=>console.log(e+"Failed to get data from a page"));
 					}
+				console.log("waiting for store promise");
 				await Promise.all(store);
+				console.log("finnished waiting for store promise")
 			}
-		await handleData(theList,numberOfPages);
 	}
+
 async function handleLoadingAndFailiure(URL,choice)
 	{
 		var fail = true;
@@ -107,9 +153,9 @@ async function handleLoadingAndFailiure(URL,choice)
 			while(fail && count < attempts)
 				{
 					count ++;
-
+					console.log('waiting for extraction')
 					data = await extractDataFromPage(URL,choice);
-
+					console.log('extraction is done')
 						if (data === undefined || data === false)
 							{
 								fail = true; data = false;
@@ -121,6 +167,7 @@ async function handleLoadingAndFailiure(URL,choice)
 				}
 		return data;
 	}
+
 function checkPageProgress() 
 	{
 		if((numberOfPages-pageCounter) < pagesPerCycle)
@@ -128,4 +175,3 @@ function checkPageProgress()
 			amount = numberOfPages-pageCounter;
 		}
 	}
-	

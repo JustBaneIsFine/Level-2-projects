@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 
 export async function extractDataFromPage (URL,choice) 
 	{
+		console.log('URL sent for extraction',URL)
 		var contentLoaded = false;
 		var data;
 
@@ -24,20 +25,34 @@ export async function extractDataFromPage (URL,choice)
 							{
 								try
 								{
+									console.log('entered evaluate')
 									const text = await page.evaluate(()=>
 									{
 										return (async function() 
 										{
 									
-											
+											console.log("waiting for DOM")
 											var promiseDom = new Promise((resolve,reject)=>
 												{
 													document.addEventListener('DOMContentLoaded',resolve);
 												});
-											await promiseDom;
-											//_______change this to change what you want to extract
-											// here we are actually inside the browser, all the code writen here,
-											// is executed in the browser...
+											function delaySecond(num){
+												return new Promise ((resolve,reject)=>
+														{
+															setTimeout(resolve,num);
+														});	
+												}
+
+											await Promise.race([
+												promiseDom,
+												delaySecond(10000)
+												]);
+
+
+											
+
+
+											console.log('finnished waiting for DOM');
 
 												var array = [];
 												var listOfNames = document.getElementsByClassName("adName");
@@ -80,20 +95,22 @@ export async function extractDataFromPage (URL,choice)
 															var cc =  description[2].replaceAll("cm3","");
 															var km =  description[1].replaceAll("km","").replaceAll(".",",");
 
-															name = `\"${name}\"`;
-															href = `\"${href}\"`;
+															// the 3 lines below that are commented out are used when extracting to spreadsheet
+															//name = `\"${name}\"`;
+															//href = `\"${href}\"`;
 
 															var adObj = {
-																"Car Name":`=HYPERLINK(${href},${name})`,
+																//"Car Name":`=HYPERLINK(${href},${name})`,  --for href
+																"Car Name": name,
 																"Car Price": price,
 																"Car Year":year,
 																"Car Fuel":fuel,
 																"Car KM":km,
 																"Car CC":cc,
+																"href":href,
 																}
 
 															array.push(adObj);
-												//_______change the above to change what you want to extract
 												} 
 
 												return array;
@@ -102,16 +119,17 @@ export async function extractDataFromPage (URL,choice)
 												
 												
 										});
+									console.log('exited evaluate')
 									await browser.close();
 									contentLoaded = true;
 									return text;
 											
 								}
-								catch(e){console.log(e,"error that we get")};
+								catch(e){console.log(e)};
 
 							})();
 						})
-						.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
+						.catch((e)=>{console.log(e+ "expected error, ignore"); browser.close();return false;})
 					} 
 				else if (choice === "polovni")
 
@@ -123,6 +141,7 @@ export async function extractDataFromPage (URL,choice)
 											{
 												try
 													{
+														
 														const text = await page.evaluate(()=>{
 														
 
@@ -135,13 +154,24 @@ export async function extractDataFromPage (URL,choice)
 																{
 																	document.addEventListener('DOMContentLoaded',resolve);
 																});
+																
+																function delaySecond(num){
+																	return new Promise ((resolve,reject)=>
+																			{
+																				setTimeout(resolve,num);
+																			});	
+																	}
+																	console.log('waiting for DOM')
+																await Promise.race([
+																	promiseDom,
+																	delaySecond(10000)
+																	]);
+																		console.log('waiting for DOM ____ENDED____');
 
-
-																await promiseDom;
-																//_______change this to change what you want to extract
 																	var array = []
 																	var listOfNames = document.getElementsByClassName("textContentHolder");
 
+																	console.log("entered the FOR function")
 																	for (i=0;i<listOfNames.length;i++)
 																	{
 																		var parent = listOfNames[i].parentElement;
@@ -192,20 +222,23 @@ export async function extractDataFromPage (URL,choice)
 																		var cc =  description.children[0].innerText.split('\n')[1].split("|")[1].replaceAll("cm3","");
 																		var km =  description.children[1].innerText.split("\n")[0].replaceAll(".",",").replaceAll("km","");
 
-																		name = `\"${name}\"`;
-																		href = `\"${href}\"`;
+																		// the 3 lines below that are commented out are used when extracting to spreadsheet
+																		//name = `\"${name}\"`;     for hyperlink
+																		//href = `\"${href}\"`;		for hyperlink
 
 																		var adObj = {
-																			"Car Name":`=HYPERLINK(${href},${name})`,
+																			//"Car Name":`=HYPERLINK(${href},${name})`, //hyperlink used for spreadsheet
+																			"Car Name": name,
 																			"Car Price": price,
 																			"Car Year":year,
 																			"Car Fuel":fuel,
 																			"Car KM":km,
 																			"Car CC":cc,
+																			"href":href,
 																			}
 
 																		array.push(adObj);
-																//_______change the above to change what you want to extract
+
 																}
 																return array;
 															})();
@@ -218,11 +251,11 @@ export async function extractDataFromPage (URL,choice)
 													contentLoaded = true;
 													return text;
 													}
-												catch(e){console.log(e,"error that we get")}
+												catch(e){console.log(e)}
 											}
 										)();
 									})
-								.catch((e)=>{console.log(e+ "expected error"); browser.close();return false;})
+								.catch((e)=>{console.log(e+ "expected error, ignore"); browser.close();return false;})
 						}
 				
 
@@ -255,9 +288,9 @@ export async function extractDataFromPage (URL,choice)
 						}
 				})
 
-				await page.goto(URL);
+				await page.goto(URL,{timeout: 15000});
 			}
-		catch(e){}
+		catch(e){console.log(e,'outside error')}
 
 		return data;
 

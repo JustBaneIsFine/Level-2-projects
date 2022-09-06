@@ -18,27 +18,25 @@
 
 <!-- 
 Maybe and option to select which websites to take data from
-instad of comparing two different websites, we may want to compare
+instead of comparing two different websites, we may want to compare
 two car models on the same website
 -->
 <label>Polovni Automobili</label>
-
-	<input list="carMakep" placeholder="Car make">
-	<datalist id="carMakep">
-	  <option value="Sunday">
-	  <option value="Monday">
+<!-- add id's --> 
+	<input list="makeOptionsP" id="makeP" placeholder="Car make">
+	<datalist id="makeOptionsP">
 	</datalist>  
 
-	<input list="carModelp" placeholder="Car model">
-	<datalist id="carModelp">
-	  <option value="Sunday">
-	  <option value="Monday">
+	<input list="modelOptionsP" id="modelP" placeholder="Car model">
+	<datalist id="modelOptionsP">
 	</datalist> 
 
-	<input list="carYearp" placeholder="Car year">
-	<datalist id="carYearp">
-	  <option value="Sunday">
-	  <option value="Monday">
+	<input list="yearOptionsPstart" id="yearPstart" placeholder="Year: From">
+	<datalist id="yearOptionsPstart">
+	</datalist> 
+
+	<input list="yearOptionsPend" id="yearPend" placeholder="Year: To">
+	<datalist id="yearOptionsPend">
 	</datalist> 
 
 
@@ -47,42 +45,58 @@ two car models on the same website
 <section>
 <label>Kupujem Prodajem</label>
 
-	<input list="carMakek" placeholder="Car make">
-	<datalist id="carMakek">
-	  <option value="Sunday">
-	  <option value="Monday">
+	<input list="makeOptionsK" id="makeK" placeholder="Car make" required="true">
+	<datalist id="makeOptionsK" >
 	</datalist>  
 
-	<input list="carModelk" placeholder="Car model">
-	<datalist id="carModelk">
-	  <option value="Sunday">
-	  <option value="Monday">
+	<input list="modelOptionsK" id="modelK" placeholder="Car model">
+	<datalist id="modelOptionsK">
 	</datalist> 
 
-	<input list="carYeark" placeholder="Car year">
-	<datalist id="carYeark">
-	  <option value="Sunday">
-	  <option value="Monday">
+	<input list="yearOptionsKstart" id="yearKstart" placeholder="Year: From">
+	<datalist id="yearOptionsKstart">
 	</datalist> 
+
+	<input list="yearOptionsKend" id="yearKend" placeholder="Year: To">
+	<datalist id="yearOptionsKend">
+	</datalist>
 
 </section>
-
-<button>Get options</button>
-<button onclick="sendRequest()">Submit options</button>
+ 
+<!-- 
+<button onclick="getMake()">Get options</button>
+<button >Submit options</button>
 
 <button>Display data</button>
-<button>Sort data</button> <!--Maybe include this, and options on how we want to sort it, by price,year,name -ascending or descending --> 
+<button>Sort data</button> 
 <button>Extract data to spreadsheet</button>
 <button>Extract data to file</button>
-<button>Save data to storage</button> <!--alert, this will override exsisting data--> 
-<button>Clear data from storage</button>   <!--alert, this will delete all the data from storage--> 
+<button>Save data to storage</button> 
+<button>Clear data from storage</button>   
+-->
+
+<!-- buttons that are used for testing -->
+<div id="testButtons">
+<label> TEST BUTTONS </label>
+<button id='getMake'>TEST GET MAKE</button>
+<button id='getModel'>TEST GET MODEL</button>
+<button id='getYear'>TEST GET YEAR</button>
+
+<p>
+Above buttons are used only for testing and will be replaced with automatic retrival upon input completion
+</p>
+
+<button id='getFinal'>GET OPTIONS</button>
+<button id='testDisplay'>TEST DISPLAY</button>
+</div>
 
 </main>
 
-<section>
+<section id="tableSection">
 	<!-- Section for table list includes title, price, year, each list sorted by price,year or name -->
 </section>
 
-<script type="text/javascript" src="index.js"></script>
+<script type="module" src="index.js"></script>
+<script type="module" src="loader.js"></script>
 </body>
 </html>

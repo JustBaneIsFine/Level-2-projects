@@ -47,6 +47,7 @@ var yearEndK = document.getElementById('yearKend');
 var yearEndP = document.getElementById('yearPend');
 var tableSection = document.getElementById('tableSection');
 
+var loadingTest = document.querySelector('.loadingTest');
 
 var makeOptions;
 var modelOptions;
@@ -59,9 +60,11 @@ var yearHandled = false;
 var finalStoredData;
 
 
+
 export function getMake()
 	{
-		console.log('getting make')
+		console.log('getting make');
+		loadStart();
 		// *change*
 		// later we will be able to choose which websites we want
 		// for now we have a fixed choice
@@ -74,6 +77,7 @@ export function getMake()
 
 		xhr.onload = function()
 			{
+				loadEnd();
 				var makeOptions = JSON.parse(xhr.responseText);
 				console.log('got data', makeOptions);
 				var optionsArrayK = makeOptions["kupujem"];
@@ -101,6 +105,7 @@ export function getMake()
 
 export function getModel()
 	{
+		loadStart();
 		console.log('getting model');
 
 		var arrayOfMake = [];
@@ -115,6 +120,7 @@ export function getModel()
 
 		xhr.onload = function()
 			{
+				loadEnd();
 				var modelOptions = JSON.parse(xhr.responseText);
 				console.log(modelOptions,'modelOPTIONS RECIEVED  FROM SERVER')
 				var optionsArrayP = modelOptions["polovni"];
@@ -141,6 +147,7 @@ export function getModel()
 
 export function getYear()
 	{
+		loadStart();
 		console.log('getting years')
 		var arrayOfModel = [modelP.value,modelK.value]
 
@@ -151,7 +158,7 @@ export function getYear()
 
 		xhr.onload = function()
 			{
-
+				loadEnd();
 				var yearOptions = JSON.parse(xhr.responseText);
 				var Pstart = yearOptions['polovni']['yearStart'];
 				var Pend = yearOptions['polovni']['yearEnd'];
@@ -189,6 +196,7 @@ export function getYear()
 
 export function getFinalOptions()
 	{
+		loadStart();
 		//this function takes the input options and sends them to server
 		// upon returning it takes the data and creates tables
 
@@ -204,7 +212,7 @@ export function getFinalOptions()
 
 		xhr.onload = function()
 			{
-
+				loadEnd();
 				var data = JSON.parse(xhr.responseText);
 				finalStoredData = data;
 
@@ -561,4 +569,17 @@ function testDisplay()
 
 
 		displayData(data);
+	}
+
+function loadStart()
+	{
+		loadingTest.innerHTML = '';
+		loadingTest.classList.add("loader");
+	}
+
+function loadEnd()
+	{
+		loadingTest.classList.remove("loader");
+		loadingTest.innerHTML = 'loaded';
+		
 	}

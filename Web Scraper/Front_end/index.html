@@ -14,56 +14,78 @@
 </header>
 
 <main>
-<section>
-
-<!-- 
-Maybe and option to select which websites to take data from
-instead of comparing two different websites, we may want to compare
-two car models on the same website
--->
-<label>Polovni Automobili</label>
-<!-- add id's --> 
-	<input list="makeOptionsP" id="makeP" placeholder="Car make">
-	<datalist id="makeOptionsP">
-	</datalist>  
-
-	<input list="modelOptionsP" id="modelP" placeholder="Car model">
-	<datalist id="modelOptionsP">
-	</datalist> 
-
-	<input list="yearOptionsPstart" id="yearPstart" placeholder="Year: From">
-	<datalist id="yearOptionsPstart">
-	</datalist> 
-
-	<input list="yearOptionsPend" id="yearPend" placeholder="Year: To">
-	<datalist id="yearOptionsPend">
-	</datalist> 
 
 
+
+<section id="InputContainer">
+	
+	<div class="choiceSection">
+		<p>Choose the websites you want to search trough</p>
+
+		<label>Website 1: </label>
+		<select id="select1">
+			<option value="" disabled selected hidden>Choose</option>
+			<option value="polovni">Polovni Automobili</option>
+			<option value="kupujem">Kupujem Prodajem</option>
+		</select>
+		
+		<label>Website 2: </label>
+		<select id="select2">
+			<option value="" disabled selected hidden>Choose</option>
+			<option value="polovni">Polovni Automobili</option>
+			<option value="kupujem">Kupujem Prodajem</option>
+		</select>
+		<div id="buttonDiv">
+		<button id="choiceSubmit">Confirm selection</button>
+		</div>
+	</div>
+
+	<div class="inputSection">
+		<!-- <section>
+		<label id="websiteLabel1">Polovni Automobili</label>
+		<input list="makeOptionsP" id="makeP" placeholder="Car make">
+		<datalist id="makeOptionsP">
+		</datalist>  
+
+		<input list="modelOptionsP" id="modelP" placeholder="Car model">
+		<datalist id="modelOptionsP">
+		</datalist> 
+
+		<input list="yearOptionsPstart" id="yearPstart" placeholder="Year: From">
+		<datalist id="yearOptionsPstart">
+		</datalist> 
+
+		<input list="yearOptionsPend" id="yearPend" placeholder="Year: To">
+		<datalist id="yearOptionsPend">
+		</datalist> 
+		</section>
+
+		<section>
+
+		<label id="websiteLabel2">Kupujem Prodajem</label>
+		<input list="makeOptionsK" id="makeK" placeholder="Car make" required="true">
+		<datalist id="makeOptionsK" >
+		</datalist>  
+
+		<input list="modelOptionsK" id="modelK" placeholder="Car model">
+		<datalist id="modelOptionsK">
+		</datalist> 
+
+		<input list="yearOptionsKstart" id="yearKstart" placeholder="Year: From">
+		<datalist id="yearOptionsKstart">
+		</datalist> 
+
+		<input list="yearOptionsKend" id="yearKend" placeholder="Year: To">
+		<datalist id="yearOptionsKend">
+		</datalist>
+		</section> -->
+	</div>
 </section>
 
-<section>
-<label>Kupujem Prodajem</label>
-
-	<input list="makeOptionsK" id="makeK" placeholder="Car make" required="true">
-	<datalist id="makeOptionsK" >
-	</datalist>  
-
-	<input list="modelOptionsK" id="modelK" placeholder="Car model">
-	<datalist id="modelOptionsK">
-	</datalist> 
-
-	<input list="yearOptionsKstart" id="yearKstart" placeholder="Year: From">
-	<datalist id="yearOptionsKstart">
-	</datalist> 
-
-	<input list="yearOptionsKend" id="yearKend" placeholder="Year: To">
-	<datalist id="yearOptionsKend">
-	</datalist>
 <div class="container">
-<div class="loadingTest"></div>
+	<div class="loadingTest"></div>
 </div>
-</section>
+
  
 <!-- 
 <button onclick="getMake()">Get options</button>

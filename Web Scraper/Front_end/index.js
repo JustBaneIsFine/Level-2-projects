@@ -9,7 +9,8 @@ window.onload = ()=>
 			{
 				inputs[i].value = '';
 			}
-
+		choiceSelect1.value = "";
+		choiceSelect2.value = "";
 	}
 
 
@@ -23,6 +24,7 @@ var buttonTest = document.getElementById('testDisplay');
 buttonTest.addEventListener('click',testDisplay);
 
 
+var websiteChoiceCount = 1;
 var makeP = document.getElementById("makeP");
 var modelP = document.getElementById("modelP");
 var yearPstart = document.getElementById("yearOptionsPstart");
@@ -48,6 +50,13 @@ var yearEndP = document.getElementById('yearPend');
 var tableSection = document.getElementById('tableSection');
 
 var loadingTest = document.querySelector('.loadingTest');
+var choiceSection = document.querySelector('.choiceSection'); 
+var inputSection = document.querySelector('.inputSection');
+var choiceSelect1 = document.querySelector('#select1');
+var choiceSelect2 = document.querySelector('#select2');
+
+var choiceSelectSubmit = document.querySelector('#choiceSubmit');
+choiceSelectSubmit.addEventListener('click',handleWebsiteChoice)
 
 var makeOptions;
 var modelOptions;
@@ -582,4 +591,107 @@ function loadEnd()
 		loadingTest.classList.remove("loader");
 		loadingTest.innerHTML = 'loaded';
 		
+	}
+
+function handleWebsiteChoice()
+	{
+		var website1 = choiceSelect1.value;
+		var website2 = choiceSelect2.value;
+
+		if (website1 === "" || website2 === "")
+			{
+				if(website1 === "")
+					{
+						if(website2 != "")
+							{
+								handleInputCreation([website2])
+							}
+					}
+				else if (website2 === "")
+					{
+						handleInputCreation([website1])
+					}
+			}
+		else 
+			{
+				handleInputCreation([website1,website2])
+			}
+
+	}
+
+function handleInputCreation(array)
+	{
+
+		var element1;
+		var element2;
+		if(array.length>1)
+			{
+				element1 = createInputField(array[0]);
+				websiteChoiceCount++;
+				element2 = createInputField(array[1]);
+			}
+		else
+			{
+				element1 = createInputField(array[0]);
+			}
+
+
+		inputSection.append(element1);
+		if (element2 != undefined)
+			{
+				inputSection.append(element2);
+			}
+
+
+	}
+
+function createInputField(website)
+	{
+		
+		var websiteName;
+		var div = document.createElement('div');
+		var label = document.createElement('label');
+		var makeEl = createInputBox("make");
+		var modelEl = createInputBox("model");
+		var yearStartEl = createInputBox("yearStart");
+		var yearEndEl = createInputBox("yearEnd");
+
+		if(website === "polovni")
+			{
+				websiteName = "Polovni Automobili";
+			}
+		else if(website === "kupujem")
+			{
+				websiteName = "Kupujem Prodajem";
+			}
+
+		label.id = `${website}Label`;
+		label.innerText = websiteName;
+
+		div.append(label);
+		div.append(makeEl);
+		div.append(modelEl);
+		div.append(yearStartEl);
+		div.append(yearEndEl);
+
+		return div;
+
+
+		function createInputBox(name)
+			{	
+				var elName = `${name}${websiteChoiceCount}`;
+				var element = document.createElement('div');
+				var input = document.createElement('input');
+				var dataList = document.createElement('datalist');
+
+				input.id = elName;
+				input.setAttribute('list', `${name}Options${websiteChoiceCount}`);
+				input.placeholder = `Car ${name}`;
+
+				dataList.id = elName;
+
+				input.append(dataList);
+				return input;
+			}
+
 	}

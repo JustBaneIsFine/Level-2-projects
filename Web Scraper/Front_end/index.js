@@ -23,30 +23,30 @@ var requestSent = false;
 var buttonTest = document.getElementById('testDisplay');
 buttonTest.addEventListener('click',testDisplay);
 
-
+var website1;
+var website2;
 var websiteChoiceCount = 1;
-var makeP = document.getElementById("makeP");
-var modelP = document.getElementById("modelP");
-var yearPstart = document.getElementById("yearOptionsPstart");
-var yearPend = document.getElementById("yearOptionsPend");
+var websiteCounter = 1;
+var w1Make = getElement('#make1');
+var w1Model = getElement('#model1');
+var w1YearStart = getElement('#yearStart1');
+var w1YearEnd = getElement('#yearEnd1');
 
-var makeK = document.getElementById("makeK");
-var modelK = document.getElementById("modelK");
-var yearKstart = document.getElementById("yearOptionsKstart");
-var yearKend = document.getElementById("yearOptionsKend");
+var w1MakeList;
+var w1ModelList;
+var w1YearStartList;
+var w1YearEndList;
 
-var makeOptionsP = document.getElementById("makeOptionsP");
-var modelOptionsP = document.getElementById("modelOptionsP");
-var yearOptionsP = document.getElementById("yearOptionsP");
+var w2Make;
+var w2Model;
+var w2YearStart;
+var w2YearEnd;
 
-var makeOptionsK = document.getElementById("makeOptionsK");
-var modelOptionsK =document.getElementById("modelOptionsK");
-var yearOptionsK = document.getElementById("yearOptionsK");
+var w2MakeList;
+var w2ModelList;
+var w2YearStartList;
+var w2YearEndList;
 
-var yearStartK = document.getElementById('yearKstart');
-var yearStartP = document.getElementById('yearPstart');
-var yearEndK = document.getElementById('yearKend');
-var yearEndP = document.getElementById('yearPend');
 var tableSection = document.getElementById('tableSection');
 
 var loadingTest = document.querySelector('.loadingTest');
@@ -74,11 +74,27 @@ export function getMake()
 	{
 		console.log('getting make');
 		loadStart();
+
+
 		// *change*
 		// later we will be able to choose which websites we want
 		// for now we have a fixed choice
-
-		var arrayOfWebsites = {1:'polovni',2:'kupujem'};
+		var arrayOfWebsites;
+		if (websiteChoiceCount===2)
+			{
+				arrayOfWebsites = {1:website1 ,2:website2};
+			}
+		else
+			{
+				if (website1 != "")
+					{
+						arrayOfWebsites = {1:website1};
+					}
+				else 
+					{
+						arrayOfWebsites = {1:website2};
+					}
+			}
 
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/getMake", true);
@@ -89,23 +105,25 @@ export function getMake()
 				loadEnd();
 				var makeOptions = JSON.parse(xhr.responseText);
 				console.log('got data', makeOptions);
-				var optionsArrayK = makeOptions["kupujem"];
-				var optionsArrayP = makeOptions["polovni"];
-				console.log(makeOptions,"makeOptions return")
+				var w1OptionsArray = makeOptions['web1'];
 
-				optionsArrayP.forEach(val => {
+				w1OptionsArray.forEach(val => {
 					var el = document.createElement("option");
 					el.value = val;
 
-					makeOptionsP.append(el);
-				})
+					w1MakeList.append(el);
+				});
 
-				optionsArrayK.forEach(val => {
-					var el = document.createElement("option");
-					el.value = val;
+				if(websiteChoiceCount===2)
+					{
+						var w2OptionsArray = makeOptions['web2'];
+						w2OptionsArray.forEach(val => {
+							var el = document.createElement("option");
+							el.value = val;
 
-					makeOptionsK.append(el);
-				})
+							w2MakeList.append(el);
+						});
+					}
 
 			}
 		xhr.send(JSON.stringify(arrayOfWebsites)); 
@@ -116,10 +134,24 @@ export function getModel()
 	{
 		loadStart();
 		console.log('getting model');
-
 		var arrayOfMake = [];
-		arrayOfMake.push(makeP.value);
-		arrayOfMake.push(makeK.value);
+
+
+		if (websiteChoiceCount===2)
+			{
+				arrayOfMake = [w1Make.value,w2Make.value];
+			}
+		else
+			{
+				if (website1 != "")
+					{
+						arrayOfMake = [w1Make.value]
+					}
+				else 
+					{
+						arrayOfMake = [w2Make.value]
+					}
+			}
 
 
 		var xhr = new XMLHttpRequest();
@@ -131,23 +163,28 @@ export function getModel()
 			{
 				loadEnd();
 				var modelOptions = JSON.parse(xhr.responseText);
-				console.log(modelOptions,'modelOPTIONS RECIEVED  FROM SERVER')
-				var optionsArrayP = modelOptions["polovni"];
-				var optionsArrayK = modelOptions["kupujem"];
 
-				optionsArrayP.forEach(val => {
-					var el = document.createElement("option");
-					el.value = val;
+				var w1OptionsArray = modelOptions['web1'];
+				console.log(modelOptions);
+				console.log(website1)
+					w1OptionsArray.forEach(val => {
+						var el = document.createElement("option");
+						el.value = val;
 
-					modelOptionsP.append(el);
-				})
+						w1ModelList.append(el);
+					})
 
-				optionsArrayK.forEach(val => {
-					var el = document.createElement("option");
-					el.value = val;
+				if(websiteChoiceCount===2)
+					{
+						var w2OptionsArray = modelOptions['web2'];
+						w2OptionsArray.forEach(val => {
+							var el = document.createElement("option");
+							el.value = val;
 
-					modelOptionsK.append(el);
-				})
+							w2ModelList.append(el);
+						})
+
+					}
 
 			}
 
@@ -158,8 +195,11 @@ export function getYear()
 	{
 		loadStart();
 		console.log('getting years')
-		var arrayOfModel = [modelP.value,modelK.value]
-
+		var arrayOfModel = [w1Model.value]
+		if (websiteChoiceCount === 2)
+			{
+				arrayOfModel.push(w2Model.value)
+			}
 
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/getYear", true);
@@ -169,33 +209,23 @@ export function getYear()
 			{
 				loadEnd();
 				var yearOptions = JSON.parse(xhr.responseText);
-				var Pstart = yearOptions['polovni']['yearStart'];
-				var Pend = yearOptions['polovni']['yearEnd'];
-				var Kstart = yearOptions['kupujem']['yearStart'];
-				var Kend = yearOptions['kupujem']['yearEnd'];
+				var w1start = yearOptions['web1']['yearStart'];
+				var w1end = yearOptions['web1']['yearEnd'];
 				
-				// *change*
-				// export this function outside this block of code
-				// _______________________________________________
+				createElFromData(w1YearStartList,w1start);
+				createElFromData(w1YearEndList,w1end);
 
-				function createElFromData(appendToMe,data)
+				if(websiteChoiceCount === 2)
 					{
-						//data is an array as well
-						data.forEach(x=>{
-							var el = document.createElement('option');
-							el.value = x;
+						var w2start = yearOptions['web2']['yearStart'];
+						var w2end = yearOptions['web2']['yearEnd'];
 
-							appendToMe.append(el);
-						})
-
+						createElFromData(w2YearStartList,w2start);
+						createElFromData(w2YearEndList,w2end);
 					}
-				//________________________________________________
 
 
-				createElFromData(yearPstart,Pstart);
-				createElFromData(yearPend,Pend);
-				createElFromData(yearKstart,Kstart);
-				createElFromData(yearKend,Kend);
+
 				console.log('done appending');
 			}
 
@@ -208,12 +238,12 @@ export function getFinalOptions()
 		loadStart();
 		//this function takes the input options and sends them to server
 		// upon returning it takes the data and creates tables
-
-		var dataToGet = 
+		var dataToGet = {};
+		dataToGet['web1'] = {'make':w1Make.value,'model':w1Model.value,'yearStart':w1YearStart.value,'yearEnd':w1YearEnd.value};
+		if (websiteChoiceCount ===2)
 			{
-			'polovni':{'make':makeP.value,'model':modelP.value,'yearStart':yearStartP.value,'yearEnd':yearEndP.value},
-			'kupujem':{'make':makeK.value,'model':modelK.value,'yearStart':yearStartK.value,'yearEnd':yearEndK.value}
-			};
+				dataToGet['web2'] = {'make':w2Make.value,'model':w2Model.value,'yearStart':w2YearStart.value,'yearEnd':w2YearEnd.value};
+			}
 
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/getData", true);
@@ -221,13 +251,20 @@ export function getFinalOptions()
 
 		xhr.onload = function()
 			{
+				var dataSorted = {};
 				loadEnd();
 				var data = JSON.parse(xhr.responseText);
+				console.log(data,'DATA LOADED')
 				finalStoredData = data;
 
-				var dataPolovni = sortPriceAsc(data[0]);
-				var dataKupujem = sortPriceAsc(data[1]);
-				var dataSorted = {"polovni":dataPolovni,"kupujem":dataKupujem};
+				var w1Data = sortPriceAsc(data[0]);
+				dataSorted['web1'] = w1Data;
+
+				if (websiteChoiceCount === 2)
+					{
+						var w2Data = sortPriceAsc(data[1]);
+						dataSorted['web2'] = w2Data;
+					}
 				
 				//save data for testing purposes
 				//storage.setItem('test',JSON.stringify(dataSorted));
@@ -249,62 +286,6 @@ export function getFinalOptions()
 
 function getOptions()
 	{
-		// *change*
-
-		// ________NEW________
-
-		// This function will be the handler that will take most of the load
-		// So upon clicking on it, it evaluates the input and if everything is alright
-		// it calls the required function (ex. getMake, getModel etc.)
-
-		// If something is off, a seperate function will be run that will alert the user of 
-		// what exactly is wrong
-
-		// functions we need:::
-
-		//-checkInput
-		//if input is bad run the below function
-		
-		//---inputErrorHandler
-		// inputErrorHandler will alert the user of what exactly is wrong,
-		// and highlight the area that needs the users attention...
-		//
-
-		//--
-
-
-
-
-
-		// ________NEW________
-
-		
-		/*
-			We need to check for multiple things here before we send the request..
-			So we will create multiple functions to handle that before sending the request..
-			1. check the inputs, if all is there, if something is left out like car model etc, then we don't send data but alert the user
-			and if he decides to continue with his selections and clicks on submit again, we can then continue
-
-
-			2. based on the above selections and checks we send the data to the server
-			 something like this:
-			
-			{
-				{
-					website: kupujem, carMake: ... , carModel, etc.		
-				},
-				{
-					website: polovni, carMake: ... , carModel, etc.		
-				}
-			}
-
-			this objects length will tell us if there is one or two websites
-			which will impact the size of our list and organization (full width vs half)
-			
-			then the server reads the data and decides what to do next.
-
-			once the data is returned we can store this data to the web storage where it can be accessed easly
-		*/
 
 		if(!requestSent)
 			{
@@ -401,7 +382,7 @@ function displayData(arg)
 		if (length === 1)
 			{
 				//example
-				createTableBig(arg[0]);
+				createTableBig(arg['web1']);
 			}
 		else if (length === 2)
 			{
@@ -456,11 +437,11 @@ function displayData(arg)
 				appendValue(tRowRight,tCCRight,'CC');
 				appendValue(tRowRight,tKMRight,'KM');
 
-				var dataPolovni = data["polovni"];
-				var dataKupujem = data["kupujem"];
+				var w1Data = data['web1'];
+				var w2Data = data['web2'];
 
 				// for each object create element and append to tableLeft/right
-				dataPolovni.forEach(x=>{
+				w1Data.forEach(x=>{
 									//creating elements
 						var elementRow = document.createElement('tr');
 						var elementName = document.createElement('td')
@@ -487,7 +468,7 @@ function displayData(arg)
 
 				})
 
-				dataKupujem.forEach(x=>{
+				w2Data.forEach(x=>{
 
 					//creating elements
 						var elementRow = document.createElement('tr');
@@ -537,6 +518,7 @@ function displayData(arg)
 
 				data.forEach(x=>{
 
+
 					var elementRow = document.createElement('tr');
 					var elementName = document.createElement('td');
 					var elementYear = document.createElement('td');
@@ -544,14 +526,19 @@ function displayData(arg)
 					var elementFuel = document.createElement('td');
 					var elementCC = document.createElement('td');
 					var elementKM = document.createElement('td');
+					var linkA = document.createElement('a');
 
+					linkA.href = x["href"];
+					linkA.innerText = x["Car Name"];
+					elementName.append(linkA);
+					elementRow.append(elementName);
 
-					appendValue(elementRow,elementName,x['name']);
-					appendValue(elementRow,elementYear,x['year']);
-					appendValue(elementRow,elementPrice,x['price']);
-					appendValue(elementRow,elementFuel,x['fuel']);
-					appendValue(elementRow,elementCC,x['cc']);
-					appendValue(elementRow,elementKM,x['km']);
+					//appendValue(elementRow,elementName,x["Car Name"]);
+					appendValue(elementRow,elementYear,x["Car Year"]);
+					appendValue(elementRow,elementPrice,x["Car Price"]);
+					appendValue(elementRow,elementFuel,x["Car Fuel"]);
+					appendValue(elementRow,elementCC,x["Car CC"]);
+					appendValue(elementRow,elementKM,x["Car KM"]);
 
 					table.append(elementRow);
 
@@ -570,6 +557,11 @@ function displayData(arg)
 function createEl(x)
 	{
 		return document.createElement(x);
+	}
+
+function getElement(el)
+	{
+		return document.querySelector(el);	
 	}
 
 function testDisplay()
@@ -595,27 +587,66 @@ function loadEnd()
 
 function handleWebsiteChoice()
 	{
-		var website1 = choiceSelect1.value;
-		var website2 = choiceSelect2.value;
+		website1 = choiceSelect1.value;
+		website2 = choiceSelect2.value;
+		
+		if (website1 === "" && website2 === "")
+			{
+				//alert no choices
+				return;
+			}
 
-		if (website1 === "" || website2 === "")
+		if (website1 != "" && website2 != "")
 			{
-				if(website1 === "")
-					{
-						if(website2 != "")
-							{
-								handleInputCreation([website2])
-							}
-					}
-				else if (website2 === "")
-					{
-						handleInputCreation([website1])
-					}
+				handleInputCreation([website1,website2]);
+				websiteChoiceCount = 2;
 			}
-		else 
+		else if(website1 != "")
 			{
-				handleInputCreation([website1,website2])
+				handleInputCreation([website1]);
+				websiteChoiceCount = 1
 			}
+		else if(website2 != "")
+			{
+				handleInputCreation([website2]);
+				websiteChoiceCount = 1
+			}
+
+
+	//create variables
+
+			w1Make = getElement('#make1');
+			w1Model = getElement('#model1');
+			w1YearStart = getElement('#yearStart1');
+			w1YearEnd = getElement('#yearEnd1');
+
+			w1MakeList = getElement('#makeOptions1');
+			w1ModelList = getElement('#modelOptions1');
+			w1YearStartList = getElement('#yearStartOptions1');
+			w1YearEndList = getElement('#yearEndOptions1');
+
+			if(websiteChoiceCount === 2)
+				{
+					w2Make = getElement('#make2');
+					w2Model = getElement('#model2');
+					w2YearStart = getElement('#yearStart2');
+					w2YearEnd = getElement('#yearEnd2');
+
+					w2MakeList = getElement('#makeOptions2');
+					w2ModelList = getElement('#modelOptions2');
+					w2YearStartList = getElement('#yearStartOptions2');
+					w2YearEndList = getElement('#yearEndOptions2');
+				}
+
+
+
+
+
+		
+
+		//once websitesChoices have been selected and made
+		//we can immediately load getMake..
+
 
 	}
 
@@ -627,7 +658,7 @@ function handleInputCreation(array)
 		if(array.length>1)
 			{
 				element1 = createInputField(array[0]);
-				websiteChoiceCount++;
+				websiteCounter++;
 				element2 = createInputField(array[1]);
 			}
 		else
@@ -679,19 +710,31 @@ function createInputField(website)
 
 		function createInputBox(name)
 			{	
-				var elName = `${name}${websiteChoiceCount}`;
+				var elName = `${name}${websiteCounter}`;
 				var element = document.createElement('div');
 				var input = document.createElement('input');
 				var dataList = document.createElement('datalist');
 
 				input.id = elName;
-				input.setAttribute('list', `${name}Options${websiteChoiceCount}`);
+				input.setAttribute('list', `${name}Options${websiteCounter}`);
 				input.placeholder = `Car ${name}`;
 
-				dataList.id = elName;
+				dataList.id = `${name}Options${websiteCounter}`;
 
 				input.append(dataList);
 				return input;
 			}
+
+	}
+
+function createElFromData(appendToMe,data)
+	{
+		//data is an array as well
+		data.forEach(x=>{
+			var el = document.createElement('option');
+			el.value = x;
+
+			appendToMe.append(el);
+		})
 
 	}

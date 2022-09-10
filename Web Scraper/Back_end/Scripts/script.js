@@ -20,6 +20,7 @@ var kupujemList;
 
 export async function mainHandler(siteName,dataToGet, urlAndNum)
 	{
+		console.log(siteName,dataToGet,urlAndNum);
 		var url = urlAndNum['url'];
 
 		if(urlAndNum['url'] === undefined || urlAndNum['pageNum'] === undefined)

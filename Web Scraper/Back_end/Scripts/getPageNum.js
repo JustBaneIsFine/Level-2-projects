@@ -128,46 +128,97 @@ async function getDataPolovni(data)
 		console.log('submiting data')
 		await Promise.all([
 				page.click('.js-search-buttons'),
-				page.waitForNavigation(),
+				page.waitForNavigation({waitUntil: 'load'})
 			]);
 		console.log("done waiting for navigation")
 
 
 		console.log('going into page evaluate')
 		pageNum = await page.evaluate(async ()=>{
-
-
-
 			
 				var found = false;
 				var count = 0;
-				var countMax = 10;
+				var tryCount = 0;
 
 
 				var dataNumOfPages;
 
-					while(!found && count<countMax)
+
+				//____________________
+
+				while(!found && tryCount<10)
 					{
 
-						if(document.getElementsByTagName('small').length < 10)
+
+						var smallList = document.getElementsByTagName('small');
+							smallList.forEach(x=>
 							{
-								await delaySecond(500);
-								count++;
-								dataNumOfPages = false;
+								if(found === true)
+									{
+										return;
+									}
+
+								if(x.innerText.includes('ukupno'))
+									{
+										found = true;
+										return;
+									}
+								else 
+									{
+										count++;
+									};
+
+							});
+
+						if(!found)
+							{
+								await delaySecond(300);
+							};
+
+					}
+
+
+						if (!found)
+							{
+								dataNumOfPages = "could not get page number";
 							}
 						else
 							{
-								found = true;
-								var smallText = document.getElementsByTagName('small')[10].innerText;
-								if (smallText.includes('ukupno'))
-									{	
-										var numOfAds = smallText.slice(-5).replace(/\D/g, "");
-									}
-
-								 dataNumOfPages = Math.ceil(numOfAds/25);
-								 
+								//if found
+								var smallText = smallList[count].innerText;
+								var numOfAds = smallText.slice(-5).replace(/\D/g, "");
+								dataNumOfPages = Math.ceil(numOfAds/25);
+								
 							}
-					}
+
+					//_________________
+						
+
+
+
+						// if(document.getElementsByTagName('small')[10] === undefined)
+						// 	{
+						// 		count++;
+						// 		dataNumOfPages = `small tag not available, ${count} tries`;
+						// 		await delaySecond(1000);
+						// 		if (count >= 5)
+						// 			{
+
+						// 			}
+						// 	}
+						// else
+						// 	{
+						// 		found = true;
+						// 		var smallText = document.getElementsByTagName('small')[10].innerText;
+						// 		if (smallText.includes('ukupno'))
+						// 			{	
+						// 				var numOfAds = smallText.slice(-5).replace(/\D/g, "");
+						// 			}
+
+						// 		 dataNumOfPages = Math.ceil(numOfAds/25);
+								 
+						// 	}
+					
 					return dataNumOfPages;
 
 				function delaySecond(num){
@@ -176,8 +227,9 @@ async function getDataPolovni(data)
 								setTimeout(resolve,num);
 							});	
 					}
+				
 
-		})
+		});
 		
 		console.log('exited the evaluate block')
 
@@ -203,10 +255,15 @@ async function getDataPolovni(data)
 				pageUrl = await page.url();
 				console.log('end waiting for navigation');
 			}
-			else if (pageNum=== undefined || pageNum === 1)
+			else if (pageNum === undefined || pageNum === 1)
 				{
 					pageNum = 1;
 					pageUrl = await page.url();
+				}
+			else if(pageNum === false)
+				{
+					contentLoaded = false;
+					return;
 				}
 
 		combinedData = {'pageNum':pageNum,'url':pageUrl};

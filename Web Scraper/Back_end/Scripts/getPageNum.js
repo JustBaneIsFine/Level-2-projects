@@ -78,7 +78,7 @@ async function getDataPolovni(data)
 
 	try {
 			//if after 40 seconds we still don't get what we need, we will close down and try again.
-			setTimeout(()=>{browser.close()},40000);
+			setTimeout(()=>{browser.close()},30000);
 
 		
 
@@ -113,7 +113,6 @@ async function getDataPolovni(data)
 				})
 		
 
-		console.log('waiting start');
 		await Promise.race([
 			page.goto(urlPolovni, {timeout: 40000}),
 			page.waitForSelector('.sumo_brand')
@@ -142,9 +141,6 @@ async function getDataPolovni(data)
 
 
 				var dataNumOfPages;
-
-
-				//____________________
 
 				while(!found && tryCount<10)
 					{
@@ -184,41 +180,12 @@ async function getDataPolovni(data)
 							}
 						else
 							{
-								//if found
 								var smallText = smallList[count].innerText;
 								var numOfAds = smallText.slice(-5).replace(/\D/g, "");
 								dataNumOfPages = Math.ceil(numOfAds/25);
 								
 							}
-
-					//_________________
-						
-
-
-
-						// if(document.getElementsByTagName('small')[10] === undefined)
-						// 	{
-						// 		count++;
-						// 		dataNumOfPages = `small tag not available, ${count} tries`;
-						// 		await delaySecond(1000);
-						// 		if (count >= 5)
-						// 			{
-
-						// 			}
-						// 	}
-						// else
-						// 	{
-						// 		found = true;
-						// 		var smallText = document.getElementsByTagName('small')[10].innerText;
-						// 		if (smallText.includes('ukupno'))
-						// 			{	
-						// 				var numOfAds = smallText.slice(-5).replace(/\D/g, "");
-						// 			}
-
-						// 		 dataNumOfPages = Math.ceil(numOfAds/25);
-								 
-						// 	}
-					
+				
 					return dataNumOfPages;
 
 				function delaySecond(num){
@@ -233,8 +200,6 @@ async function getDataPolovni(data)
 		
 		console.log('exited the evaluate block')
 
-
-		// if there are more pages, find and click on the second one and then save the url
 		console.log('NUMBER OF PAGES ---------------------------------------',pageNum)
 		
 
@@ -286,13 +251,13 @@ async function getDataKupujem(data)
 		var yearEnd = data['yearEnd'];
 		var dataReturned;
 
-
+		//start up the browser and set config
 		const browser = await puppeteer.launch({headless:true,defaultViewport:null});
 		const page = await browser.newPage();
 		await page.setRequestInterception(true);
 		page.setDefaultNavigationTimeout(0);
 		try {
-		//start up the browser and set config
+		
 		
 		
 
@@ -329,7 +294,6 @@ async function getDataKupujem(data)
 
 		
 
-		//type and click car make 	
 			await page.goto(urlKupujem, {timeout: 30000});
 			await page.waitForSelector('#groupSecondSelection');
 
@@ -402,7 +366,6 @@ async function getDataKupujem(data)
 				var listOfPages = document.getElementsByClassName('pagesList')[0];
 				if (listOfPages != undefined)
 					{
-						//there is more pages..
 						var nodeList = listOfPages.querySelectorAll('li');
 					 	dataNumOfPages = nodeList[nodeList.length-2].innerText;
 					 	dataCombined = {'pageNum':dataNumOfPages,'url':window.location.href};
@@ -429,13 +392,10 @@ async function getDataKupujem(data)
 
 					})	
 
-					//_____________
 
 					console.log('starting to wait for navigation');
 					await page.waitForNavigation();
 					console.log('ended waiting for navigation');
-
-					//_______________
 					
 						var pageUrl = await page.url();
 
@@ -463,10 +423,6 @@ async function getDataKupujem(data)
 	return dataReturned;
 
 
-		//______________________________
-		//______________________________
-
-
 	}
 
 
@@ -486,7 +442,6 @@ async function pageClickHandlerKupujem(page,selector,data)
 				await page.waitForSelector(`${selector} .mg-field`);
 				await page.type(`${selector} .mg-field`,data);
 				console.log('clicking field is done')
-				//await page.hover(`${selector} .uiMenuItem`);
 				console.log('waiting for  uiMenuItem is done')
 				await page.waitForSelector(`${selector} .uiMenuItem`);
 
@@ -578,7 +533,6 @@ async function pageClickHandlerPolovni(page,selector1,selector2,data)
 				await page.evaluate(async (selectorx,datax)=>{
 
 					var uiList = document.querySelectorAll(`${selectorx} .opt`);
-					console.log(uiList, 'THIS IS THE UI LIST')
 					var found = false;
 					uiList.forEach(x=>{
 
@@ -609,8 +563,6 @@ async function pageClickHandlerPolovni(page,selector1,selector2,data)
 			{
 
 				var insideText = await page.$eval(selector, el => {return el.parentElement.innerText});
-				console.log('inside text',insideText)
-				console.log('data',data)
 
 				if(insideText === data)
 					{

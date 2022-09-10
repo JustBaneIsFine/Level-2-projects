@@ -175,17 +175,13 @@ async function getMakeKupujem()
 							const text = await page.evaluate(()=>{
 								return (async function(){
 
-								if(document.readyState === 'interactive' || document.readyState === 'complete')	
-									{
-										//you can continue
-									}
-								else 
+								if(document.readyState != 'interactive' || document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
 													document.addEventListener('DOMContentLoaded',resolve);
 												});	
-									await promiseDom;
+										await promiseDom;
 									}
 
 
@@ -274,26 +270,20 @@ async function getModelPolovni(make)
 						return (async function(){
 							try{
 							const text = await page.evaluate((make)=>{
-								console.log('EVALUATION MAKE PASSING 1',make);
 								return (async function(){
 
-								if (document.readyState === 'interactive' || document.readyState === 'complete')	
-									{
-										//you can continue
-									}
-								else 
+								if (document.readyState != 'interactive' || document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
 													document.addEventListener('DOMContentLoaded',resolve);
 												});	
-									await promiseDom;
+										await promiseDom;
 									}
 
 								var data = [];
 								var makeNum;
 								var makeOptions = document.getElementsByClassName('sumo_brand')[0].querySelectorAll('.opt');
-								console.log(makeOptions,"make OPTIONS");
 								var makeButton = document.getElementsByClassName('sumo_brand');
 
 								var foundValue = false;
@@ -303,7 +293,6 @@ async function getModelPolovni(make)
 											{
 												makeNum = i;
 												foundValue = true;
-												console.log('found make', make, makeNum);
 											}
 									}
 								
@@ -356,7 +345,6 @@ async function getModelPolovni(make)
 
 								return data;
 
-								//___INSIDE PAGE
 								})(); 
 
 
@@ -439,18 +427,15 @@ async function getModelKupujem(make)
 							const text = await page.evaluate((make)=>{
 								return (async function(){
 
-									if(document.readyState === 'interactive' || document.readyState === 'complete')	
-									{
-										//you can continue
-									}
-								else 
+									if(document.readyState != 'interactive' || document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
 													document.addEventListener('DOMContentLoaded',resolve);
 												});	
-									await promiseDom;
+										await promiseDom;
 									}
+							
 
 
 									function delaySecond(num){
@@ -500,7 +485,6 @@ async function getModelKupujem(make)
 							 			await delaySecond(100);
 							 				if(modelOptionsBox.querySelectorAll('.uiMenuItem')[0] === undefined)
 							 					{
-							 						//cancel 
 							 						counter++;
 							 						await clickableMakeDiv.querySelectorAll('.choiceOptionClose')[1].click();
 							 					}
@@ -613,22 +597,16 @@ async function getYearPolovni(make,model)
 							const text = await page.evaluate((make,model)=>{
 								return (async function(){
 
-								if(document.readyState === 'interactive' || document.readyState === 'complete')	
-									{
-										//you can continue
-									}
-								else 
+								if(document.readyState != 'interactive' || document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
 													document.addEventListener('DOMContentLoaded',resolve);
 												});	
-									await promiseDom;
+										await promiseDom;
 									}
 
 								var data;
-
-								console.log(make,model)
 
 								var yearOptionsStart = document.getElementsByClassName('sumo_year_from')[0].querySelectorAll('.opt');
 								var yearStartArray = [];
@@ -742,17 +720,13 @@ async function getYearKupujem(make,model)
 							const text = await page.evaluate((make,model)=>{
 								return (async function(){
 
-								if(document.readyState === 'interactive' || document.readyState === 'complete')	
-									{
-										//you can continue
-									}
-								else 
+								if(document.readyState != 'interactive' || document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
 													document.addEventListener('DOMContentLoaded',resolve);
 												});	
-									await promiseDom;
+										await promiseDom;
 									}
 
 
@@ -863,7 +837,6 @@ async function handlerFunction(dataToGet,arg1,arg2)
 					{
 						count++;
 						console.log("FAILED TO GET WEBSITE DATA DUE TO SOME ERROR")
-						//try again
 					}
 				else 
 					{

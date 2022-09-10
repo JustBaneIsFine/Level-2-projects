@@ -35,8 +35,8 @@ app.post('/getMake',jsonParser , async (req,res)=>{
 
 	 if(Object.keys(arrayOfWebsites).length === 2)
 	 	{
-	 		websiteChoice1 = arrayOfWebsites[1]; //polovni
-	 		websiteChoice2 = arrayOfWebsites[2]; //polovni
+	 		websiteChoice1 = arrayOfWebsites[1];
+	 		websiteChoice2 = arrayOfWebsites[2];
 
 	 		var website1 = await getWebsiteMake(websiteChoice1);
 	 		var website2 = await getWebsiteMake(websiteChoice2);
@@ -58,7 +58,6 @@ app.post('/getModel',jsonParser, async (req,res)=>{
 
 	 var arrayOfMake = req.body; 
 	 var websiteData = {};
-	 console.log(req.body,'array of make data');
 
 	 if(arrayOfMake.length === 2)
 	 	{
@@ -130,7 +129,6 @@ app.post('/getData',jsonParser, async (req,res)=>{
 	else 
 		{
 			var w1Num = await getPageNum(dataToGet['web1'],websiteChoice1);
-			console.log(w1Num);
 			var w1Data = await mainHandler(websiteChoice1,dataToGet['web1'],w1Num);
 
 			var data = [w1Data];
@@ -154,22 +152,3 @@ app.listen(port, ()=> {
 
 
 
-// app.post("/sentURL", async (req, res) => {
-//     var x = req.body;
-
-    
-//     	req.connection.on('close',function(){    
-//        console.log("connection closed")
-//     });
-
-//    	try 
-//    	{
-//    		await mainHandler();
-//    		res.status(200).send("IT WORKS");
-   		
-//    	} catch(e) {
-//    		// if you get error, send error	
-//    		res.status(400).send(e);
-//    	}
-
-// });

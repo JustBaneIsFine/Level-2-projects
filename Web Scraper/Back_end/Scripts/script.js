@@ -20,7 +20,6 @@ var kupujemList;
 
 export async function mainHandler(siteName,dataToGet, urlAndNum)
 	{
-		console.log(siteName,dataToGet,urlAndNum);
 		var url = urlAndNum['url'];
 
 		if(urlAndNum['url'] === undefined || urlAndNum['pageNum'] === undefined)
@@ -64,7 +63,7 @@ async function loadHandlerKupujem(urla,numOfPages)
 
 		console.log("KUPUJEM LOADING")
  
-		while(pageCounter<numOfPages) //0 < 1 true
+		while(pageCounter<numOfPages)
 			{		
 				var store = [];
 				console.log("_________________Loading Pages_________________");
@@ -86,7 +85,6 @@ async function loadHandlerKupujem(urla,numOfPages)
 							{
 								url = urla;
 							}
-						console.log('url url url', url);
 						pageCounter++;
 
 						store[i] = handleLoadingAndFailiure(url,"kupujem");
@@ -124,7 +122,6 @@ async function loadHandlerPolovni(urla,numOfPages)
 					{
 
 						var url = urla.replace('page=2',`page=${pageCounter+1}`);
-						console.log('url url url', url);
 						pageCounter++;
 
 						store[i] = handleLoadingAndFailiure(url,"polovni");

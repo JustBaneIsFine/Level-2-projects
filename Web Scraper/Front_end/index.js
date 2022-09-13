@@ -11,17 +11,16 @@ window.onload = ()=>
 			}
 		choiceSelect1.value = "";
 		choiceSelect2.value = "";
+
+	selectionHandler(choiceSelect2,'disable');
 	}
 
-
-
-// *change*
-// change the names of the variables to be more understandable, what is what..
 var alerted = false;
 var requestSent = false;
 
 var buttonTest = document.getElementById('testDisplay');
 buttonTest.addEventListener('click',testDisplay);
+
 
 var website1;
 var website2;
@@ -57,6 +56,26 @@ var choiceSelect2 = document.querySelector('#select2');
 
 var choiceSelectSubmit = document.querySelector('#choiceSubmit');
 choiceSelectSubmit.addEventListener('click',handleWebsiteChoice)
+
+var choice1Disabled = false;
+var choice2Disabled = true;
+var choice1Selected = false;
+var choice2Selected = false;
+
+choiceSelect1.addEventListener('change',()=>{
+	selectionHandler(choiceSelect1,'disable'); 
+	selectionHandler(choiceSelect2,'enable');
+	choice1Disabled = true;
+	choice2Disabled = false;
+	choice1Selected = true;
+})
+
+choiceSelect2.addEventListener('change',()=>{
+	selectionHandler(choiceSelect2,'disable');
+	choice2Disabled = true;
+	choice2Selected = true;
+})
+
 
 var makeOptions;
 var modelOptions;
@@ -270,7 +289,9 @@ export function getFinalOptions()
 				//storage.setItem('test',JSON.stringify(dataSorted));
 
 				//display data
+				inputSection.remove();
 				displayData(dataSorted);
+
 
 			}
 
@@ -611,7 +632,7 @@ function handleWebsiteChoice()
 				handleInputCreation([website2]);
 				websiteChoiceCount = 1
 			}
-
+		choiceSection.remove();
 
 	//create variables
 
@@ -737,4 +758,16 @@ function createElFromData(appendToMe,data)
 			appendToMe.append(el);
 		})
 
+	}
+
+function selectionHandler(element, action)
+	{
+		if(action === 'disable')
+			{
+				element.setAttribute('disabled','true');
+			}
+		else if(action === 'enable')
+			{
+				element.removeAttribute('disabled');
+			}
 	}

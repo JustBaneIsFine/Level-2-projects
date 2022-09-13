@@ -117,7 +117,6 @@ async function getDataPolovni(data)
 			page.goto(urlPolovni, {timeout: 40000}),
 			page.waitForSelector('.sumo_brand')
 			]);
-
 		await pageClickHandlerPolovni(page,'.sumo_brand .placeholder','.sumo_brand .search-txt',make);
 		await pageClickHandlerPolovni(page,'.sumo_model .placeholder','.sumo_model .search-txt',model);
 		await pageClickHandlerPolovni(page,'.sumo_year_from .placeholder',undefined,yearStart);
@@ -126,8 +125,8 @@ async function getDataPolovni(data)
 		//submit data
 		console.log('submiting data')
 		await Promise.all([
-				page.click('.js-search-buttons'),
-				page.waitForNavigation({waitUntil: 'load'})
+				page.waitForNavigation({waitUntil:'domcontentloaded'}),
+				page.click('.js-search-buttons')
 			]);
 		console.log("done waiting for navigation")
 
@@ -138,7 +137,6 @@ async function getDataPolovni(data)
 				var found = false;
 				var count = 0;
 				var tryCount = 0;
-
 
 				var dataNumOfPages;
 
@@ -168,6 +166,8 @@ async function getDataPolovni(data)
 
 						if(!found)
 							{
+								tryCount++;
+								count = 0;
 								await delaySecond(300);
 							};
 
@@ -207,10 +207,10 @@ async function getDataPolovni(data)
 			{
 
 				await Promise.all([
-					await page.evaluate(()=>{
+					page.waitForNavigation({waitUntil:'domcontentloaded'}),
+					page.evaluate(()=>{
 					var pageNumButton = document.getElementsByClassName('js-pagination-numeric')[0];
-					pageNumButton.click();}),
-					await page.waitForNavigation()
+					pageNumButton.click();})
 					])
 				
 				

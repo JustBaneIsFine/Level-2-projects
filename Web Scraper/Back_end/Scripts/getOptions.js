@@ -175,7 +175,7 @@ async function getMakeKupujem()
 							const text = await page.evaluate(()=>{
 								return (async function(){
 
-								if(document.readyState != 'interactive' || document.readyState != 'complete')	
+								if(document.readyState != 'interactive' && document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
@@ -272,7 +272,8 @@ async function getModelPolovni(make)
 							const text = await page.evaluate((make)=>{
 								return (async function(){
 
-								if (document.readyState != 'interactive' || document.readyState != 'complete')	
+									console.log('-------------------------loading-------------------')
+								if (document.readyState != 'interactive' && document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
@@ -280,7 +281,7 @@ async function getModelPolovni(make)
 												});	
 										await promiseDom;
 									}
-
+								console.log('--------------------------------loaded-----------------')
 								var data = [];
 								var makeNum;
 								var makeOptions = document.getElementsByClassName('sumo_brand')[0].querySelectorAll('.opt');
@@ -340,7 +341,7 @@ async function getModelPolovni(make)
 								var modelOptionsList = modelOptions[0].childNodes[0].options;
 								for (let i=0;i<modelOptionsList.length;i++)
 									{
-										data.push(modelOptionsList[i].value.replace('-',' '));
+										data.push(modelOptionsList[i].value);
 									}
 
 								return data;
@@ -427,7 +428,7 @@ async function getModelKupujem(make)
 							const text = await page.evaluate((make)=>{
 								return (async function(){
 
-									if(document.readyState != 'interactive' || document.readyState != 'complete')	
+									if(document.readyState != 'interactive' && document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
@@ -597,7 +598,7 @@ async function getYearPolovni(make,model)
 							const text = await page.evaluate((make,model)=>{
 								return (async function(){
 
-								if(document.readyState != 'interactive' || document.readyState != 'complete')	
+								if(document.readyState != 'interactive' && document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{
@@ -720,7 +721,7 @@ async function getYearKupujem(make,model)
 							const text = await page.evaluate((make,model)=>{
 								return (async function(){
 
-								if(document.readyState != 'interactive' || document.readyState != 'complete')	
+								if(document.readyState != 'interactive' && document.readyState != 'complete')	
 									{
 										var promiseDom = new Promise((resolve,reject)=>
 												{

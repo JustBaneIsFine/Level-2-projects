@@ -27,6 +27,7 @@ a{
 	color: rgb(150,150,255);
 }
 
+#confirmButton{display: none;}
 
 
 p {

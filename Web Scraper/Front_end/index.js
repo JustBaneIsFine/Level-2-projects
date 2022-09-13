@@ -18,8 +18,8 @@ window.onload = ()=>
 var alerted = false;
 var requestSent = false;
 
-var buttonTest = document.getElementById('testDisplay');
-buttonTest.addEventListener('click',testDisplay);
+// var buttonTest = document.getElementById('testDisplay');
+// buttonTest.addEventListener('click',testDisplay);
 
 
 var website1;
@@ -53,6 +53,9 @@ var choiceSection = document.querySelector('.choiceSection');
 var inputSection = document.querySelector('.inputSection');
 var choiceSelect1 = document.querySelector('#select1');
 var choiceSelect2 = document.querySelector('#select2');
+var confirmButton = document.querySelector('#confirmButton');
+
+confirmButton.addEventListener('click', handleConfirmation);
 
 var choiceSelectSubmit = document.querySelector('#choiceSubmit');
 choiceSelectSubmit.addEventListener('click',handleWebsiteChoice)
@@ -61,7 +64,10 @@ var choice1Disabled = false;
 var choice2Disabled = true;
 var choice1Selected = false;
 var choice2Selected = false;
-
+var makeConfirmed = false;
+var modelConfirmed = false;
+var yearStartConfirmed = false;
+var yearEndConfirmed = false;
 choiceSelect1.addEventListener('change',()=>{
 	selectionHandler(choiceSelect1,'disable'); 
 	selectionHandler(choiceSelect2,'enable');
@@ -633,6 +639,7 @@ function handleWebsiteChoice()
 				websiteChoiceCount = 1
 			}
 		choiceSection.remove();
+		confirmButton.style.display = "inline-block";
 
 	//create variables
 
@@ -659,14 +666,7 @@ function handleWebsiteChoice()
 					w2YearEndList = getElement('#yearEndOptions2');
 				}
 
-
-
-
-
-		
-
-		//once websitesChoices have been selected and made
-		//we can immediately load getMake..
+		getMake();
 
 
 	}
@@ -770,4 +770,91 @@ function selectionHandler(element, action)
 			{
 				element.removeAttribute('disabled');
 			}
+	}
+
+function handleConfirmation()
+	{
+		
+		if(websiteChoiceCount === 1)
+			{
+				w2Make = 'x';
+				w2Model = 'x';
+				w2YearStart = 'x';
+				w2YearEnd = 'x';
+			}
+
+		if(!makeConfirmed)
+			{
+				if(w1Make.value != '' && w2Make.value != "")
+					{
+						makeConfirmed = true;
+						w1Make.setAttribute('disabled','true');
+						try{w2Make.setAttribute('disabled','true');}catch{};
+						confirmButton.innerText = 'Confirm model'
+						getModel();
+						return;
+					}
+				else 
+					{
+						//alert
+						console.log("ALERT");
+						return;
+					}
+			}
+		
+		if(!modelConfirmed)
+			{
+				if(w1Model.value != '' && w2Model.value != "")
+					{
+						modelConfirmed = true;
+						w1Model.setAttribute('disabled','true');
+						try{w2Model.setAttribute('disabled','true');}catch{};
+						confirmButton.innerText = 'Confirm yearStart'
+						getYear();
+						return;
+					}
+				else 
+					{
+						//alert
+						console.log("ALERT");
+						return;
+					}
+			}
+
+		if(!yearStartConfirmed)
+			{
+				if(w1YearStart.value != '' && w2YearStart.value != "")
+					{
+						yearStartConfirmed = true;
+						w1YearStart.setAttribute('disabled','true');
+						try{w2YearStart.setAttribute('disabled','true');}catch{};
+						confirmButton.innerText = 'Confirm and get data'
+						return;
+					}
+				else
+					{
+						//alert
+						console.log("ALERT");
+						return;
+					}
+			}
+
+		if(!yearEndConfirmed)
+			{
+				if(w1YearEnd.value != '' && w2YearEnd.value != "")
+					{
+						yearEndConfirmed = true;
+						w1YearEnd.setAttribute('disabled','true');
+						try{w2YearEnd.setAttribute('disabled','true');}catch{};
+					}
+				else
+					{	
+						//alert
+						console.log("ALERT");
+						return;
+					}
+			}
+
+		getFinalOptions();
+
 	}

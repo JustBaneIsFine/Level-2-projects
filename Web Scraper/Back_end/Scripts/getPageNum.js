@@ -125,7 +125,7 @@ async function getDataPolovni(data)
 		//submit data
 		console.log('submiting data')
 		await Promise.all([
-				page.waitForNavigation({waitUntil:'domcontentloaded'}),
+				page.waitForNavigation({waitUntil:'networkidle2'}),
 				page.click('.js-search-buttons')
 			]);
 		console.log("done waiting for navigation")

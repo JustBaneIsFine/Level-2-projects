@@ -282,13 +282,22 @@ export function getFinalOptions()
 				console.log(data,'DATA LOADED')
 				finalStoredData = data;
 
-				var w1Data = sortPriceAsc(data[0]);
-				dataSorted['web1'] = w1Data;
+				if(data[0] != "no data")
+					{
+						var w1Data = sortPriceAsc(data[0]);
+						dataSorted['web1'] = w1Data;
+					}
+				else{dataSorted['web1'] = data[0]};
 
 				if (websiteChoiceCount === 2)
 					{
-						var w2Data = sortPriceAsc(data[1]);
-						dataSorted['web2'] = w2Data;
+						if(data[1] != "no data")
+							{
+								var w2Data = sortPriceAsc(data[1]);
+								dataSorted['web2'] = w2Data;
+							}
+						else{dataSorted['web2'] = data[1]};
+
 					}
 				
 				//save data for testing purposes
@@ -296,6 +305,28 @@ export function getFinalOptions()
 
 				//display data
 				inputSection.remove();
+				
+				//if 2 choices, and both are no data, reload
+				//if 1 choice and no data, reload
+
+				if(websiteChoiceCount === 2)
+					{
+						if(dataSorted['web1']=== 'no data' && dataSorted['web2'] === 'no data')
+						{
+							alert('Both websites returned no data, please try again');
+							location.reload()
+							return;
+						}
+					}
+				else
+					{
+						if(dataSorted['web1'] === 'no data')
+							{	
+								alert(`There is no data for ${w1Make.value}/${w1Model.value}/${w1YearStart.value}-${w1YearEnd.value} on ${website1}`)
+								location.reload();
+							}
+					}
+				
 				displayData(dataSorted);
 
 
@@ -409,12 +440,30 @@ function displayData(arg)
 		if (length === 1)
 			{
 				//example
-				createTableBig(arg['web1']);
+				if(arg['web1'] != 'no data')
+					{
+						createTableBig(arg['web1']);
+					}
 			}
 		else if (length === 2)
 			{
 				//example
-				createTableSmall(arg);
+				if(arg['web1'] != 'no data' && arg['web2'] != 'no data')
+					{
+						createTableSmall(arg);
+					}
+				else if(arg['web1'] === 'no data')
+					{
+						createTableBig(arg['web2']);
+						alert(`There is no data for ${w1Make.value}/${w1Model.value}/${w1YearStart.value}-${w1YearEnd.value} on ${website1} website`);
+
+					}
+				else
+					{
+						createTableBig(arg['web1']);
+						alert(`There is no data for ${w2Make.value}/${w2Model.value}/${w2YearStart.value}-${w2YearEnd.value} on ${website2} website`);
+					}
+				
 			}
 
 
@@ -534,7 +583,7 @@ function displayData(arg)
 				var tCC = createEl('th');
 				var tKM = createEl('th');
 
-				document.body.append(table);
+				tableSection.append(table);
 				table.append(tRow);
 				appendValue(tRow,tName,'Name');
 				appendValue(tRow,tYear,'Year');
@@ -569,7 +618,9 @@ function displayData(arg)
 
 					table.append(elementRow);
 
-				})
+				});
+
+				tableSection.style.grid = 'none';
 
 			}
 		function appendValue(row,object,value)
@@ -790,14 +841,14 @@ function handleConfirmation()
 						makeConfirmed = true;
 						w1Make.setAttribute('disabled','true');
 						try{w2Make.setAttribute('disabled','true');}catch{};
-						confirmButton.innerText = 'Confirm model'
+						confirmButton.innerText = 'Confirm model';
 						getModel();
 						return;
 					}
 				else 
 					{
 						//alert
-						console.log("ALERT");
+						alert('No make selected');
 						return;
 					}
 			}
@@ -816,7 +867,7 @@ function handleConfirmation()
 				else 
 					{
 						//alert
-						console.log("ALERT");
+						alert('No model selected');
 						return;
 					}
 			}
@@ -834,7 +885,7 @@ function handleConfirmation()
 				else
 					{
 						//alert
-						console.log("ALERT");
+						alert('No Year Start selected');
 						return;
 					}
 			}
@@ -850,11 +901,13 @@ function handleConfirmation()
 				else
 					{	
 						//alert
-						console.log("ALERT");
+						alert('No Year End selected');
 						return;
 					}
 			}
 
+		confirmButton.remove();	
 		getFinalOptions();
 
 	}
+

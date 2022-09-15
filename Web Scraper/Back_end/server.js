@@ -116,10 +116,21 @@ app.post('/getData',jsonParser, async (req,res)=>{
 	if(length === 2 )
 		{	
 			var w1Num = await getPageNum(dataToGet['web1'],websiteChoice1);
-			var w2Num = await getPageNum(dataToGet['web2'],websiteChoice2);
+			if(w1Num != "there is no data")
+				{
+					var w1Data = await mainHandler(websiteChoice1,dataToGet['web1'],w1Num);
+				}
+			else{w1Data = 'no data'}
 
-			var w1Data = await mainHandler(websiteChoice1,dataToGet['web1'],w1Num);
-			var w2Data = await mainHandler(websiteChoice2,dataToGet['web2'],w2Num);
+			var w2Num = await getPageNum(dataToGet['web2'],websiteChoice2);
+		console.log(w2Num,'returned w2NUMBER')
+			if(w2Num != "there is no data")
+				{
+					var w2Data = await mainHandler(websiteChoice2,dataToGet['web2'],w2Num);
+				}
+			else{w2Data = 'no data'};
+			
+			
 
 			var data = [w1Data,w2Data];
 			res.status(200).send(JSON.stringify(data));
@@ -129,7 +140,11 @@ app.post('/getData',jsonParser, async (req,res)=>{
 	else 
 		{
 			var w1Num = await getPageNum(dataToGet['web1'],websiteChoice1);
-			var w1Data = await mainHandler(websiteChoice1,dataToGet['web1'],w1Num);
+			if (w1Num != "there is no data")
+				{
+					var w1Data = await mainHandler(websiteChoice1,dataToGet['web1'],w1Num);
+				}
+			else{w1Data = 'no data'};
 
 			var data = [w1Data];
 

@@ -49,6 +49,12 @@ async function getDataHandler(someFunction,dataToPass)
 						failed = false;
 						contentLoaded = true;
 					}
+				else if (data === 'there is no data')
+					{
+						count = 7;
+						return;
+
+					}
 			}
 
 
@@ -123,13 +129,34 @@ async function getDataPolovni(data)
 		await pageClickHandlerPolovni(page,'.sumo_year_to .placeholder',undefined,yearEnd);
 
 		//submit data
-		console.log('submiting data')
+		console.log('submiting data');
+
 		await Promise.all([
-				page.waitForNavigation({waitUntil:'networkidle2'}),
+				// page.waitForNavigation({waitUntil:'networkidle2'}),
+				page.waitForNavigation({waitUntil:'domcontentloaded'}),
 				page.click('.js-search-buttons')
 			]);
 		console.log("done waiting for navigation")
 
+
+		var dataIsThere = await page.evaluate(async ()=>{
+			var text = document.querySelector('.paBlueButtonPrimary').parentElement.parentElement.innerText;
+
+			if(text.includes('Trenutno nema rezultata'))
+				{
+					return false;
+				}
+			else 
+				{
+					return true;
+				}
+		})
+
+		if(dataIsThere === false)
+			{
+				console.log('there is no data!!!!!!!')
+				return 'there is no data';
+			}
 
 		console.log('going into page evaluate')
 		pageNum = await page.evaluate(async ()=>{
@@ -359,6 +386,22 @@ async function getDataKupujem(data)
 			  page.waitForNavigation()
 			]);
 
+
+			var found = await page.evaluate(async ()=>{
+				var foundItem = false;
+				var text = document.querySelector('.error').innerText;
+
+				if(!text.includes('nijedan oglas'))
+					{
+						foundItem = true;
+					}
+				return foundItem;
+			})
+
+			if(found === false)
+				{
+					return 'there is no data';
+				}
 			console.log('going to evaluate block ')
 			
 				dataReturned = await page.evaluate(()=>{

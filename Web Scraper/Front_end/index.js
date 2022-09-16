@@ -1,4 +1,4 @@
-import {sortPriceAsc,sortPriceDesc,sortNameAsc,sortNameDesc,sortYearAsc,sortYearDesc} from './sorting.js';
+import {sortPriceAsc,sortPriceDesc,sortYearAsc,sortYearDesc,sortKmAsc,sortKmDesc,sortCcAsc,sortCcDesc} from './sorting.js';
 var storage = window.localStorage;
 
 
@@ -54,7 +54,11 @@ var inputSection = document.querySelector('.inputSection');
 var choiceSelect1 = document.querySelector('#select1');
 var choiceSelect2 = document.querySelector('#select2');
 var confirmButton = document.querySelector('#confirmButton');
-
+var sortingSection = getElement('#sortingSection');
+var sortYearB;
+var sortKMB;
+var sortCCB;
+var sortPriceB;
 confirmButton.addEventListener('click', handleConfirmation);
 
 var choiceSelectSubmit = document.querySelector('#choiceSubmit');
@@ -68,6 +72,7 @@ var makeConfirmed = false;
 var modelConfirmed = false;
 var yearStartConfirmed = false;
 var yearEndConfirmed = false;
+
 choiceSelect1.addEventListener('change',()=>{
 	selectionHandler(choiceSelect1,'disable'); 
 	selectionHandler(choiceSelect2,'enable');
@@ -328,6 +333,7 @@ export function getFinalOptions()
 					}
 				
 				displayData(dataSorted);
+				showSortingButtons();
 
 
 			}
@@ -911,3 +917,152 @@ function handleConfirmation()
 
 	}
 
+function showSortingButtons()
+	{
+
+		var sortPrice = createEl('button');
+		var sortYear = createEl('button');
+		var sortKM = createEl('button');
+		var sortCC = createEl('button');
+		var sortDiv = createEl('div');
+
+		sortDiv.style.display = 'flex';
+		sortDiv.style.justifyContent = 'space-around';
+		sortDiv.style.margin = '50px';
+
+		sortYear.id = 'sortYear';
+		sortKM.id = 'sortYear';
+		sortCC.id = 'sortCC';
+		sortPrice.id = 'sortPrice';
+
+		sortYear.innerText = 'Sort Year descending';
+		sortKM.innerText = 'Sort KM descending';
+		sortCC.innerText = 'Sort CC descending';
+		sortPrice.innerText = 'Sort Price descending';
+
+
+
+		sortingSection.append(sortDiv);
+		sortDiv.append(sortPrice);
+		sortDiv.append(sortYear);
+		sortDiv.append(sortKM);
+		sortDiv.append(sortCC);
+
+		sortYear.addEventListener('click',()=>{sortAndDisplay('year')});
+		sortPrice.addEventListener('click',()=>{sortAndDisplay('price')});
+		sortKM.addEventListener('click',()=>{sortAndDisplay('km')});
+		sortCC.addEventListener('click',()=>{sortAndDisplay('cc')});
+
+		sortYearB = sortYear;
+		sortKMB = sortKM;
+		sortCCB = sortCC;
+		sortPriceB = sortPrice;
+
+	}
+
+function sortAndDisplay(sortChoice)
+	{
+
+
+		switch (sortChoice) {
+
+			case 'year':
+				caseHandler(sortYearAsc,sortYearDesc,sortYearB);
+				break;
+			case 'price':
+				caseHandler(sortPriceAsc,sortPriceDesc,sortPriceB);
+				break;
+			case 'km':
+				caseHandler(sortKmAsc,sortKmDesc,sortKMB);
+				break;
+			case 'cc':
+				caseHandler(sortCcAsc,sortCcDesc,sortCCB);
+				break;
+			// default:
+			// 	// statements_def
+			// 	break;
+		}
+
+
+
+
+
+		//when changed, change innerText
+		// to see wheter to ascend or descend, also use the text to decide..
+
+
+		//deleteOldData
+		//displayNewData
+		//how to toggle..
+		function caseHandler(ascFunc,descFunc,button)
+			{
+				var sortedDataNew = {};
+				if(includesAsc(button))
+					{
+						//sort ascending
+						toggleButtonOrder(button);
+						
+						var data1 = ascFunc(finalStoredData[0]);
+						sortedDataNew['web1'] = data1;
+						if(websiteChoiceCount === 2)
+							{
+								var data2 = ascFunc(finalStoredData[1]);				
+								sortedDataNew['web2'] = data2;
+							}
+						deleteTableData();
+						displayData(sortedDataNew);
+					}
+				else
+					{
+						//sort descending
+						toggleButtonOrder(button);
+
+						var data1 = descFunc(finalStoredData[0]);
+						sortedDataNew['web1'] = data1;
+						if(websiteChoiceCount === 2)
+							{
+								var data2 = descFunc(finalStoredData[1]);				
+								sortedDataNew['web2'] = data2;
+							}
+
+						deleteTableData();
+						displayData(sortedDataNew);
+					}
+			}
+
+	}
+
+
+function deleteTableData()
+	{
+		document.querySelectorAll('table').forEach(x=>{x.remove()});
+	}
+function includesAsc(button)
+	{
+		if(button.innerText.includes('ascending'))
+			{
+				return true;
+			}
+		else 
+			{
+				return false;
+			};
+
+	}
+function toggleButtonOrder(button)
+	{		
+		var textOld = button.innerText;
+		if(textOld.includes('ascending'))
+			{
+				var textNew = textOld.replace('ascending','descending');
+				button.innerText = textNew;
+			}
+		else
+			{
+				var textNew = textOld.replace('descending','ascending');
+				button.innerText = textNew;
+			}
+
+	}
+
+//

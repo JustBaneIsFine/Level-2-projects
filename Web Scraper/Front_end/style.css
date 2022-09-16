@@ -165,3 +165,5 @@ select {text-align: center;margin: 5px;}
 #choiceSubmit{margin-top: 20px;width: 40%;}
 
 #buttonDiv{display: flex; justify-content: center;}
+
+#sortingSection {margin: auto;width: 50%;}

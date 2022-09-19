@@ -133,7 +133,7 @@ export function getMake()
 		xhr.onload = function()
 			{
 				loadEnd();
-				var makeOptions = JSON.parse(xhr.responseText);
+				makeOptions = JSON.parse(xhr.responseText);
 				console.log('got data', makeOptions);
 				var w1OptionsArray = makeOptions['web1'];
 
@@ -192,7 +192,7 @@ export function getModel()
 		xhr.onload = function()
 			{
 				loadEnd();
-				var modelOptions = JSON.parse(xhr.responseText);
+				modelOptions = JSON.parse(xhr.responseText);
 
 				var w1OptionsArray = modelOptions['web1'];
 				console.log(modelOptions);
@@ -238,7 +238,7 @@ export function getYear()
 		xhr.onload = function()
 			{
 				loadEnd();
-				var yearOptions = JSON.parse(xhr.responseText);
+				yearOptions = JSON.parse(xhr.responseText);
 				var w1start = yearOptions['web1']['yearStart'];
 				var w1end = yearOptions['web1']['yearEnd'];
 				
@@ -431,6 +431,10 @@ function checkInput(value, array)
 			
 		})
 
+		if (!matchFound)
+			{
+				alert('Please select the value you want');
+			}
 		return matchFound;
 
 	}
@@ -831,84 +835,133 @@ function selectionHandler(element, action)
 
 function handleConfirmation()
 	{
-		
-		if(websiteChoiceCount === 1)
+	
+		if(websiteChoiceCount === 2)
 			{
-				w2Make = 'x';
-				w2Model = 'x';
-				w2YearStart = 'x';
-				w2YearEnd = 'x';
-			}
+				if(!makeConfirmed)
+					{
+						if(checkInput(w1Make.value,makeOptions['web1']) && checkInput(w2Make.value,makeOptions['web2']))
+							{
+								makeConfirmed = true;
+								w1Make.setAttribute('disabled','true');
+								w2Make.setAttribute('disabled','true');
+								confirmButton.innerText = 'Confirm model';
+								getModel();
+								return;
+							}
+						else
+							{
+								return;
+							}
+					};
 
-		if(!makeConfirmed)
-			{
-				if(w1Make.value != '' && w2Make.value != "")
+				if(!modelConfirmed)
 					{
-						makeConfirmed = true;
-						w1Make.setAttribute('disabled','true');
-						try{w2Make.setAttribute('disabled','true');}catch{};
-						confirmButton.innerText = 'Confirm model';
-						getModel();
-						return;
+						if(checkInput(w1Model.value,modelOptions['web1']) && checkInput(w2Model.value,modelOptions['web2']))
+							{
+								modelConfirmed = true;
+								w1Model.setAttribute('disabled','true');
+								w2Model.setAttribute('disabled','true');
+								confirmButton.innerText = 'Confirm yearStart';
+								getYear();
+								return;
+							}
+						else 
+							{
+								return;
+							}
 					}
-				else 
-					{
-						//alert
-						alert('No make selected');
-						return;
-					}
-			}
-		
-		if(!modelConfirmed)
-			{
-				if(w1Model.value != '' && w2Model.value != "")
-					{
-						modelConfirmed = true;
-						w1Model.setAttribute('disabled','true');
-						try{w2Model.setAttribute('disabled','true');}catch{};
-						confirmButton.innerText = 'Confirm yearStart'
-						getYear();
-						return;
-					}
-				else 
-					{
-						//alert
-						alert('No model selected');
-						return;
-					}
-			}
 
-		if(!yearStartConfirmed)
-			{
-				if(w1YearStart.value != '' && w2YearStart.value != "")
+				if(!yearStartConfirmed)
 					{
-						yearStartConfirmed = true;
-						w1YearStart.setAttribute('disabled','true');
-						try{w2YearStart.setAttribute('disabled','true');}catch{};
-						confirmButton.innerText = 'Confirm and get data'
-						return;
+						if(checkInput(w1YearStart.value,yearOptions['web1']['yearStart']) && checkInput(w2YearStart.value,yearOptions['web2']['yearStart']))
+							{
+								yearStartConfirmed = true;
+								w1YearStart.setAttribute('disabled','true');
+								w2YearStart.setAttribute('disabled','true');
+								confirmButton.innerText = 'Confirm and get data';
+								return;
+							}
+						else
+							{
+								return;
+							}
 					}
-				else
+
+				if(!yearEndConfirmed)
 					{
-						//alert
-						alert('No Year Start selected');
-						return;
+						if(checkInput(w1YearEnd.value,yearOptions['web1']['yearEnd']) && checkInput(w2YearEnd.value,yearOptions['web2']['yearEnd']))
+							{
+								yearEndConfirmed = true;
+								w1YearEnd.setAttribute('disabled','true');
+								w2YearEnd.setAttribute('disabled','true');
+							}
+						else
+							{
+								return;
+							}
 					}
 			}
-
-		if(!yearEndConfirmed)
+		else 
 			{
-				if(w1YearEnd.value != '' && w2YearEnd.value != "")
+				if(!makeConfirmed)
 					{
-						yearEndConfirmed = true;
-						w1YearEnd.setAttribute('disabled','true');
-						try{w2YearEnd.setAttribute('disabled','true');}catch{};
+						if(checkInput(w1Make.value,makeOptions['web1']))
+							{
+								makeConfirmed = true;
+								w1Make.setAttribute('disabled','true');
+								confirmButton.innerText = 'Confirm model';
+								getModel();
+								return;
+							}
+						else
+							{
+								return;
+							}
+					};
+
+				if(!modelConfirmed)
+					{
+						if(checkInput(w1Model.value,modelOptions['web1']))
+							{
+								modelConfirmed = true;
+								w1Model.setAttribute('disabled','true');
+								confirmButton.innerText = 'Confirm yearStart';
+								getYear();
+								return;
+							}
+						else 
+							{
+								return;
+							}
 					}
-				else
-					{	
-						//alert
-						alert('No Year End selected');
-						return;
+
+				if(!yearStartConfirmed)
+					{
+						if(checkInput(w1YearStart.value,yearOptions['web1']['yearStart']))
+							{
+								yearStartConfirmed = true;
+								w1YearStart.setAttribute('disabled','true');
+								confirmButton.innerText = 'Confirm and get data';
+								return;
+							}
+						else
+							{
+								return;
+							}
+					}
+
+				if(!yearEndConfirmed)
+					{
+						if(checkInput(w1YearEnd.value,yearOptions['web1']['yearEnd']))
+							{
+								yearEndConfirmed = true;
+								w1YearEnd.setAttribute('disabled','true');
+							}
+						else
+							{
+								return;
+							}
 					}
 			}
 

@@ -15,17 +15,14 @@ window.onload = ()=>
 	selectionHandler(choiceSelect2,'disable');
 	}
 
-var alerted = false;
 var requestSent = false;
-
-// var buttonTest = document.getElementById('testDisplay');
-// buttonTest.addEventListener('click',testDisplay);
 
 
 var website1;
 var website2;
 var websiteChoiceCount = 1;
 var websiteCounter = 1;
+
 var w1Make = getElement('#make1');
 var w1Model = getElement('#model1');
 var w1YearStart = getElement('#yearStart1');
@@ -46,28 +43,30 @@ var w2ModelList;
 var w2YearStartList;
 var w2YearEndList;
 
-var tableSection = document.getElementById('tableSection');
+var tableSection = getElement('#tableSection');
+var loadingTest = getElement('.loadingTest');
+var choiceSection = getElement('.choiceSection'); 
+var inputSection = getElement('.inputSection');
+var choiceSelect1 = getElement('#select1');
+var choiceSelect2 = getElement('#select2');
 
-var loadingTest = document.querySelector('.loadingTest');
-var choiceSection = document.querySelector('.choiceSection'); 
-var inputSection = document.querySelector('.inputSection');
-var choiceSelect1 = document.querySelector('#select1');
-var choiceSelect2 = document.querySelector('#select2');
-var confirmButton = document.querySelector('#confirmButton');
 var sortingSection = getElement('#sortingSection');
+
 var sortYearB;
 var sortKMB;
 var sortCCB;
 var sortPriceB;
-confirmButton.addEventListener('click', handleConfirmation);
+var confirmButton = getElement('#confirmButton');
 
-var choiceSelectSubmit = document.querySelector('#choiceSubmit');
+confirmButton.addEventListener('click', handleConfirmation);
+var choiceSelectSubmit = getElement('#choiceSubmit');
 choiceSelectSubmit.addEventListener('click',handleWebsiteChoice)
 
 var choice1Disabled = false;
 var choice2Disabled = true;
 var choice1Selected = false;
 var choice2Selected = false;
+
 var makeConfirmed = false;
 var modelConfirmed = false;
 var yearStartConfirmed = false;
@@ -105,10 +104,6 @@ export function getMake()
 		console.log('getting make');
 		loadStart();
 
-
-		// *change*
-		// later we will be able to choose which websites we want
-		// for now we have a fixed choice
 		var arrayOfWebsites;
 		if (websiteChoiceCount===2)
 			{
@@ -138,7 +133,7 @@ export function getMake()
 				var w1OptionsArray = makeOptions['web1'];
 
 				w1OptionsArray.forEach(val => {
-					var el = document.createElement("option");
+					var el = createEl("option");
 					el.value = val;
 
 					w1MakeList.append(el);
@@ -148,7 +143,7 @@ export function getMake()
 					{
 						var w2OptionsArray = makeOptions['web2'];
 						w2OptionsArray.forEach(val => {
-							var el = document.createElement("option");
+							var el = createEl("option");
 							el.value = val;
 
 							w2MakeList.append(el);
@@ -198,7 +193,7 @@ export function getModel()
 				console.log(modelOptions);
 				console.log(website1)
 					w1OptionsArray.forEach(val => {
-						var el = document.createElement("option");
+						var el = createEl("option");
 						el.value = val;
 
 						w1ModelList.append(el);
@@ -208,7 +203,7 @@ export function getModel()
 					{
 						var w2OptionsArray = modelOptions['web2'];
 						w2OptionsArray.forEach(val => {
-							var el = document.createElement("option");
+							var el = createEl("option");
 							el.value = val;
 
 							w2ModelList.append(el);
@@ -265,9 +260,11 @@ export function getYear()
 
 export function getFinalOptions()
 	{
-		loadStart();
 		//this function takes the input options and sends them to server
 		// upon returning it takes the data and creates tables
+
+		loadStart();
+		
 		var dataToGet = {};
 		dataToGet['web1'] = {'make':w1Make.value,'model':w1Model.value,'yearStart':w1YearStart.value,'yearEnd':w1YearEnd.value};
 		if (websiteChoiceCount ===2)
@@ -308,11 +305,8 @@ export function getFinalOptions()
 				//save data for testing purposes
 				//storage.setItem('test',JSON.stringify(dataSorted));
 
-				//display data
 				inputSection.remove();
 				
-				//if 2 choices, and both are no data, reload
-				//if 1 choice and no data, reload
 
 				if(websiteChoiceCount === 2)
 					{
@@ -348,70 +342,7 @@ export function getFinalOptions()
 	}
 
 
-function getOptions()
-	{
 
-		if(!requestSent)
-			{
-			if(inputsAreOkay() || alerted)
-				{
-					//everything is okay, send request
-					var xhr = new XMLHttpRequest();
-					xhr.open("POST", "/sentURL", true);
-					xhr.setRequestHeader('Content-Type', 'application/json');
-					// this is where the response returns
-					xhr.onload = function()
-						{
-							var data=xhr.responseText;
-							console.log(data);
-						}
-
-					xhr.send(JSON.stringify({
-					    "hello1": "its 1!!!",
-					    "hello2": "hello2"
-					}));
-
-				}
-			else 
-				{
-					if(requiredInputsOkay)
-						{
-							alert("you are missing some stuff, if you are okay with that submit again");
-							alerted = true; 
-						}
-					else
-						{
-							alert("you are missing important options, please select something");
-							alerted = false;
-						}
-					//alert user and change alerted status
-					
-				}
-
-			}
-	}
-
-
-function checkValue(value)
-	{
-		if(options.includes(value))
-			{
-				return true;
-			}
-		else {return false};
-	}
-
-function transformToArray(obj)
-	{
-		var arr = [];
-
-		for(let i=0;i<obj.length;i++)
-			{
-				arr.push(obj[i].value);
-			}
-
-		return arr;
-	}
 
 function checkInput(value, array)
 	{
@@ -529,14 +460,14 @@ function displayData(arg)
 				// for each object create element and append to tableLeft/right
 				w1Data.forEach(x=>{
 									//creating elements
-						var elementRow = document.createElement('tr');
-						var elementName = document.createElement('td')
-						var elementYear = document.createElement('td');
-						var elementPrice = document.createElement('td');
-						var elementFuel = document.createElement('td');
-						var elementCC = document.createElement('td');
-						var elementKM = document.createElement('td');
-						var linkA = document.createElement('a');
+						var elementRow = createEl('tr');
+						var elementName = createEl('td')
+						var elementYear = createEl('td');
+						var elementPrice = createEl('td');
+						var elementFuel = createEl('td');
+						var elementCC = createEl('td');
+						var elementKM = createEl('td');
+						var linkA = createEl('a');
 
 						linkA.href = x["href"];
 						linkA.innerText = x["Car Name"];
@@ -557,15 +488,14 @@ function displayData(arg)
 				w2Data.forEach(x=>{
 
 					//creating elements
-						var elementRow = document.createElement('tr');
-						var elementName = document.createElement('td');
-						var elementYear = document.createElement('td');
-						var elementPrice = document.createElement('td');
-						var elementFuel = document.createElement('td');
-						var elementCC = document.createElement('td');
-						var elementKM = document.createElement('td');
-						var linkA = document.createElement('a');
-
+						var elementRow = createEl('tr');
+						var elementName = createEl('td');
+						var elementYear = createEl('td');
+						var elementPrice = createEl('td');
+						var elementFuel = createEl('td');
+						var elementCC = createEl('td');
+						var elementKM = createEl('td');
+						var linkA = createEl('a');
 						linkA.href = x["href"];
 						linkA.innerText = x["Car Name"];
 						elementName.append(linkA);
@@ -584,7 +514,7 @@ function displayData(arg)
 			}
 		function createTableBig(data)
 			{
-				var table = document.createElement('table');
+				var table = createEl('table');
 				var tRow = createEl('tr');
 				var tName = createEl('th');
 				var tYear = createEl('th');
@@ -605,14 +535,14 @@ function displayData(arg)
 				data.forEach(x=>{
 
 
-					var elementRow = document.createElement('tr');
-					var elementName = document.createElement('td');
-					var elementYear = document.createElement('td');
-					var elementPrice = document.createElement('td');
-					var elementFuel = document.createElement('td');
-					var elementCC = document.createElement('td');
-					var elementKM = document.createElement('td');
-					var linkA = document.createElement('a');
+					var elementRow = createEl('tr');
+					var elementName = createEl('td');
+					var elementYear = createEl('td');
+					var elementPrice = createEl('td');
+					var elementFuel = createEl('td');
+					var elementCC = createEl('td');
+					var elementKM = createEl('td');
+					var linkA = createEl('a');
 
 					linkA.href = x["href"];
 					linkA.innerText = x["Car Name"];
@@ -680,7 +610,6 @@ function handleWebsiteChoice()
 		
 		if (website1 === "" && website2 === "")
 			{
-				//alert no choices
 				return;
 			}
 
@@ -762,8 +691,8 @@ function createInputField(website)
 	{
 		
 		var websiteName;
-		var div = document.createElement('div');
-		var label = document.createElement('label');
+		var div = createEl('div');
+		var label = createEl('label');
 		var makeEl = createInputBox("make");
 		var modelEl = createInputBox("model");
 		var yearStartEl = createInputBox("yearStart");
@@ -793,9 +722,9 @@ function createInputField(website)
 		function createInputBox(name)
 			{	
 				var elName = `${name}${websiteCounter}`;
-				var element = document.createElement('div');
-				var input = document.createElement('input');
-				var dataList = document.createElement('datalist');
+				var element = createEl('div');
+				var input = createEl('input');
+				var dataList = createEl('datalist');
 
 				input.id = elName;
 				input.setAttribute('list', `${name}Options${websiteCounter}`);
@@ -813,7 +742,7 @@ function createElFromData(appendToMe,data)
 	{
 		//data is an array as well
 		data.forEach(x=>{
-			var el = document.createElement('option');
+			var el = createEl('option');
 			el.value = x;
 
 			appendToMe.append(el);
@@ -843,8 +772,8 @@ function handleConfirmation()
 						if(checkInput(w1Make.value,makeOptions['web1']) && checkInput(w2Make.value,makeOptions['web2']))
 							{
 								makeConfirmed = true;
-								w1Make.setAttribute('disabled','true');
-								w2Make.setAttribute('disabled','true');
+								disableInp(w1Make)
+								disableInp(w2Make)
 								confirmButton.innerText = 'Confirm model';
 								getModel();
 								return;
@@ -860,8 +789,8 @@ function handleConfirmation()
 						if(checkInput(w1Model.value,modelOptions['web1']) && checkInput(w2Model.value,modelOptions['web2']))
 							{
 								modelConfirmed = true;
-								w1Model.setAttribute('disabled','true');
-								w2Model.setAttribute('disabled','true');
+								disableInp(w1Model)
+								disableInp(w2Model)
 								confirmButton.innerText = 'Confirm yearStart';
 								getYear();
 								return;
@@ -877,8 +806,8 @@ function handleConfirmation()
 						if(checkInput(w1YearStart.value,yearOptions['web1']['yearStart']) && checkInput(w2YearStart.value,yearOptions['web2']['yearStart']))
 							{
 								yearStartConfirmed = true;
-								w1YearStart.setAttribute('disabled','true');
-								w2YearStart.setAttribute('disabled','true');
+								disableInp(w1YearStart);
+								disableInp(w2YearStart);
 								confirmButton.innerText = 'Confirm and get data';
 								return;
 							}
@@ -893,8 +822,8 @@ function handleConfirmation()
 						if(checkInput(w1YearEnd.value,yearOptions['web1']['yearEnd']) && checkInput(w2YearEnd.value,yearOptions['web2']['yearEnd']))
 							{
 								yearEndConfirmed = true;
-								w1YearEnd.setAttribute('disabled','true');
-								w2YearEnd.setAttribute('disabled','true');
+								disableInp(w1YearEnd);
+								disableInp(w2YearEnd);
 							}
 						else
 							{
@@ -909,7 +838,7 @@ function handleConfirmation()
 						if(checkInput(w1Make.value,makeOptions['web1']))
 							{
 								makeConfirmed = true;
-								w1Make.setAttribute('disabled','true');
+								disableInp(w1Make);
 								confirmButton.innerText = 'Confirm model';
 								getModel();
 								return;
@@ -925,7 +854,7 @@ function handleConfirmation()
 						if(checkInput(w1Model.value,modelOptions['web1']))
 							{
 								modelConfirmed = true;
-								w1Model.setAttribute('disabled','true');
+								disableInp(w1Model)
 								confirmButton.innerText = 'Confirm yearStart';
 								getYear();
 								return;
@@ -941,7 +870,7 @@ function handleConfirmation()
 						if(checkInput(w1YearStart.value,yearOptions['web1']['yearStart']))
 							{
 								yearStartConfirmed = true;
-								w1YearStart.setAttribute('disabled','true');
+								disableInp(w1YearStart);
 								confirmButton.innerText = 'Confirm and get data';
 								return;
 							}
@@ -956,7 +885,7 @@ function handleConfirmation()
 						if(checkInput(w1YearEnd.value,yearOptions['web1']['yearEnd']))
 							{
 								yearEndConfirmed = true;
-								w1YearEnd.setAttribute('disabled','true');
+								disableInp(w1YearEnd);
 							}
 						else
 							{
@@ -968,6 +897,11 @@ function handleConfirmation()
 		confirmButton.remove();	
 		getFinalOptions();
 
+
+		function disableInp(x)
+			{
+				x.setAttribute('disabled','true');
+			}
 	}
 
 function showSortingButtons()
@@ -1031,22 +965,13 @@ function sortAndDisplay(sortChoice)
 			case 'cc':
 				caseHandler(sortCcAsc,sortCcDesc,sortCCB);
 				break;
-			// default:
-			// 	// statements_def
-			// 	break;
 		}
 
 
 
 
 
-		//when changed, change innerText
-		// to see wheter to ascend or descend, also use the text to decide..
-
-
-		//deleteOldData
-		//displayNewData
-		//how to toggle..
+	
 		function caseHandler(ascFunc,descFunc,button)
 			{
 				var sortedDataNew = {};

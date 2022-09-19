@@ -1,169 +1,148 @@
-body {margin: 0;
-background-color: black;
-font-family: monospace;
-color: white;}
-
-header {
-	height: 5em;
-	background-color: rgba(50, 50, 50, 0.5);
-	align-items: center;
-	justify-content: center;	
-	display: flex;
+body {
+     margin: 0;
+     background-color: black;
+     font-family: monospace;
+     color: white;
 }
-
-h1 {
-	margin: 0;
-	color: white;
+ header {
+     height: 5em;
+     background-color: rgba(50, 50, 50, 0.5);
+     align-items: center;
+     justify-content: center;
+     display: flex;
 }
-
-.section {
-	background-color: rgba(255, 255, 255, 0.5);
-	padding: 20px 0px 20px 0px;
-
-	}
-
-a{
-	text-decoration: none;
-	color: rgb(150,150,255);
+ h1 {
+     margin: 0;
+     color: white;
 }
-
-#confirmButton{display: none;}
-
-p {
-	margin-left: 20%;
-	margin-right: 20%;
-	font-size: 1rem;
-	text-align: center;
-	border-bottom: black solid 5px;
-	border-radius: 50%;
-	margin: 0px;
-	margin-bottom: 10px;
-	color: grey;
+ a {
+     text-decoration: none;
+     color: rgb(150,150,255);
 }
-
-main
-	{
-		text-align: center;
-		margin-top: 50px;
-	}
-
-#canvas{background-color: black;}
-
-#buttons{
-	text-align: center;
+ p {
+     margin-left: 20%;
+     margin-right: 20%;
+     font-size: 1rem;
+     text-align: center;
+     border-bottom: black solid 5px;
+     border-radius: 50%;
+     margin: 0px;
+     margin-bottom: 10px;
+     color: grey;
 }
-
-
-#highScore
-{
-	
-	background-color: black;
-	border-style: none;
-	color: rgb(0, 255, 0);		
+ main {
+     text-align: center;
+     margin-top: 50px;
 }
-
-label{
-	color: white;
+ label {
+     color: white;
 }
-
-.tableLeft{
-	grid-area: left;
+ select {
+    text-align: center;
+    margin: 5px;
 }
-
-.tableRight{
-	grid-area: right;
-	}
-
-#tableSection{
-	width: 100%;
-	display: grid;
- 	 grid:
-    "left center right" 1fr / 40% 20% 40%;
- 	align-items: start;
-
-	
+ .section {
+     background-color: rgba(255, 255, 255, 0.5);
+     padding: 20px 0px 20px 0px;
 }
-
-table{
-	border-collapse: collapse;
-} 
+ #confirmButton{
+    display: none;
+}
+ #canvas{
+    background-color: black;
+}
+ #buttons{
+    text-align: center;
+}
+ #highScore {
+     background-color: black;
+     border-style: none;
+     color: rgb(0, 255, 0);
+}
+ .tableLeft{
+     grid-area: left;
+}
+ .tableRight{
+    grid-area: right;
+}
+ #tableSection {
+     width: 100%;
+     display: grid;
+     grid: "left center right" 1fr / 40% 20% 40%;
+     align-items: start;
+}
+ table{
+     border-collapse: collapse;
+}
 /*this is where you left off*/
-
-table tr{
-	transition-duration: 2.5s;
+ table tr{
+     transition-duration: 2.5s;
 }
-
-table tr td:nth-child(2) ,table tr td:nth-child(3) ,table tr td:nth-child(4) ,table tr td:nth-child(5) ,table tr td:nth-child(6) { 
-   text-align: center;
+ table tr td:nth-child(2) ,table tr td:nth-child(3) ,table tr td:nth-child(4) ,table tr td:nth-child(5) ,table tr td:nth-child(6) {
+     text-align: center;
 }
-table tr td:nth-child(5){
-	width: 10%;
+ table tr td:nth-child(5){
+     width: 10%;
 }
-
-table tr td:nth-child(3){
-	/*border-bottom: white 1px solid;
-	border-radius: 10px;*/
+ table tr td:nth-child(3){
+    /*border-bottom: white 1px solid;
+     border-radius: 10px;
+    */
 }
-
-table td{
-
-	border: 1px solid rgba(255,255,255,0.1);
-	transition-duration: 0.5s;
-	padding-top: 3px;
-	padding-bottom: 3px;
-
-
+ table td{
+     border: 1px solid rgba(255,255,255,0.1);
+     transition-duration: 0.5s;
+     padding-top: 3px;
+     padding-bottom: 3px;
 }
-
-table tr:hover {
-	transition-duration: 0.5s;
-	background-color: rgba(255, 255, 255, 0.4)
+ table tr:hover {
+     transition-duration: 0.5s;
+     background-color: rgba(255, 255, 255, 0.4) 
 }
-
-.loadingTest{
-	margin: 10px;
-	display: flex;
-	align-items: center;
-
+ .loadingTest{
+     margin: 10px;
+     display: flex;
+     align-items: center;
 }
-
-.hidden{
-	display: none;
+ .hidden{
+     display: none;
 }
-
-
-.loader {
-  text-align: center;
-  border: 5px solid transparent;
-  border-radius: 50%;
-  border-top: 5px solid red;
-  width:30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
+ .loader {
+     text-align: center;
+     border: 5px solid transparent;
+     border-radius: 50%;
+     border-top: 5px solid red;
+     width:30px;
+     height: 30px;
+     animation: spin 1s linear infinite;
 }
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+ @keyframes spin {
+     0% {
+         transform: rotate(0deg);
+    }
+     100% {
+         transform: rotate(360deg);
+    }
 }
-
-.container{
-	margin: 10px;
-	display: flex;
-	justify-content: center;
-	height: 60px;
-
+ .container{
+     margin: 10px;
+     display: flex;
+     justify-content: center;
+     height: 60px;
 }
-
-.choiceSection{
-	margin: 20px;
-	display: inline-grid;
-
+ .choiceSection{
+     margin: 20px;
+     display: inline-grid;
 }
-
-select {text-align: center;margin: 5px;}
-#choiceSubmit{margin-top: 20px;width: 40%;}
-
-#buttonDiv{display: flex; justify-content: center;}
-
-#sortingSection {margin: auto;width: 50%;}
+ #choiceSubmit{
+    margin-top: 20px;
+    width: 40%;
+}
+ #buttonDiv{
+    display: flex;
+     justify-content: center;
+}
+ #sortingSection {
+    margin: auto;
+    width: 50%;
+}

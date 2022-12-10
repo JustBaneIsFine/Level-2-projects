@@ -1,3 +1,4 @@
+//test
 const getIt = (x) => {return document.getElementById(x)};
 // getting all elements
 	const box = getIt("calculatorBox");
